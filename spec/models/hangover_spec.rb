@@ -1,6 +1,15 @@
 require 'spec_helper'
 
 describe Hangover do
+
+  def vote(hangover, number_of_votes = 1)
+    number_of_votes.times do
+      Factory.create(
+        :hangover_vote, :voteable => hangover
+      )
+    end
+  end
+
   let(:hangover) { Factory(:hangover) }
 
   describe "Validations" do
@@ -45,13 +54,7 @@ describe Hangover do
       end
 
       context "and a hangover was created in this time period with 2 votes" do
-        before do
-          2.times do
-            Factory.create(
-              :hangover_vote, :voteable => past_hangover
-            )
-          end
-        end
+        before { vote(past_hangover, 2) }
 
         it "should return this time period's hangover" do
           Hangover.send("of_the_#{time_period}").should == hangover
@@ -87,6 +90,18 @@ describe Hangover do
   describe ".of_the_year" do
     it_should_behave_like ".of_the_time_period" do
       let(:time_period) { :year }
+    end
+  end
+
+  describe ".all_time_greatest" do
+    let(:best_hangover) { Factory.create(:hangover) }
+    before do
+      hangover
+      vote(best_hangover, 2)
+    end
+
+    it "should return the best hangover" do
+      Hangover.all_time_greatest.should == best_hangover
     end
   end
 end
