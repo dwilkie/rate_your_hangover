@@ -12,7 +12,6 @@ Spork.prefork do
 end
 
 Spork.each_run do
-  require 'factory_girl_rails'
   Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
 
   RSpec.configure do |config|
