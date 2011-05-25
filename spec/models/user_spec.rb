@@ -37,7 +37,16 @@ describe User do
         end
       end
     end
+  end
 
+  describe "Associations" do
+    it "should have many votes" do
+      subject.should respond_to(:votes)
+    end
+
+    it "should have many hangovers" do
+      subject.should respond_to(:hangovers)
+    end
   end
 end
 
