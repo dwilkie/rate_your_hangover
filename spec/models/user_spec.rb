@@ -8,6 +8,19 @@ describe User do
       user.should be_valid
     end
 
+    context "an existing user without an email address" do
+      before { user.update_attributes!(:email => nil) }
+
+      context "a new user without an email address" do
+        let(:second_user) { Factory(:user, :email => nil) }
+
+        # Tests database uniqueness constraint
+        it "should save" do
+          second_user.save.should be_true
+        end
+      end
+    end
+
     context "a user with an email address" do
       before { user.email = "dave@example.com" }
 
