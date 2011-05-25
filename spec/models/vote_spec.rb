@@ -12,15 +12,15 @@ describe Vote do
     end
 
     context "without a user" do
+      before { vote.user = nil }
       it "should not be valid" do
-        vote.user = nil
         vote.should_not be_valid
       end
     end
 
     context "without a voteable" do
+      before { vote.voteable = nil }
       it "should not be valid" do
-        vote.voteable = nil
         vote.should_not be_valid
       end
     end
