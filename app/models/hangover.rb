@@ -7,11 +7,7 @@ class Hangover < ActiveRecord::Base
 
   validates :user, :title, :presence => true
 
-  SUMMARY_CATEGORIES = [
-    [:last , "Latest Hangover"],
-    [:of_all_time, "Best Hangover of All Time"]
-  ]
-
+  EXTRA_SUMMARY_CATEGORIES = ["Latest Hangover", "Best Hangover"]
   TIME_PERIODS = [:day, :week, :month, :year]
 
   def self.of_all_time
@@ -33,16 +29,16 @@ class Hangover < ActiveRecord::Base
   def self.summary
     @@hangovers = []
 
-    SUMMARY_CATEGORIES.each do |summary_category|
-      build_summary(summary_category.first, summary_category.last)
-    end
+    build_summary(:last, EXTRA_SUMMARY_CATEGORIES.first)
 
     TIME_PERIODS.each do |time_period|
       build_summary(
         "of_the_#{time_period}",
-        "Hangover of the #{time_period.to_s.titleize}"
+        time_period
       )
     end
+
+    build_summary(:of_all_time, EXTRA_SUMMARY_CATEGORIES.last)
 
     @@hangovers
   end
@@ -51,8 +47,9 @@ class Hangover < ActiveRecord::Base
     summary
   end
 
-  def build_caption(pre_text)
-    @caption = "#{pre_text} - \"#{title}\""
+  def build_caption(pretext)
+      pretext = "Hangover of the #{pretext.to_s.titleize}" if TIME_PERIODS.include?(pretext)
+    @caption = "#{pretext} - \"#{title}\""
   end
 
   private
@@ -64,5 +61,6 @@ class Hangover < ActiveRecord::Base
       @@hangovers << hangover
     end
   end
+
 end
 

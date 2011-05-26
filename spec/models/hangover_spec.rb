@@ -1,12 +1,17 @@
 require 'spec_helper'
 
-describe Hangover do
+def summary_categories
+  hangover = Hangover.new
+  categories = []
+  categories << Hangover::EXTRA_SUMMARY_CATEGORIES.first
+  Hangover::TIME_PERIODS.each do |time_period|
+    categories << hangover.build_caption(time_period).gsub(/""/, "")
+  end
+  categories << Hangover::EXTRA_SUMMARY_CATEGORIES.last
+  categories
+end
 
-  SUMMARY_CATEGORIES = [
-    "Latest Hangover", "Best Hangover",
-    "Hangover of the Day", "Hangover of the Week",
-    "Hangover of the Month", "Hangover of the Year"
-  ]
+describe Hangover do
 
   def vote(hangover, number_of_votes = 1)
     number_of_votes.times do
@@ -177,7 +182,7 @@ describe Hangover do
         end
       end
 
-      SUMMARY_CATEGORIES.each_with_index do |summary_category, index|
+      summary_categories.each_with_index do |summary_category, index|
         it_should_behave_like "a summary hangover" do
           let(:summary_index) { index }
           let(:caption) { summary_category }
@@ -188,9 +193,19 @@ describe Hangover do
 
   describe "#build_caption" do
     before { subject.title = "Alan" }
-    it "should build the caption from the argument and title" do
-      subject.build_caption("Biggest Hangover")
-      subject.caption.should == 'Biggest Hangover - "Alan"'
+
+    context "argument is not a time period" do
+      it "should build the caption from the argument and title" do
+        subject.build_caption("Biggest Hangover")
+        subject.caption.should == 'Biggest Hangover - "Alan"'
+      end
+    end
+
+    context "argument is a time period" do
+      it "should build the caption from the argument and title" do
+        subject.build_caption(:day)
+        subject.caption.should == 'Hangover of the Day - "Alan"'
+      end
     end
   end
 end
