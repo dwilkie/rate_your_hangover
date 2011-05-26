@@ -18,9 +18,10 @@ gem 'carrierwave'
 gem 'fog'
 gem 'haml-rails'
 gem 'simple_form'
+gem 'devise'
 
 group :development do
-  gem "nifty-generators"
+  gem 'nifty-generators'
 end
 
 # Use unicorn as the web server
@@ -32,8 +33,19 @@ end
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'
 
+group :test, :development do
+  gem 'rspec-rails',        :git => 'git://github.com/rspec/rspec-rails.git'
+  gem 'rspec',              :git => 'git://github.com/rspec/rspec.git'
+  gem 'rspec-core',         :git => 'git://github.com/rspec/rspec-core.git'
+  gem 'rspec-expectations', :git => 'git://github.com/rspec/rspec-expectations.git'
+  gem 'rspec-mocks',        :git => 'git://github.com/rspec/rspec-mocks.git'
+end
+
 group :test do
   # Pretty printed test output
   gem 'turn', :require => false
+  gem 'factory_girl_rails'
+  gem 'spork', :git => 'git://github.com/timcharper/spork.git'
+  gem 'capybara', :git => 'git://github.com/jnicklas/capybara.git'
 end
 
