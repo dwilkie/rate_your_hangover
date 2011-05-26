@@ -2,6 +2,7 @@ Factory.define :user do |f|
 end
 
 Factory.define :hangover do |f|
+  f.title "Alan"
   f.association :user
 end
 

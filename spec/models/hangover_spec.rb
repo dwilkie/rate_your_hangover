@@ -17,8 +17,18 @@ describe Hangover do
       hangover.should be_valid
     end
 
+    context "without a title" do
+      before { hangover.title = nil }
+
+      it "should not be valid" do
+        hangover.should_not be_valid
+      end
+    end
+
+
     context "without a user" do
       before { hangover.user = nil }
+
       it "should not be valid" do
         hangover.should_not be_valid
       end

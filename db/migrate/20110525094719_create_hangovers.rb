@@ -1,6 +1,7 @@
 class CreateHangovers < ActiveRecord::Migration
   def self.up
     create_table :hangovers do |t|
+      t.string :title
       t.references :user
       t.timestamps
     end
