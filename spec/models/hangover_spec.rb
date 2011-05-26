@@ -25,7 +25,6 @@ describe Hangover do
       end
     end
 
-
     context "without a user" do
       before { hangover.user = nil }
 
@@ -112,6 +111,13 @@ describe Hangover do
 
     it "should return the best hangover" do
       Hangover.all_time_greatest.should == best_hangover
+    end
+  end
+
+  describe "#caption" do
+    it "should set and get the caption" do
+      subject.caption = "some caption"
+      subject.caption.should == "some caption"
     end
   end
 end
