@@ -1,6 +1,6 @@
 class HangoversController < ApplicationController
   def index
-    @hangovers = Hangover.summary
+    @hangovers = Hangover.inventory(params[:type])
   end
 
   def show

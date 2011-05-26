@@ -1,4 +1,12 @@
 GIT
+  remote: git://github.com/ernie/squeel.git
+  revision: 5b8275fe54a5dbe8d5791e6ed310f5a46a482837
+  specs:
+    squeel (0.7.4)
+      activerecord (~> 3.0)
+      activesupport (~> 3.0)
+
+GIT
   remote: git://github.com/jnicklas/capybara.git
   revision: cfb6ba9a2bcdf888fec78472bcc09205b46aa9e2
   specs:
@@ -223,5 +231,6 @@ DEPENDENCIES
   simple_form
   spork!
   sqlite3
+  squeel!
   turn
   uglifier

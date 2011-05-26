@@ -15,6 +15,7 @@ ActiveRecord::Schema.define(:version => 20110525095827) do
   create_table "hangovers", :force => true do |t|
     t.string   "title"
     t.integer  "user_id"
+    t.integer  "votes_count", :default => 0, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
