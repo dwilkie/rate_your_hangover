@@ -1,0 +1,46 @@
+<mockup version="1.0" skin="sketch" measuredW="698" measuredH="413" mockupW="450" mockupH="400">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="248" y="13" w="-1" h="-1" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Rate%20Your%20Hangover%0Ahttp%3A//rateyourhangover.com</text>
+      </controlProperties>
+    </control>
+    <control controlID="1" controlTypeID="com.balsamiq.mockups::Image" x="344" y="146" w="258" h="176" measuredW="2048" measuredH="1536" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <src>../../../../pictures/photos/dcim_1/104media/img_2427.jpg</src>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="2" controlTypeID="com.balsamiq.mockups::MediaControls" x="418" y="322" w="-1" h="-1" measuredW="110" measuredH="36" zOrder="2" locked="false" isInGroup="-1"/>
+    <control controlID="3" controlTypeID="com.balsamiq.mockups::Link" x="418" y="358" w="-1" h="-1" measuredW="109" measuredH="25" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Got%20a%20Hangover%3F</text>
+      </controlProperties>
+    </control>
+    <control controlID="6" controlTypeID="com.balsamiq.mockups::Link" x="543" y="300" w="-1" h="-1" measuredW="43" measuredH="18" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>8</size>
+        <text>I%20Rate%20it%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="7" controlTypeID="com.balsamiq.mockups::Label" x="368" y="300" w="160" h="18" measuredW="160" measuredH="18" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>16777215</color>
+        <size>8</size>
+        <text>Latest%20Hangover%20-%20%22Songkran%22%2C%200%20Votes</text>
+      </controlProperties>
+    </control>
+    <control controlID="13" controlTypeID="com.balsamiq.mockups::LinkBar" x="507" y="87" w="-1" h="-1" measuredW="184" measuredH="18" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>8</size>
+        <text>Home%2C%20Gallery%2C%20Sign%20up%2C%20Sign%20in</text>
+      </controlProperties>
+    </control>
+    <control controlID="16" controlTypeID="com.balsamiq.mockups::Title" x="256" y="87" w="442" h="-1" measuredW="430" measuredH="62" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>40</size>
+        <text>rateyourhangover.com</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
