@@ -14,7 +14,9 @@ describe Hangover do
     Factory.create(:hangover, :created_at => time_quantity.send(time_period).ago)
   end
 
-  let(:hangover) { Factory(:hangover) }
+  let(:hangover) {
+    Factory(:hangover)
+  }
 
   describe "Validations" do
     it "Factory should be valid" do
@@ -165,16 +167,16 @@ describe Hangover do
 
           context "caption" do
             it "should include the caption" do
-              Hangover.summary[summary_index].caption.should include(caption)
+              Hangover.summary[summary_index].caption.should == caption
             end
           end
         end
       end
 
-      summary_categories.each_with_index do |summary_category, index|
+      caption_titles.each_with_index do |caption_title, index|
         it_should_behave_like "a summary hangover" do
           let(:summary_index) { index }
-          let(:caption) { summary_category }
+          let(:caption) { caption_title }
         end
       end
     end

@@ -3,34 +3,24 @@ require 'spec_helper'
 describe "Hangovers" do
   describe "GET /" do
 
-    let(:hangover) {
-      Factory.create(:hangover, :title => "Wasted")
-    }
+    let(:hangover) { Factory(:hangover) }
 
     context "a hangover exists" do
-      before { hangover }
+      before do
+        hangover
+        visit root_path
+      end
 
-      shared_examples_for "showing the category" do
-        it "should be shown as the caption" do
-          visit root_path
-          page.should have_content 'Latest Hangover - "Wasted"'
+      shared_examples_for "caption title" do
+        it "should be shown in the caption" do
+          page.should have_content caption_title
         end
       end
 
-      it_should_behave_like("showing the category") do
-
-      end
-
-
-
-      it "should be shown as the latest" do
-        visit root_path
-        page.should have_content 'Latest Hangover - "Wasted"'
-      end
-
-      it "should be shown as the hangover of the day" do
-        visit root_path
-        page.should have_content 'Hangover of the Day - "Wasted"'
+      caption_titles.each do |caption_title|
+        it_should_behave_like "caption title" do
+          let(:caption_title) { caption_title }
+        end
       end
     end
   end
