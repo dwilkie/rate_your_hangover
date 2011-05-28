@@ -1,0 +1,82 @@
+<mockup version="1.0" skin="sketch" measuredW="704" measuredH="416" mockupW="452" mockupH="400">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="254" y="16" w="-1" h="-1" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Rate%20Your%20Hangover%20-%20%22Koh%20Samui%22%0Ahttp%3A//rateyourhangover.com/hangovers/13443</text>
+      </controlProperties>
+    </control>
+    <control controlID="3" controlTypeID="com.balsamiq.mockups::Link" x="421" y="357" w="-1" h="-1" measuredW="109" measuredH="25" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Got%20a%20Hangover%3F</text>
+      </controlProperties>
+    </control>
+    <control controlID="13" controlTypeID="com.balsamiq.mockups::Title" x="252" y="108" w="267" h="-1" measuredW="239" measuredH="62" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>40</size>
+        <text>%22Koh%20Samui%22</text>
+      </controlProperties>
+    </control>
+    <control controlID="14" controlTypeID="com.balsamiq.mockups::Image" x="271" y="170" w="117" h="85" measuredW="3264" measuredH="2448" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <src>../../../../pictures/photos/dcim_2/100_fuji/dscf0471.jpg</src>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="16" controlTypeID="com.balsamiq.mockups::LinkBar" x="379" y="88" w="-1" h="-1" measuredW="313" measuredH="18" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>8</size>
+        <text>Home%2C%20Gallery%2C%20My%20Hangovers%2C%20Feature%20Requests%2C%20Sign%20out</text>
+      </controlProperties>
+    </control>
+    <control controlID="19" controlTypeID="com.balsamiq.mockups::Label" x="271" y="270" w="53" h="25" measuredW="53" measuredH="25" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>0%20Votes</text>
+      </controlProperties>
+    </control>
+    <control controlID="20" controlTypeID="com.balsamiq.mockups::Link" x="329" y="270" w="-1" h="-1" measuredW="63" measuredH="25" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>I%20rate%20it%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="35" controlTypeID="com.balsamiq.mockups::Icon" x="403" y="271" w="-1" h="-1" measuredW="24" measuredH="24" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <icon>TrashIcon%7Csmall</icon>
+      </controlProperties>
+    </control>
+    <control controlID="36" controlTypeID="com.balsamiq.mockups::SubTitle" x="466" y="170" w="-1" h="-1" measuredW="116" measuredH="40" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Comments</text>
+      </controlProperties>
+    </control>
+    <control controlID="37" controlTypeID="com.balsamiq.mockups::Paragraph" x="525" y="211" w="120" h="34" measuredW="200" measuredH="140" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Awesome%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="38" controlTypeID="com.balsamiq.mockups::Label" x="469" y="212" w="-1" h="-1" measuredW="56" measuredH="25" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Pit%20Bull%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="39" controlTypeID="com.balsamiq.mockups::Paragraph" x="521" y="235" w="120" h="34" measuredW="200" measuredH="140" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Magggott</text>
+      </controlProperties>
+    </control>
+    <control controlID="40" controlTypeID="com.balsamiq.mockups::Label" x="468" y="235" w="-1" h="-1" measuredW="47" measuredH="25" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Goose%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="41" controlTypeID="com.balsamiq.mockups::Paragraph" x="519" y="260" w="120" h="34" measuredW="200" measuredH="140" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Looooose</text>
+      </controlProperties>
+    </control>
+    <control controlID="42" controlTypeID="com.balsamiq.mockups::Label" x="466" y="260" w="-1" h="-1" measuredW="42" measuredH="25" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Andy%3A</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>

@@ -22,10 +22,10 @@
         <text/>
       </controlProperties>
     </control>
-    <control controlID="16" controlTypeID="com.balsamiq.mockups::LinkBar" x="473" y="88" w="-1" h="-1" measuredW="217" measuredH="18" zOrder="4" locked="false" isInGroup="-1">
+    <control controlID="16" controlTypeID="com.balsamiq.mockups::LinkBar" x="379" y="88" w="-1" h="-1" measuredW="313" measuredH="18" zOrder="4" locked="false" isInGroup="-1">
       <controlProperties>
         <size>8</size>
-        <text>Home%2C%20Gallery%2C%20My%20Hangovers%2C%20Sign%20out</text>
+        <text>Home%2C%20Gallery%2C%20My%20Hangovers%2C%20Feature%20Requests%2C%20Sign%20out</text>
       </controlProperties>
     </control>
     <control controlID="17" controlTypeID="com.balsamiq.mockups::SubTitle" x="366" y="157" w="-1" h="-1" measuredW="143" measuredH="40" zOrder="5" locked="false" isInGroup="-1">

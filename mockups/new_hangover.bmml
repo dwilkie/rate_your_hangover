@@ -11,10 +11,10 @@
         <text>New%20Hangover</text>
       </controlProperties>
     </control>
-    <control controlID="16" controlTypeID="com.balsamiq.mockups::LinkBar" x="477" y="91" w="-1" h="-1" measuredW="217" measuredH="18" zOrder="2" locked="false" isInGroup="-1">
+    <control controlID="16" controlTypeID="com.balsamiq.mockups::LinkBar" x="378" y="92" w="-1" h="-1" measuredW="313" measuredH="18" zOrder="2" locked="false" isInGroup="-1">
       <controlProperties>
         <size>8</size>
-        <text>Home%2C%20Gallery%2C%20My%20Hangovers%2C%20Sign%20out</text>
+        <text>Home%2C%20Gallery%2C%20My%20Hangovers%2C%20Feature%20Requests%2C%20Sign%20out</text>
       </controlProperties>
     </control>
     <control controlID="32" controlTypeID="com.balsamiq.mockups::TextInput" x="263" y="171" w="378" h="-1" measuredW="88" measuredH="55" zOrder="3" locked="false" isInGroup="-1">

@@ -1,0 +1,32 @@
+<mockup version="1.0" skin="sketch" measuredW="698" measuredH="413" mockupW="450" mockupH="400">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="248" y="13" w="-1" h="-1" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Rate%20Your%20Hangover%20-%20New%20Feature%20Request%0Ahttp%3A//rateyourhangover.com/feature_requests/new</text>
+      </controlProperties>
+    </control>
+    <control controlID="13" controlTypeID="com.balsamiq.mockups::Title" x="252" y="92" w="437" h="-1" measuredW="422" measuredH="62" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>40</size>
+        <text>New%20Feature%20Request</text>
+      </controlProperties>
+    </control>
+    <control controlID="16" controlTypeID="com.balsamiq.mockups::LinkBar" x="382" y="86" w="-1" h="-1" measuredW="313" measuredH="18" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>8</size>
+        <text>Home%2C%20Gallery%2C%20My%20Hangovers%2C%20Feature%20Requests%2C%20Sign%20out</text>
+      </controlProperties>
+    </control>
+    <control controlID="35" controlTypeID="com.balsamiq.mockups::Button" x="273" y="285" w="-1" h="-1" measuredW="394" measuredH="53" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>32</size>
+        <text>Create%20Feature%20Request</text>
+      </controlProperties>
+    </control>
+    <control controlID="38" controlTypeID="com.balsamiq.mockups::TextArea" x="273" y="166" w="391" h="93" measuredW="200" measuredH="140" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Describe%20your%20request%20in%20160%20characters%20or%20less</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>

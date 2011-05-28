@@ -1,0 +1,79 @@
+<mockup version="1.0" skin="sketch" measuredW="698" measuredH="413" mockupW="455" mockupH="400">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="248" y="13" w="-1" h="-1" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Rate%20Your%20Hangover%20-%20Feature%20Requests%0Ahttp%3A//rateyourhangover.com/feature_requests/</text>
+      </controlProperties>
+    </control>
+    <control controlID="3" controlTypeID="com.balsamiq.mockups::Link" x="421" y="357" w="-1" h="-1" measuredW="103" measuredH="25" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Got%20a%20Request%3F</text>
+      </controlProperties>
+    </control>
+    <control controlID="13" controlTypeID="com.balsamiq.mockups::Title" x="243" y="96" w="363" h="-1" measuredW="342" measuredH="62" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>40</size>
+        <text>Feature%20Requests</text>
+      </controlProperties>
+    </control>
+    <control controlID="18" controlTypeID="com.balsamiq.mockups::SearchBox" x="601" y="121" w="89" h="-1" measuredW="65" measuredH="25" zOrder="3" locked="false" isInGroup="-1"/>
+    <control controlID="19" controlTypeID="com.balsamiq.mockups::Label" x="517" y="164" w="-1" h="-1" measuredW="61" measuredH="25" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>44%20Votes</text>
+      </controlProperties>
+    </control>
+    <control controlID="20" controlTypeID="com.balsamiq.mockups::Link" x="607" y="164" w="-1" h="-1" measuredW="66" measuredH="25" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>I%20want%20it%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="23" controlTypeID="com.balsamiq.mockups::Label" x="517" y="228" w="77" h="25" measuredW="60" measuredH="25" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>35%20Votes</text>
+      </controlProperties>
+    </control>
+    <control controlID="30" controlTypeID="com.balsamiq.mockups::Label" x="517" y="296" w="77" h="25" measuredW="47" measuredH="25" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>1%20Vote</text>
+      </controlProperties>
+    </control>
+    <control controlID="34" controlTypeID="com.balsamiq.mockups::Paragraph" x="565" y="335" w="119" h="14" measuredW="200" measuredH="140" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>2848996</color>
+        <size>8</size>
+        <text>Prev%201%202%203%20...%208%209%2010%20Next</text>
+      </controlProperties>
+    </control>
+    <control controlID="39" controlTypeID="com.balsamiq.mockups::LinkBar" x="409" y="88" w="-1" h="-1" measuredW="276" measuredH="18" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>8</size>
+        <text>Home%2C%20Gallery%2C%20Feature%20Requests%2C%20Signup%2C%20Sign%20in</text>
+      </controlProperties>
+    </control>
+    <control controlID="40" controlTypeID="com.balsamiq.mockups::Paragraph" x="274" y="163" w="162" h="27" measuredW="200" measuredH="140" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Facebook%20Share%20Button</text>
+      </controlProperties>
+    </control>
+    <control controlID="41" controlTypeID="com.balsamiq.mockups::Paragraph" x="274" y="227" w="162" h="27" measuredW="200" measuredH="140" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Tweet%20Button</text>
+      </controlProperties>
+    </control>
+    <control controlID="42" controlTypeID="com.balsamiq.mockups::Link" x="606" y="227" w="-1" h="-1" measuredW="66" measuredH="25" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>I%20want%20it%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="43" controlTypeID="com.balsamiq.mockups::Paragraph" x="274" y="294" w="162" h="27" measuredW="200" measuredH="140" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Digg%20It%21%20Button</text>
+      </controlProperties>
+    </control>
+    <control controlID="44" controlTypeID="com.balsamiq.mockups::Link" x="606" y="294" w="-1" h="-1" measuredW="66" measuredH="25" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>I%20want%20it%21</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>

@@ -11,28 +11,38 @@
         <text>Sign%20in</text>
       </controlProperties>
     </control>
-    <control controlID="16" controlTypeID="com.balsamiq.mockups::LinkBar" x="608" y="93" w="-1" h="-1" measuredW="80" measuredH="18" zOrder="2" locked="false" isInGroup="-1">
-      <controlProperties>
-        <size>8</size>
-        <text>Home%2C%20Gallery</text>
-      </controlProperties>
-    </control>
-    <control controlID="32" controlTypeID="com.balsamiq.mockups::TextInput" x="263" y="178" w="391" h="-1" measuredW="96" measuredH="55" zOrder="3" locked="false" isInGroup="-1">
+    <control controlID="32" controlTypeID="com.balsamiq.mockups::TextInput" x="263" y="178" w="391" h="-1" measuredW="96" measuredH="55" zOrder="2" locked="false" isInGroup="-1">
       <controlProperties>
         <size>32</size>
         <text>Email</text>
       </controlProperties>
     </control>
-    <control controlID="33" controlTypeID="com.balsamiq.mockups::TextInput" x="263" y="257" w="391" h="-1" measuredW="154" measuredH="55" zOrder="4" locked="false" isInGroup="-1">
+    <control controlID="33" controlTypeID="com.balsamiq.mockups::TextInput" x="263" y="257" w="391" h="-1" measuredW="154" measuredH="55" zOrder="3" locked="false" isInGroup="-1">
       <controlProperties>
         <size>32</size>
         <text>Password</text>
       </controlProperties>
     </control>
-    <control controlID="35" controlTypeID="com.balsamiq.mockups::Button" x="531" y="340" w="-1" h="-1" measuredW="130" measuredH="53" zOrder="5" locked="false" isInGroup="-1">
+    <control controlID="35" controlTypeID="com.balsamiq.mockups::Button" x="531" y="340" w="-1" h="-1" measuredW="130" measuredH="53" zOrder="4" locked="false" isInGroup="-1">
       <controlProperties>
         <size>32</size>
         <text>Sign%20in</text>
+      </controlProperties>
+    </control>
+    <control controlID="36" controlTypeID="com.balsamiq.mockups::Link" x="393" y="328" w="-1" h="-1" measuredW="50" measuredH="25" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Sign%20up</text>
+      </controlProperties>
+    </control>
+    <control controlID="37" controlTypeID="com.balsamiq.mockups::Label" x="263" y="327" w="-1" h="-1" measuredW="126" measuredH="25" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Not%20yet%20a%20member%3F</text>
+      </controlProperties>
+    </control>
+    <control controlID="38" controlTypeID="com.balsamiq.mockups::LinkBar" x="411" y="87" w="-1" h="-1" measuredW="280" measuredH="18" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>8</size>
+        <text>Home%2C%20Gallery%2C%20Feature%20Requests%2C%20Sign%20up%2C%20Sign%20in</text>
       </controlProperties>
     </control>
   </controls>
