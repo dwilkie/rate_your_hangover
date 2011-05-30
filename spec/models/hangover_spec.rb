@@ -104,6 +104,35 @@ describe Hangover do
     end
   end
 
+  describe ".latest" do
+    let(:latest_hangover) { Factory.create(:hangover) }
+    before do
+      hangover
+      latest_hangover
+    end
+
+    it "should return the latest hangover" do
+      Hangover.latest.should == latest_hangover
+    end
+  end
+
+  describe ".best" do
+    let(:best_hangover) {
+      best_hangover = Factory.create(:hangover)
+      Factory.create(:hangover_vote, :voteable => best_hangover)
+      best_hangover
+    }
+
+    before do
+      hangover
+      best_hangover
+    end
+
+    it "should return the best hangover" do
+      Hangover.best.should == best_hangover
+    end
+  end
+
   describe ".inventory" do
     context "passing no args" do
       it "should call .summary" do
