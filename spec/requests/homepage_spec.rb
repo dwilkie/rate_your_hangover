@@ -4,10 +4,12 @@ def test_hangover_summary_categories(options = {})
   options[:title] ||= Factory.build(:hangover).title
   summary_categories.each do |summary_category|
     title = options[summary_category] || options[:title]
-    it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s caption as: \"#{title}\"" do
-      page.should have_content I18n.t(
-        "hangover.#{summary_category}", :title => title
-      )
+    context ".caption" do
+      it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s title as: \"#{title}\"" do
+        page.should have_selector ".caption p", :text => I18n.t(
+          "hangover.#{summary_category}", :title => title
+        )
+      end
     end
   end
 end

@@ -16,12 +16,14 @@ describe "hangovers/index.html.haml" do
     render
   end
 
-  it "should display the hangover's caption" do
-    rendered.should include(SAMPLE_CAPTION)
+  context "within .caption" do
+    it "should display the caption" do
+      rendered.should have_selector ".caption p", :text => SAMPLE_CAPTION
+    end
   end
 
   it "should show a link to '#{I18n.t("hangover.got_one")}'" do
-    rendered.should include I18n.t("hangover.got_one")
+    rendered.should have_selector "p", :text => I18n.t("hangover.got_one")
   end
 
 end
