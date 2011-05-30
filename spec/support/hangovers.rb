@@ -1,11 +1,10 @@
-def caption_titles
-  hangover = Factory.build(:hangover)
-  titles = []
-  titles << hangover.build_caption(Hangover::EXTRA_SUMMARY_CATEGORIES.first)
+def summary_categories
+  categories = []
   Hangover::TIME_PERIODS.each do |time_period|
-    titles << hangover.build_caption(time_period)
+    categories << "of_the_#{time_period}".to_sym
   end
-  titles << hangover.build_caption(Hangover::EXTRA_SUMMARY_CATEGORIES.last)
-  titles
+  categories.unshift(Hangover::EXTRA_SUMMARY_CATEGORIES.first)
+  categories << Hangover::EXTRA_SUMMARY_CATEGORIES.last
+  categories
 end
 

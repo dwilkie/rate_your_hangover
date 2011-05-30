@@ -11,17 +11,13 @@ describe "hangovers/index.html.haml" do
     ).as_null_object
   ]}
 
-  before { assign(:hangovers, hangovers) }
-
-  it "should display the hangover's image" do
+  before do
+    assign(:hangovers, hangovers)
     render
-    #rendered.should have_tag
   end
 
   it "should display the hangover's caption" do
-    render
     rendered.should include(SAMPLE_CAPTION)
   end
-
 end
 

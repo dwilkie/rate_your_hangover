@@ -2,4 +2,12 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  hello: "Hello world"
+  hangover:
+    sober: "Everybody's as sober as a bird :("
+    latest: 'Latest Hangover - "%{title}"'
+    of_the_day: 'Hangover of the Day - "%{title}"'
+    of_the_week: 'Hangover of the Week - "%{title}"'
+    of_the_month: 'Hangover of the Month - "%{title}"'
+    of_the_year: 'Hangover of the Year - "%{title}"'
+    best: 'Best Hangover - "%{title}"'
+

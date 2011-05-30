@@ -1,18 +1,31 @@
 require 'spec_helper'
 
-describe Hangover do
+def test_captions(options = {})
+  if options[:new_record]
+    hangover = Hangover.new
+    title = I18n.t("hangover.sober")
+  else
+    hangover = Factory.create(:hangover)
+    title = hangover.title
+  end
 
-  def vote(hangover, number_of_votes = 1)
-    number_of_votes.times do
-      Factory.create(
-        :hangover_vote, :voteable => hangover
-      )
+  summary_categories.each do |summary_category|
+    caption = I18n.t(
+      "hangover.#{summary_category}",
+      :title => title
+    )
+    context "passing :#{summary_category}" do
+      before { hangover.build_caption(summary_category) }
+      context "#caption" do
+        it "should == '#{caption}'" do
+          hangover.caption.should == caption
+        end
+      end
     end
   end
+end
 
-  def previous_hangover(time_period, time_quantity = 1)
-    Factory.create(:hangover, :created_at => time_quantity.send(time_period).ago)
-  end
+describe Hangover do
 
   let(:hangover) {
     Factory(:hangover)
@@ -51,81 +64,43 @@ describe Hangover do
     end
   end
 
-  shared_examples_for(".of_the_time_period") do
+  Hangover::TIME_PERIODS.each do |time_period|
+    describe ".of_the_#{time_period}" do
+      context "a hangover exists" do
+        before { hangover }
+        context "for this #{time_period}" do
 
-    let(:past_hangover) {
-      previous_hangover(time_period)
-    }
+          it "should return the hangover" do
+            Hangover.send("of_the_#{time_period}").should == hangover
+          end
 
-    context "when a hangover was created in this time period" do
-      before do
-        hangover.update_attributes!(
-          :created_at => Time.now.utc.send("beginning_of_#{time_period}")
-        )
-      end
+          context "and another hangover exists for this #{time_period} with more votes" do
+            let(:popular_hangover) {
+              popular_hangover = Factory.create(:hangover)
+              Factory.create(:hangover_vote, :voteable => popular_hangover)
+              popular_hangover
+            }
 
-      it "should return the hangover" do
-        Hangover.send("of_the_#{time_period}").should == hangover
-      end
+            before { popular_hangover }
 
-      context "and a hangover was created outside this time period with 2 votes" do
-        before { vote(past_hangover, 2) }
+            it "should return the more popular hangover" do
+              Hangover.send("of_the_#{time_period}").should == popular_hangover
+            end
+          end
+        end
 
-        it "should return this time period's hangover" do
-          Hangover.send("of_the_#{time_period}").should == hangover
+        context "but not for this #{time_period}" do
+          before {
+            hangover.update_attribute(
+              :created_at, 1.send(time_period).ago
+            )
+          }
+
+          it "should return nil" do
+            Hangover.send("of_the_#{time_period}").should be_nil
+          end
         end
       end
-
-      context "and another hangover was created in this time period with more votes" do
-        let(:popular_hangover) { previous_hangover time_period, 0 }
-        before { vote(popular_hangover, 1) }
-
-        it "should return the hangover with more votes" do
-          Hangover.send("of_the_#{time_period}").should == popular_hangover
-        end
-      end
-    end
-
-    context "when no hangovers were created in this time period" do
-      it "should return nil" do
-        Hangover.send("of_the_#{time_period}").should be_nil
-      end
-    end
-  end
-
-  describe ".of_the_day" do
-    it_should_behave_like ".of_the_time_period" do
-      let(:time_period) { :day }
-    end
-  end
-
-  describe ".of_the_week" do
-    it_should_behave_like ".of_the_time_period" do
-      let(:time_period) { :week }
-    end
-  end
-
-  describe ".of_the_month" do
-    it_should_behave_like ".of_the_time_period" do
-      let(:time_period) { :month }
-    end
-  end
-
-  describe ".of_the_year" do
-    it_should_behave_like ".of_the_time_period" do
-      let(:time_period) { :year }
-    end
-  end
-
-  describe ".of_all_time" do
-    let(:best_hangover) { Factory.create(:hangover) }
-    before do
-      hangover
-      vote(best_hangover, 2)
-    end
-
-    it "should return the best hangover" do
-      Hangover.of_all_time.should == best_hangover
     end
   end
 
@@ -146,57 +121,52 @@ describe Hangover do
   end
 
   describe ".summary" do
+
+    summary_categories.each do |summary_category|
+      before {
+        Hangover.stub(summary_category)
+      }
+
+      it "should call .#{summary_category}" do
+        Hangover.should_receive(summary_category)
+        Hangover.summary
+      end
+    end
+
     it "should return an array" do
       Hangover.summary.should be_a(Array)
     end
 
-    context "no hangovers exist" do
-      it "should return an empty array" do
-        Hangover.summary.should be_empty
+    context "the returned array" do
+      it "should contain #{summary_categories.length} elements" do
+        Hangover.summary.length.should == summary_categories.length
+      end
+
+      it "should only contain hangovers" do
+        Hangover.summary.each do |hangover|
+          hangover.should be_a(Hangover)
+        end
       end
     end
 
-    context "a hangover exists" do
-      before { hangover }
-
-      shared_examples_for "a summary hangover" do
-        context "the xth element" do
-          it "should be the hangover" do
-            Hangover.summary[summary_index].should == hangover
+    context "no hangovers exist" do
+      context "each hangover in the returned array" do
+        it "should be a new record" do
+          Hangover.summary.each do |hangover|
+            hangover.should be_new_record
           end
-
-          context "caption" do
-            it "should include the caption" do
-              Hangover.summary[summary_index].caption.should == caption
-            end
-          end
-        end
-      end
-
-      caption_titles.each_with_index do |caption_title, index|
-        it_should_behave_like "a summary hangover" do
-          let(:summary_index) { index }
-          let(:caption) { caption_title }
         end
       end
     end
   end
 
   describe "#build_caption" do
-    before { subject.title = "Alan" }
-
-    context "argument is not a time period" do
-      it "should build the caption from the argument and title" do
-        subject.build_caption("Biggest Hangover")
-        subject.caption.should == 'Biggest Hangover - "Alan"'
-      end
+    context "the hangover is a new record" do
+      test_captions(:new_record => true)
     end
 
-    context "argument is a time period" do
-      it "should build the caption from the argument and title" do
-        subject.build_caption(:day)
-        subject.caption.should == 'Hangover of the Day - "Alan"'
-      end
+    context "the hangover is an existing record" do
+      test_captions
     end
   end
 end
