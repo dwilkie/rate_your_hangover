@@ -10,4 +10,5 @@ en:
     of_the_month: 'Hangover of the Month - "%{title}"'
     of_the_year: 'Hangover of the Year - "%{title}"'
     best: 'Best Hangover - "%{title}"'
+    got_one: "Got a Hangover?"
 

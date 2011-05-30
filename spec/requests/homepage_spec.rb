@@ -60,6 +60,11 @@ describe "Homepage" do
         end
       end
     end
+
+    it "should show a link to '#{I18n.t('hangover.got_one')}'" do
+      visit root_path
+      page.should have_link(I18n.t('hangover.got_one'))
+    end
   end
 end
 
