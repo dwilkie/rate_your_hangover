@@ -48,5 +48,6 @@ group :test do
   gem 'factory_girl_rails'
   gem 'spork', :git => 'git://github.com/timcharper/spork.git'
   gem 'capybara', :git => 'git://github.com/jnicklas/capybara.git'
+  gem 'database_cleaner'
 end
 
