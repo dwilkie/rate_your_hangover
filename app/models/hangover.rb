@@ -2,8 +2,11 @@ class Hangover < ActiveRecord::Base
 
   attr_reader :caption
 
+  attr_accessible :title, :image
+
   has_many :votes, :as => :voteable
   belongs_to :user
+  mount_uploader :image, ImageUploader
 
   validates :user, :title, :presence => true
 

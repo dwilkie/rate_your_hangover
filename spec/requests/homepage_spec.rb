@@ -2,13 +2,46 @@ require 'spec_helper'
 
 def test_hangover_summary_categories(options = {})
   options[:title] ||= Factory.build(:hangover).title
-  summary_categories.each do |summary_category|
+  options[:image_link] = true unless options[:image_link] == false
+
+  summary_categories.each_with_index do |summary_category, index|
     title = options[summary_category] || options[:title]
-    context ".caption" do
-      it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s title as: \"#{title}\"" do
-        page.should have_selector ".caption p", :text => I18n.t(
-          "hangover.#{summary_category}", :title => title
-        )
+
+    context "within #hangover_#{index + 1} .slide" do
+     context ".caption p" do
+        it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s title as: \"#{title}\"" do
+          within "#hangover_#{index + 1} .slide .caption p" do
+            page.should have_content(
+              I18n.t("hangover.#{summary_category}", :title => title)
+            )
+          end
+        end
+      end
+
+      if options[:image_link] && options[summary_category].nil?
+        it "should show a link to the hangover" do
+          within "#hangover_#{index + 1} .slide" do
+            page.should have_selector "a[href=\"#{hangover_path(hangover)}\"]"
+          end
+        end
+
+        it "should show the thumbnail image inside the link" do
+          within "#hangover_#{index + 1} .slide a" do
+            page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
+          end
+        end
+      else
+        it "should not show a link to the hangover" do
+          within "#hangover_#{index + 1} .slide" do
+            page.should_not have_selector "a"
+          end
+        end
+
+        it "should show the thumbnail image" do
+          within "#hangover_#{index + 1} .slide" do
+            page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
+          end
+        end
       end
     end
   end
@@ -21,7 +54,10 @@ describe "Homepage" do
 
     context "no hangovers exist" do
       before { visit root_path }
-      test_hangover_summary_categories(:title => I18n.t("hangover.sober"))
+      test_hangover_summary_categories(
+        :title => I18n.t("hangover.sober"),
+        :image_link => false
+      )
     end
 
     sober_periods = {}

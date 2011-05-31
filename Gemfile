@@ -15,6 +15,7 @@ gem 'uglifier'
 gem 'jquery-rails'
 
 gem 'carrierwave'
+gem "rmagick"
 gem 'fog'
 gem 'haml-rails'
 gem 'simple_form'
