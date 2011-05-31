@@ -40,7 +40,8 @@ class ImageUploader < CarrierWave::Uploader::Base
   end
 
   def default_url
-    "/images/fallback/" + [version_name, "default.png"].compact.join('_')
+    "http://1.bp.blogspot.com/_ADom8ach2mM/TCDGVF8-yNI/AAAAAAAACfI/UswOeNAL4QQ/s1600/sober.jpg"
+    #"/images/fallback/" + [version_name, "default.png"].compact.join('_')
   end
 
   # Override the filename of the uploaded files:

@@ -20,8 +20,8 @@ describe "hangovers/index.html.haml" do
     render
   end
 
-  context "within #hangover_1 .slide" do
-    let(:css) { ["#hangover_1 .slide"] }
+  context "within #hangover_1.slide" do
+    let(:css) { ["#hangover_1.slide"] }
 
     context ".caption p" do
       before do

@@ -1,4 +1,14 @@
-= render @hangovers
+#hangovers
+  #images
+    #slides
+      .slides_container
+        = render @hangovers
+      %a.prev{:href => "#"}
+        = image_tag "slides/arrow-prev.png", :size =>"24x43"
+      %a.next{:href => "#"}
+        = image_tag "slides/arrow-next.png", :size => "24x43"
+    = image_tag "slides/example-frame.png", :size => "739x341", :id => "frame"
+
 %p
   = link_to I18n.t("hangover.got_one"), new_hangover_path
 

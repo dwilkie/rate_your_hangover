@@ -7,38 +7,39 @@ def test_hangover_summary_categories(options = {})
   summary_categories.each_with_index do |summary_category, index|
     title = options[summary_category] || options[:title]
 
-    context "within #hangover_#{index + 1} .slide" do
-     context ".caption p" do
-        it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s title as: \"#{title}\"" do
-          within "#hangover_#{index + 1} .slide .caption p" do
-            page.should have_content(
-              I18n.t("hangover.#{summary_category}", :title => title)
-            )
+    context "within #hangover_#{index + 1}.slide" do
+      let(:slide_selector) { "#hangover_#{index + 1}.slide" }
+       context ".caption p" do
+          it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s title as: \"#{title}\"" do
+            within "#{slide_selector} .caption p" do
+              page.should have_content(
+                I18n.t("hangover.#{summary_category}", :title => title)
+              )
+            end
           end
         end
-      end
 
       if options[:image_link] && options[summary_category].nil?
         it "should show a link to the hangover" do
-          within "#hangover_#{index + 1} .slide" do
+          within "#{slide_selector}" do
             page.should have_selector "a[href=\"#{hangover_path(hangover)}\"]"
           end
         end
 
         it "should show the thumbnail image inside the link" do
-          within "#hangover_#{index + 1} .slide a" do
+          within "#{slide_selector} a" do
             page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
           end
         end
       else
         it "should not show a link to the hangover" do
-          within "#hangover_#{index + 1} .slide" do
+          within "#{slide_selector}" do
             page.should_not have_selector "a"
           end
         end
 
         it "should show the thumbnail image" do
-          within "#hangover_#{index + 1} .slide" do
+          within "#{slide_selector}" do
             page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
           end
         end
