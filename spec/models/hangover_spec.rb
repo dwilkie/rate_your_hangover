@@ -151,14 +151,35 @@ describe Hangover do
 
   describe ".summary" do
 
-    summary_categories.each do |summary_category|
-      before {
-        Hangover.stub(summary_category)
-      }
+
+    summary_categories.each_with_index do |summary_category, index|
 
       it "should call .#{summary_category}" do
+        Hangover.stub(summary_category)
         Hangover.should_receive(summary_category)
         Hangover.summary
+      end
+
+      context "[#{index}]" do
+        context "when .#{summary_category} returns a hangover" do
+          let(:"#{summary_category}_hangover") { mock_model(Hangover).as_null_object }
+
+          before {
+            Hangover.stub(summary_category).and_return(
+              send("#{summary_category}_hangover")
+            )
+          }
+
+          it "should be the result of .#{summary_category}" do
+            Hangover.summary[index].should == send("#{summary_category}_hangover")
+          end
+        end
+
+        context "when .#{summary_category} returns nil" do
+          it "should be a new record" do
+            Hangover.summary[index].should be_new_record
+          end
+        end
       end
     end
 
