@@ -125,6 +125,40 @@ describe "Homepage" do
           context "div.slides_container" do
             before { parent_selector << ".slides_container" }
 
+            def update_hangover_created_at(time_period_index, utc_time)
+              this_time_period = Hangover::TIME_PERIODS[time_period_index]
+              utc_time = Time.now.utc
+
+              beginning_of_this_time_period = utc_time.send(
+                "beginning_of_#{this_time_period}"
+              )
+
+              create_hangover_at = beginning_of_this_time_period
+
+              unless this_time_period == Hangover::TIME_PERIODS.first
+                previous_time_period = Hangover::TIME_PERIODS[time_period_index - 1]
+
+                beginning_of_previous_time_period = utc_time.send(
+                  "beginning_of_#{previous_time_period}"
+                )
+
+                end_of_previous_time_period = utc_time.send(
+                  "end_of_#{previous_time_period}"
+                )
+
+                # advance created at time by 1 previous time period
+                # if the beginning of the current time period falls between
+                # the beginning of the previous time period and the end of
+                # the previous time period
+                create_hangover_at = beginning_of_this_time_period.advance(
+                  previous_time_period.to_s.pluralize.to_sym => 1
+                ) if create_hangover_at >= beginning_of_previous_time_period &&
+                  create_hangover_at <= end_of_previous_time_period
+              end
+
+              hangover.update_attribute(:created_at, create_hangover_at)
+            end
+
             context "no hangovers exist" do
               before { visit_root_path }
               test_hangover_summary_categories(
@@ -134,56 +168,45 @@ describe "Homepage" do
             end
 
             sober_periods = {}
+            utc_time = Time.now.utc
+            sober_text = I18n.t("hangover.sober")
             Hangover::TIME_PERIODS.each_with_index do |time_period, index|
               context "a hangover exists this #{time_period}" do
                 before do
-                  hangover.update_attribute(
-                    :created_at, Time.now.utc.send("beginning_of_#{time_period}")
-                  )
+                  update_hangover_created_at(index, utc_time)
+                  visit_root_path
                 end
 
                 if index.zero?
-                  before { visit_root_path }
                   test_hangover_summary_categories
                 else
-                  utc_time = Time.now.utc
                   previous_time_period = Hangover::TIME_PERIODS[index - 1]
 
-                  sober_text = I18n.t("hangover.sober")
-
-                  sober_periods[
-                    "of_the_#{previous_time_period}".to_sym
-                  ] = sober_text
-
-                  temporary_sober_periods = {}
-                  unless time_period == Hangover::TIME_PERIODS.last
-                    next_time_period = Hangover::TIME_PERIODS[index + 1]
-                    temporary_sober_periods[
-                      "of_the_#{next_time_period}".to_sym
-                    ] = sober_text if utc_time.respond_to?(
-                        next_time_period
-                      ) && utc_time.send(
-                        "beginning_of_#{time_period}"
-                      ).send(next_time_period) != utc_time.send(
-                        next_time_period
-                      )
-                  end
-
                   context "but not for this #{previous_time_period}" do
-                    before do
-                      created_at = hangover.created_at
-                      hangover.update_attribute(
-                        :created_at,
-                        created_at.advance(
-                          previous_time_period.to_s.pluralize.to_sym => 1
+                    # adds the previous time period to the sober periods
+                    sober_periods[
+                      "of_the_#{previous_time_period}".to_sym
+                    ] = sober_text
+
+                    temporary_sober_periods = {}
+                    unless time_period == Hangover::TIME_PERIODS.last
+                      # there is another time period
+                      next_time_period = Hangover::TIME_PERIODS[index + 1]
+
+                      # if the beginning of this time period period
+                      # is not in the next time period set the next time period
+                      # as a sober period
+                      temporary_sober_periods[
+                        "of_the_#{next_time_period}".to_sym
+                      ] = sober_text if utc_time.respond_to?(
+                          next_time_period
+                        ) && utc_time.send(
+                          "beginning_of_#{time_period}"
+                        ).send(next_time_period) != utc_time.send(
+                          next_time_period
                         )
-                      ) if created_at >= utc_time.send(
-                          "beginning_of_#{previous_time_period}"
-                        ) && created_at <= utc_time.send(
-                          "end_of_#{previous_time_period}"
-                        )
-                      visit_root_path
                     end
+
                     test_hangover_summary_categories(
                       sober_periods.merge(temporary_sober_periods)
                     )
