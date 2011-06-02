@@ -4,15 +4,19 @@ def test_captions(options = {})
   if options[:new_record]
     hangover = Hangover.new
     title = I18n.t("hangover.sober")
+    votes = nil
   else
     hangover = Factory.create(:hangover)
     title = hangover.title
+    votes = hangover.votes_count
   end
 
   summary_categories.each do |summary_category|
     caption = I18n.t(
-      "hangover.#{summary_category}",
-      :title => title
+      "hangover.caption",
+      :category => summary_category,
+      :title => title,
+      :votes => votes
     )
     context "passing :#{summary_category}" do
       before { hangover.build_caption(summary_category) }

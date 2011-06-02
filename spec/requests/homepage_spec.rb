@@ -14,19 +14,9 @@ def test_hangover_summary_categories(options = {})
     context "div#hangover_#{index + 1}.slide" do
       before { parent_selector << "#hangover_#{index + 1}.slide" }
 
-      context "div.caption p" do
-        before { parent_selector << ".caption p" }
-
-        it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s title as: \"#{title}\"" do
-          within "#{join_parent_selector}" do
-            page.should have_content(
-              I18n.t("hangover.#{summary_category}", :title => title)
-            )
-          end
-        end
-      end
-
+      votes = nil
       if options[:image_link] && options[summary_category].nil?
+        votes = 0
 
         it "should show a link to the hangover" do
           within "#{join_parent_selector}" do
@@ -43,7 +33,6 @@ def test_hangover_summary_categories(options = {})
             end
           end
         end
-
       else
         it "should not show a link to the hangover" do
           within "#{join_parent_selector}" do
@@ -57,6 +46,22 @@ def test_hangover_summary_categories(options = {})
           end
         end
       end
+
+      caption = I18n.t("hangover.caption", {
+        :category => summary_category,
+        :title => title,
+      }.merge(:votes => votes))
+
+
+      context "div.caption p" do
+        before { parent_selector << ".caption p" }
+        it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s caption as: \"#{caption}\"" do
+          within "#{join_parent_selector}" do
+            page.should have_content(caption)
+          end
+        end
+      end
+
     end
   end
 end

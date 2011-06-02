@@ -52,8 +52,19 @@ class Hangover < ActiveRecord::Base
   end
 
   def build_caption(key)
-    hangover_title = persisted? ? title : I18n.t("hangover.sober")
-    @caption = I18n.t("hangover.#{key}", :title => hangover_title)
+    if persisted?
+      hangover_title = title
+      hangover_votes = votes_count
+    else
+      hangover_title = I18n.t("hangover.sober")
+      hangover_votes = nil
+    end
+    @caption = I18n.t(
+      "hangover.caption",
+      :title => hangover_title,
+      :category => key,
+      :votes => hangover_votes
+    )
   end
 
   private
