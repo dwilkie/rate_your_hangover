@@ -8,3 +8,9 @@ def summary_categories
   categories
 end
 
+module HangoverExampleHelpers
+  def join_parent_selector
+    parent_selector.join(" ")
+  end
+end
+

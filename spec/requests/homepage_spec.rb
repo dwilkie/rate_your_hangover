@@ -65,11 +65,6 @@ describe "Homepage" do
   describe "GET /" do
 
     let(:hangover) { Factory(:hangover) }
-    let(:parent_selector) { [] }
-
-    def join_parent_selector
-      parent_selector.join(" ")
-    end
 
     def visit_root_path
       visit root_path
@@ -81,6 +76,9 @@ describe "Homepage" do
     end
 
     context "within" do
+      include HangoverExampleHelpers
+
+      let(:parent_selector) { [] }
 
       context "div#hangovers div#images" do
         before { parent_selector << "#hangovers #images" }
