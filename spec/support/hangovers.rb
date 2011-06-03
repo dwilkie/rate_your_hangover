@@ -9,8 +9,10 @@ def summary_categories
 end
 
 module HangoverExampleHelpers
-  def join_parent_selector
-    parent_selector.join(" ")
+  def have_parent_selector(options = {})
+    xpath = parent_selector.join("/")
+    xpath = "//#{xpath}" unless xpath[0..1] == "//"
+    have_selector(:xpath, xpath, options)
   end
 end
 

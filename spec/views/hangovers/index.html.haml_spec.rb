@@ -14,22 +14,8 @@ describe "hangovers/index.html.haml" do
     do_render
   }
 
-  it "should display the hangovers within #hangovers #images" do
-    rendered.should have_selector("#hangovers #images")
-  end
-
-  #FIXME: move these methods to happen within a selector
-  # these methods really should be within a selector
-  it "should display a link to the previous image" do
-    rendered.should have_selector :xpath, './/a[@href="#" and @class="prev"]'
-  end
-
-  it "should display a link to the next image" do
-    rendered.should have_selector :xpath, './/a[@href="#" and @class="next"]'
-  end
-
   # It's not possible check for a render within a selector
-  # see https://github.com/rspec/rspec-rails/issues/387#comment_1279137
+  # see https://github.com/rspec/rspec-rails/issues/387
   it "should render the hangovers" do
     rendered.should render_template hangovers
   end
@@ -40,23 +26,37 @@ describe "hangovers/index.html.haml" do
     let(:parent_selector) { [] }
 
     context "div#hangovers div#images" do
-      before { parent_selector << "#hangovers #images" }
+      before { parent_selector << "div[@id='hangovers']/div[@id='images']" }
 
-      it "should display the frame" do
-        parent_selector << ".frame"
-        rendered.should have_selector(join_parent_selector)
+      it "should display images of hangovers" do
+        rendered.should have_parent_selector
       end
 
-      it "should display the slides" do
-        parent_selector << "#slides"
-        rendered.should have_selector(join_parent_selector)
+      it "should display the frame" do
+        parent_selector << "div[@class='frame']"
+        rendered.should have_parent_selector
       end
 
       context "div#slides" do
-        before { parent_selector << "#slides"}
+        before { parent_selector << "div[@id='slides']" }
+
+        it "should display the slides" do
+          rendered.should have_parent_selector
+        end
+
+        it "should display a link to the previous image" do
+          parent_selector << "a[@href='#' and @class='prev']"
+          rendered.should have_parent_selector
+        end
+
+        it "should display a link to the next image" do
+          parent_selector << "a[@href='#' and @class='next']"
+          rendered.should have_parent_selector
+        end
+
         it "should display the slides container" do
-          parent_selector << ".slides_container"
-          rendered.should have_selector(join_parent_selector)
+          parent_selector << "div[@class='slides_container']"
+          rendered.should have_parent_selector
         end
       end
     end

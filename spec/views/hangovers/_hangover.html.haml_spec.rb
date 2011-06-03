@@ -24,19 +24,23 @@ describe "hangovers/_hangover.html.haml" do
     let(:parent_selector) { [] }
 
     context "div#hangover_1.slide" do
-      let(:parent_selector) { ["#hangover_1.slide"] }
+      before { parent_selector << "div['@id=hangover_1 and @class=slide']" }
 
       context "div.caption p" do
         before do
-          parent_selector << ".caption p"
+          parent_selector << "div['@class=caption']/p"
           do_render
         end
 
         it "should show the caption" do
-          rendered.should have_selector(
-            join_parent_selector,
-            :text => SAMPLE_CAPTION
-          )
+          rendered.should have_parent_selector(:text => SAMPLE_CAPTION)
+        end
+      end
+
+      shared_examples_for "hangover image" do
+        it "should be displayed" do
+          parent_selector << "img['@src=#{SAMPLE_IMAGE_URL}']"
+          rendered.should have_parent_selector
         end
       end
 
@@ -44,21 +48,14 @@ describe "hangovers/_hangover.html.haml" do
         before { do_render }
 
         it "should have link to the hangover" do
-          parent_selector << "a[href=\"/hangovers/#{SAMPLE_ID}\"]"
-          rendered.should have_selector(
-            join_parent_selector
-          )
+          parent_selector << "a['@href=/hangovers/#{SAMPLE_ID}']"
+          rendered.should have_parent_selector
         end
 
         context "a" do
           before { parent_selector << "a" }
 
-          it "should show the image" do
-            parent_selector << "img[src=\"#{SAMPLE_IMAGE_URL}\"]"
-            rendered.should have_selector(
-              join_parent_selector
-            )
-          end
+          it_should_behave_like "hangover image"
         end
       end
 
@@ -70,17 +67,11 @@ describe "hangovers/_hangover.html.haml" do
 
         it "should not have link to the hangover" do
           parent_selector << "a"
-          rendered.should_not have_selector(
-            join_parent_selector
-          )
+          rendered.should_not have_parent_selector
         end
 
-        it "should still show an image" do
-          parent_selector << "img[src=\"#{SAMPLE_IMAGE_URL}\"]"
-          rendered.should have_selector(
-            join_parent_selector
-          )
-        end
+        it_should_behave_like "hangover image"
+
       end
     end
   end
