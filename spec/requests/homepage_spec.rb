@@ -1,18 +1,21 @@
 require 'spec_helper'
 
 def test_hangover_summary_categories(options = {})
-  options[:title] ||= Factory.build(:hangover).title
+  default_hangover = Factory.build(:hangover)
+  options[:title] ||= default_hangover.title
   options[:image_link] = true unless options[:image_link] == false
 
   summary_categories.each_with_index do |summary_category, index|
     title = options[summary_category] || options[:title]
     votes = nil
+    owner = nil
 
     context "within hangover_#{index + 1}" do
       let(:parent_selector) { ".slides_container #hangover_#{index + 1}" }
 
       if options[:image_link] && options[summary_category].nil?
-        votes = 0
+        votes = default_hangover.votes_count
+        owner = default_hangover.user.display_name
 
         it "should show a link to the hangover" do
           within(parent_selector) do
@@ -36,8 +39,7 @@ def test_hangover_summary_categories(options = {})
       caption = I18n.t("hangover.caption", {
         :category => summary_category,
         :title => title,
-      }.merge(:votes => votes))
-
+      }.merge(:votes => votes, :owner => owner))
 
       it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s caption as: \"#{caption}\"" do
         within(parent_selector) do

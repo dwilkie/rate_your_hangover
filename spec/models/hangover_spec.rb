@@ -5,10 +5,12 @@ def test_captions(options = {})
     hangover = Hangover.new
     title = I18n.t("hangover.sober")
     votes = nil
+    owner = nil
   else
     hangover = Factory.create(:hangover)
     title = hangover.title
     votes = hangover.votes_count
+    owner = hangover.user.display_name
   end
 
   summary_categories.each do |summary_category|
@@ -16,7 +18,8 @@ def test_captions(options = {})
       "hangover.caption",
       :category => summary_category,
       :title => title,
-      :votes => votes
+      :votes => votes,
+      :owner => owner
     )
     context "passing :#{summary_category}" do
       before { hangover.build_caption(summary_category) }

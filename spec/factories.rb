@@ -9,7 +9,7 @@ end
 
 Factory.define :hangover do |f|
   f.title "Alan"
-  f.association :user
+  f.association :user, :factory => :registered_user
 end
 
 Factory.define :hangover_vote, :class => Vote do |f|

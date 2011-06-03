@@ -55,15 +55,18 @@ class Hangover < ActiveRecord::Base
     if persisted?
       hangover_title = title
       hangover_votes = votes_count
+      owner = user.display_name
     else
       hangover_title = I18n.t("hangover.sober")
       hangover_votes = nil
+      owner = nil
     end
     @caption = I18n.t(
       "hangover.caption",
       :title => hangover_title,
       :category => key,
-      :votes => hangover_votes
+      :votes => hangover_votes,
+      :owner => owner
     )
   end
 
