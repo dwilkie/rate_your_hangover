@@ -2,6 +2,7 @@ class DeviseCreateUsers < ActiveRecord::Migration
   def self.up
     create_table(:users) do |t|
       t.database_authenticatable :null => true
+      t.string       :display_name
       t.recoverable
       t.rememberable
       t.trackable

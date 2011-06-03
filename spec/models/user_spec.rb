@@ -1,18 +1,28 @@
 require 'spec_helper'
 
 describe User do
-  let(:user) { Factory(:user) }
+  let(:unregistered_user) { Factory(:user) }
+  let(:registered_user) { Factory(:registered_user) }
 
   describe "Validations" do
-    it "Factory should be valid" do
-      user.should be_valid
+
+    context "User factory" do
+      it "should be valid" do
+        unregistered_user.should be_valid
+      end
     end
 
-    context "an existing user without an email address" do
-      before { user.update_attributes!(:email => nil) }
+    context "Registered user factory" do
+      it "should be valid" do
+        registered_user.should be_valid
+      end
+    end
+
+    context "an unregistered user" do
+      before { unregistered_user }
 
       context "a new user without an email address" do
-        let(:second_user) { Factory(:user, :email => nil) }
+        let(:second_user) { Factory(:user) }
 
         # Tests database uniqueness constraint
         it "should save" do
@@ -21,29 +31,23 @@ describe User do
       end
     end
 
-    context "a user with an email address" do
-      before { user.email = "dave@example.com" }
+    context "a registered user" do
+      before { registered_user }
 
       it "should not be valid without a password" do
-        user.password = nil
-        user.should_not be_valid
+        registered_user.password = nil
+        registered_user.should_not be_valid
       end
 
-    end
-
-    context "an existing user with an email address" do
-      before do
-        user.update_attributes!(
-          :email => "dave@example.com",
-          :password => "foobar"
-        )
+      it "should not be valid without a display name" do
+        registered_user.display_name = nil
+        registered_user.should_not be_valid
       end
 
       context "another user with the same email address" do
         let(:duplicate_user) { Factory.build(
-          :user,
-          :email => user.email,
-          :password => "foobar"
+          :registered_user,
+          :email => registered_user.email
         )}
         it "should not be valid" do
           duplicate_user.should_not be_valid

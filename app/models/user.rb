@@ -8,6 +8,8 @@ class User < ActiveRecord::Base
   has_many :votes
   has_many :hangovers
 
+  validates :display_name, :presence => true, :if => :password_required?
+
   protected
 
   # Checks whether a password is needed or not. For validations only.
