@@ -24,11 +24,11 @@ describe "hangovers/_hangover.html.haml" do
     let(:parent_selector) { [] }
 
     context "div#hangover_1.slide" do
-      before { parent_selector << "div['@id=hangover_1 and @class=slide']" }
+      before { parent_selector << "div[@id='hangover_1' and @class='slide']" }
 
       context "div.caption p" do
         before do
-          parent_selector << "div['@class=caption']/p"
+          parent_selector << "div[@class='caption']/p"
           do_render
         end
 
@@ -39,7 +39,7 @@ describe "hangovers/_hangover.html.haml" do
 
       shared_examples_for "hangover image" do
         it "should be displayed" do
-          parent_selector << "img['@src=#{SAMPLE_IMAGE_URL}']"
+          parent_selector << "img[@src='#{SAMPLE_IMAGE_URL}']"
           rendered.should have_parent_selector
         end
       end
@@ -48,7 +48,7 @@ describe "hangovers/_hangover.html.haml" do
         before { do_render }
 
         it "should have link to the hangover" do
-          parent_selector << "a['@href=/hangovers/#{SAMPLE_ID}']"
+          parent_selector << "a[@id='hangover_#{SAMPLE_ID}' and @href='/hangovers/#{SAMPLE_ID}']"
           rendered.should have_parent_selector
         end
 
