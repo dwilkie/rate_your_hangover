@@ -10,18 +10,30 @@ def test_hangover_summary_categories(options = {})
     votes = nil
     owner = nil
 
-    context "within hangover_#{index + 1}" do
+    context "within div#hangover_#{index + 1}" do
       let(:parent_selector) { ".slides_container #hangover_#{index + 1}" }
 
       if options[:image_link] && options[summary_category].nil?
         votes = default_hangover.votes_count
         owner = default_hangover.user.display_name
 
-        it "should show a link to the hangover" do
+        it "should have a link to the hangover" do
           within(parent_selector) do
             page.should have_selector hangover_link
           end
         end
+
+        context "following the link to the hangover" do
+          before do
+            within(parent_selector) do
+              click_link "hangover_#{hangover.id}"
+            end
+          end
+          it "should take me to that hangover's show page" do
+            current_path.should == hangover_path(hangover)
+          end
+        end
+
       else
         it "should not show a link to the hangover" do
           within(parent_selector) do

@@ -1,7 +1,7 @@
 %div{:id => "hangover_#{hangover_counter + 1}", :class => "slide"}
   - image = image_tag(hangover.image_url(:thumb).to_s)
   - if hangover.persisted?
-    = link_to(image, hangover)
+    = link_to(image, hangover, :id => "hangover_#{hangover.id}")
   - else
     = image
   .caption
