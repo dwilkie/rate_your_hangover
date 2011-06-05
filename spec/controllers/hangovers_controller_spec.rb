@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe HangoversController do
-  SAMPLE_ID = 1
 
+  SAMPLE_ID = 1
 
   let(:hangover) { mock_model(Hangover).as_null_object }
 
@@ -12,22 +12,26 @@ describe HangoversController do
       hangover
     ]}
 
+    def do_index
+      get :index
+    end
+
     before do
       Hangover.stub(:inventory).and_return(hangovers)
     end
 
-    it "should render index template" do
-      get :index
+    it "should render the index template" do
+      do_index
       response.should render_template(:index)
     end
 
     it "should get the inventory" do
       Hangover.should_receive(:inventory)
-      get :index
+      do_index
     end
 
     it "should assign '@hangovers'" do
-      get :index
+      do_index
       assigns[:hangovers].should == hangovers
     end
   end
@@ -42,12 +46,12 @@ describe HangoversController do
       Hangover.stub(:find).with(SAMPLE_ID).and_return(hangover)
     end
 
-    it "should render index template" do
+    it "should render the show template" do
       do_show
       response.should render_template(:show)
     end
 
-    it "should get the inventory" do
+    it "should find the hangover" do
       Hangover.should_receive(:find).with(SAMPLE_ID)
       do_show
     end
