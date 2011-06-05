@@ -1,11 +1,15 @@
 require 'spec_helper'
 
 describe HangoversController do
+  SAMPLE_ID = 1
 
-  describe "GET /index" do
+
+  let(:hangover) { mock_model(Hangover).as_null_object }
+
+  describe "GET /hangovers" do
 
     let(:hangovers) {[
-      mock_model(Hangover).as_null_object
+      hangover
     ]}
 
     before do
@@ -28,6 +32,31 @@ describe HangoversController do
     end
   end
 
+  describe "GET /hangovers/#{SAMPLE_ID}" do
+
+    def do_show
+      get :show, :id => SAMPLE_ID
+    end
+
+    before do
+      Hangover.stub(:find).with(SAMPLE_ID).and_return(hangover)
+    end
+
+    it "should render index template" do
+      do_show
+      response.should render_template(:show)
+    end
+
+    it "should get the inventory" do
+      Hangover.should_receive(:find).with(SAMPLE_ID)
+      do_show
+    end
+
+    it "should assign '@hangover'" do
+      do_show
+      assigns[:hangover].should == hangover
+    end
+  end
 
 #  it "show action should render show template" do
 #    get :show, :id => Hangover.first
