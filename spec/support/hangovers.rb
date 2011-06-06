@@ -1,4 +1,8 @@
-  def summary_categories
+def rate_it_link_text
+  I18n.t('hangover.rate_it')
+end
+
+def summary_categories
   categories = []
   Hangover::TIME_PERIODS.each do |time_period|
     categories << "of_the_#{time_period}".to_sym

@@ -1,5 +1,14 @@
 require 'spec_helper'
 
+def within_caption(&block)
+  example_group_class = context "div.caption p" do
+    before do
+      parent_selector << "div[@class='caption']/p"
+    end
+  end
+  example_group_class.class_eval &block
+end
+
 describe "hangovers/_hangover.html.haml" do
 
   SAMPLE_CAPTION = "Hangover of the day - 'Steami', 456 Votes"
@@ -26,13 +35,9 @@ describe "hangovers/_hangover.html.haml" do
     context "div#hangover_1.slide" do
       before { parent_selector << "div[@id='hangover_1' and @class='slide']" }
 
-      context "div.caption p" do
-        before do
-          parent_selector << "div[@class='caption']/p"
-          do_render
-        end
-
+      within_caption do
         it "should show the caption" do
+          do_render
           rendered.should have_parent_selector(:text => SAMPLE_CAPTION)
         end
       end
@@ -57,6 +62,13 @@ describe "hangovers/_hangover.html.haml" do
 
           it_should_behave_like "hangover image"
         end
+
+        within_caption do
+          it "should have a link to: '#{rate_it_link_text}'" do
+            parent_selector << "a[@href='/votes?voteable_id=#{SAMPLE_ID}' and @data-method='post']"
+            rendered.should have_parent_selector(:text => rate_it_link_text)
+          end
+        end
       end
 
       context "hangover is not persisted" do
@@ -68,6 +80,13 @@ describe "hangovers/_hangover.html.haml" do
         it "should not have link to the hangover" do
           parent_selector << "a"
           rendered.should_not have_parent_selector
+        end
+
+        within_caption do
+          it "should not have a link to: '#{rate_it_link_text}'" do
+            parent_selector << "a"
+            rendered.should_not have_parent_selector(:text => rate_it_link_text)
+          end
         end
 
         it_should_behave_like "hangover image"

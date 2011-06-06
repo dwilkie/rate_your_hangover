@@ -1,5 +1,82 @@
 require 'spec_helper'
 
+def general_hangover_examples(summary_category, title, votes, owner)
+  it "should show the thumbnail image" do
+    within(parent_selector) do
+      page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
+    end
+  end
+
+  caption = I18n.t("hangover.caption", {
+    :category => summary_category,
+    :title => title,
+  }.merge(:votes => votes, :owner => owner))
+
+  it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s caption as: \"#{caption}\"" do
+    within(parent_selector) do
+      page.should have_content(caption)
+    end
+  end
+end
+
+def real_hangover_examples
+  it "should have a link to the hangover" do
+    within(parent_selector) do
+      page.should have_selector hangover_link
+    end
+  end
+
+  it "should show a link to '#{rate_it_link_text}'" do
+    within(parent_selector) do
+      page.should have_link(rate_it_link_text)
+    end
+  end
+
+  context "following the link to the hangover" do
+    before do
+      within(parent_selector) do
+        click_link "hangover_#{hangover.id}"
+      end
+    end
+
+    it "should take me to that hangover's show page" do
+      current_path.should == hangover_path(hangover)
+    end
+  end
+
+  context "following the link '#{rate_it_link_text}'" do
+    before do
+      within(parent_selector) do
+        click_link rate_it_link_text
+      end
+    end
+
+    it "should create a vote" do
+      hangover.votes_count.should == 1
+    end
+
+    it "should show that the hangover has 1 vote" do
+      within(parent_selector) do
+        page.should have_content("1 #{I18n.t("vote", :count => 1)}")
+      end
+    end
+  end
+end
+
+def dummy_hangover_examples
+  it "should not show a link to the hangover" do
+    within(parent_selector) do
+      page.should_not have_selector hangover_link
+    end
+  end
+
+  it "should not show a link to '#{rate_it_link_text}'" do
+    within(parent_selector) do
+      page.should_not have_link(rate_it_link_text)
+    end
+  end
+end
+
 def test_hangover_summary_categories(options = {})
   default_hangover = Factory.build(:hangover)
   options[:title] ||= default_hangover.title
@@ -17,47 +94,13 @@ def test_hangover_summary_categories(options = {})
         votes = default_hangover.votes_count
         owner = default_hangover.user.display_name
 
-        it "should have a link to the hangover" do
-          within(parent_selector) do
-            page.should have_selector hangover_link
-          end
-        end
-
-        context "following the link to the hangover" do
-          before do
-            within(parent_selector) do
-              click_link "hangover_#{hangover.id}"
-            end
-          end
-          it "should take me to that hangover's show page" do
-            current_path.should == hangover_path(hangover)
-          end
-        end
-
+        real_hangover_examples
       else
-        it "should not show a link to the hangover" do
-          within(parent_selector) do
-            page.should_not have_selector hangover_link
-          end
-        end
+        dummy_hangover_examples
       end
 
-      it "should show the thumbnail image" do
-        within(parent_selector) do
-          page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
-        end
-      end
+      general_hangover_examples(summary_category, title, votes, owner)
 
-      caption = I18n.t("hangover.caption", {
-        :category => summary_category,
-        :title => title,
-      }.merge(:votes => votes, :owner => owner))
-
-      it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s caption as: \"#{caption}\"" do
-        within(parent_selector) do
-          page.should have_content(caption)
-        end
-      end
     end
   end
 end

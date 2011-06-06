@@ -7,4 +7,6 @@
   .caption
     %p
       = hangover.caption
+      - if hangover.persisted?
+        = link_to(I18n.t("hangover.rate_it"), votes_path(:voteable_id => hangover.id), :method => :post)
 
