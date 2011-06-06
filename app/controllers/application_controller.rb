@@ -3,8 +3,8 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def current_user
-    user = super
+  def find_or_create_current_user
+    user = current_user
     unless user
       user = User.create!
       user.remember_me!

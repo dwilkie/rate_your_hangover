@@ -2,6 +2,10 @@ def rate_it_link_text
   I18n.t('hangover.rate_it')
 end
 
+def you_rate_it
+  I18n.t("hangover.you_rate_it")
+end
+
 def summary_categories
   categories = []
   Hangover::TIME_PERIODS.each do |time_period|

@@ -62,14 +62,8 @@ describe "hangovers/_hangover.html.haml" do
 
           it_should_behave_like "hangover image"
         end
-
-        within_caption do
-          it "should have a link to: '#{rate_it_link_text}'" do
-            parent_selector << "a[@href='/votes?voteable_id=#{SAMPLE_ID}' and @data-method='post']"
-            rendered.should have_parent_selector(:text => rate_it_link_text)
-          end
-        end
       end
+
 
       context "hangover is not persisted" do
         before do
@@ -82,15 +76,35 @@ describe "hangovers/_hangover.html.haml" do
           rendered.should_not have_parent_selector
         end
 
+        it_should_behave_like "hangover image"
+      end
+
+      context "hangover has not yet been 'rated' by the current user" do
+        before do
+          hangover.stub(:rated_by?).and_return(false)
+          do_render
+        end
+
+        within_caption do
+          it "should have a link to: '#{rate_it_link_text}'" do
+            parent_selector << "a[@href='/hangover_votes/#{SAMPLE_ID}' and @data-method='post']"
+            rendered.should have_parent_selector(:text => rate_it_link_text)
+          end
+        end
+      end
+
+      context "hangver was already 'rated' by the current user" do
+        before do
+          hangover.stub(:rated_by?).and_return(true)
+          do_render
+        end
+
         within_caption do
           it "should not have a link to: '#{rate_it_link_text}'" do
             parent_selector << "a"
             rendered.should_not have_parent_selector(:text => rate_it_link_text)
           end
         end
-
-        it_should_behave_like "hangover image"
-
       end
     end
   end

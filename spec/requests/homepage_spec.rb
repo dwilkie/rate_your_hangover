@@ -1,5 +1,43 @@
 require 'spec_helper'
 
+def define_shared_examples
+  shared_examples_for "do not show the rate it link" do
+    it "should not show a link to '#{rate_it_link_text}'" do
+      within(parent_selector) do
+        page.should_not have_link(rate_it_link_text)
+      end
+    end
+  end
+
+  shared_examples_for "show and follow the rate it link" do
+    it "should show a link to '#{rate_it_link_text}'" do
+      within(parent_selector) do
+        page.should have_link(rate_it_link_text)
+      end
+    end
+
+    context "following the link '#{rate_it_link_text}'" do
+      before do
+        within(parent_selector) do
+          click_link rate_it_link_text
+        end
+      end
+
+      it "should show that the hangover has 1 vote" do
+        within(parent_selector) do
+          page.should have_content("1 #{I18n.t("vote", :count => 1)}")
+        end
+      end
+
+      it_should_behave_like "do not show the rate it link"
+
+      it "should show '#{you_rate_it}'" do
+        page.should have_content you_rate_it
+      end
+    end
+  end
+end
+
 def general_hangover_examples(summary_category, title, votes, owner)
   it "should show the thumbnail image" do
     within(parent_selector) do
@@ -26,12 +64,6 @@ def real_hangover_examples
     end
   end
 
-  it "should show a link to '#{rate_it_link_text}'" do
-    within(parent_selector) do
-      page.should have_link(rate_it_link_text)
-    end
-  end
-
   context "following the link to the hangover" do
     before do
       within(parent_selector) do
@@ -44,23 +76,29 @@ def real_hangover_examples
     end
   end
 
-  context "following the link '#{rate_it_link_text}'" do
-    before do
-      within(parent_selector) do
-        click_link rate_it_link_text
-      end
+  context "the user is signed in" do
+    context "and they have not yet 'rated' this hangover" do
+      before { sign_in_user }
+
+      it_should_behave_like "show and follow the rate it link"
     end
 
-    it "should create a vote" do
-      hangover.votes_count.should == 1
-    end
+    context "and they have already 'rated' this hangover" do
+      let(:hangover_vote) { Factory(:hangover_vote, :user => voting_user) }
 
-    it "should show that the hangover has 1 vote" do
-      within(parent_selector) do
-        page.should have_content("1 #{I18n.t("vote", :count => 1)}")
+      before do
+        hangover_vote
+        sign_in_user
       end
+
+      it_should_behave_like "do not show the rate it link"
     end
   end
+
+  context "the user is not signed in" do
+    it_should_behave_like "show and follow the rate it link"
+  end
+
 end
 
 def dummy_hangover_examples
@@ -109,6 +147,7 @@ describe "Homepage" do
   describe "GET /" do
 
     let(:hangover) { Factory(:hangover) }
+    let(:voting_user) { Factory(:registered_user) }
 
     def visit_root_path
       visit root_path
@@ -152,6 +191,13 @@ describe "Homepage" do
       hangover.update_attribute(:created_at, create_hangover_at)
     end
 
+    def sign_in_user
+      visit new_user_session_path
+      fill_in 'Email', :with => voting_user.email
+      fill_in 'Password', :with => 'secret'
+      click_button('Sign in')
+    end
+
     context "no hangovers exist" do
       before { visit_root_path }
       test_hangover_summary_categories(
@@ -159,6 +205,8 @@ describe "Homepage" do
         :image_link => false
       )
     end
+
+    define_shared_examples
 
     sober_periods = {}
     utc_time = Time.now.utc

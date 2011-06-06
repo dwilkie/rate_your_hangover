@@ -1,4 +1,6 @@
 RSpec.configure do |config|
-  config.include Devise::TestHelpers, :type => :controller
+  [:controller, :view].each do |type|
+    config.include Devise::TestHelpers, :type => type
+  end
 end
 

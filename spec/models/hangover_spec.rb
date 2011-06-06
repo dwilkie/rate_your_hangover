@@ -226,5 +226,35 @@ describe Hangover do
       test_captions
     end
   end
+
+  describe "#rated_by?" do
+    let(:user) { Factory(:user) }
+
+    context "is not persisted" do
+      it "should return nil" do
+        subject.rated_by?(user).should be_nil
+      end
+    end
+
+    context "passing nil" do
+      it "should return false" do
+        hangover.rated_by?(nil).should be_false
+      end
+    end
+
+    context "passing a user who already rated this hangover" do
+      before { hangover.votes.create(:user => user) }
+      it "should return true" do
+        hangover.rated_by?(user).should be_true
+      end
+    end
+
+    context "passing a user has not yet rated this hangover" do
+      it "should return false" do
+        hangover.rated_by?(user).should be_false
+      end
+    end
+
+  end
 end
 

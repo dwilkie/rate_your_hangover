@@ -70,6 +70,12 @@ class Hangover < ActiveRecord::Base
     )
   end
 
+  def rated_by?(user)
+    return nil if new_record?
+    return false if user.nil?
+    self.votes.by_user(user).any?
+  end
+
   private
 
   def self.build_summary(summary_category)

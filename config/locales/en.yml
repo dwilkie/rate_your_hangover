@@ -12,6 +12,7 @@ en:
     best: Best Hangover
     got_one: Got a Hangover?
     rate_it: I rate it!
+    you_rate_it: You rate this hangover!
   vote:
     one: vote
     other: votes

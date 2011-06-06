@@ -26,10 +26,8 @@ describe Vote do
     end
 
     context "a vote already exists for this user and hangover" do
-      let(:vote) { Factory.create(
-        :hangover_vote, :user => user, :voteable => hangover)
-      }
-      before { vote }
+      before { vote.update_attributes(:user => user, :voteable => hangover) }
+
       it "then a duplicate should not be valid" do
         duplicate_vote = Factory.build(
           :hangover_vote, :user => user, :voteable => hangover
@@ -48,5 +46,24 @@ describe Vote do
       subject.should respond_to(:voteable)
     end
   end
+
+  describe ".by_user" do
+    context "user has voted" do
+
+      before { vote.update_attributes(:user => user) }
+
+      it "should include the user's vote" do
+        Vote.by_user(user).should include(vote)
+      end
+    end
+
+    context "user has not voted" do
+
+      it "should not include the user's vote" do
+        Vote.by_user(user).should_not include(vote)
+      end
+    end
+  end
+
 end
 
