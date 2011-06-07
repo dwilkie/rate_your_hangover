@@ -1,144 +1,36 @@
 require 'spec_helper'
 
-def define_shared_examples
-  shared_examples_for "do not show the rate it link" do
-    it "should not show a link to '#{rate_it_link_text}'" do
-      within(parent_selector) do
-        page.should_not have_link(rate_it_link_text)
-      end
-    end
+def within_hangover(hangover_index = 1, &block)
+  example_group_class = context "div#hangover_#{hangover_index}" do
+    let(:parent_selector) { ".slides_container #hangover_#{hangover_index}" }
   end
-
-  shared_examples_for "show and follow the rate it link" do
-    it "should show a link to '#{rate_it_link_text}'" do
-      within(parent_selector) do
-        page.should have_link(rate_it_link_text)
-      end
-    end
-
-    context "following the link '#{rate_it_link_text}'" do
-      before do
-        within(parent_selector) do
-          click_link rate_it_link_text
-        end
-      end
-
-      it "should show that the hangover has 1 vote" do
-        within(parent_selector) do
-          page.should have_content("1 #{I18n.t("vote", :count => 1)}")
-        end
-      end
-
-      it_should_behave_like "do not show the rate it link"
-
-      it "should show '#{you_rate_it}'" do
-        page.should have_content you_rate_it
-      end
-    end
-  end
+  example_group_class.class_eval &block
 end
 
-def general_hangover_examples(summary_category, title, votes, owner)
-  it "should show the thumbnail image" do
-    within(parent_selector) do
-      page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
-    end
-  end
-
-  caption = I18n.t("hangover.caption", {
-    :category => summary_category,
-    :title => title,
-  }.merge(:votes => votes, :owner => owner))
-
-  it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s caption as: \"#{caption}\"" do
-    within(parent_selector) do
-      page.should have_content(caption)
-    end
-  end
-end
-
-def real_hangover_examples
-  it "should have a link to the hangover" do
-    within(parent_selector) do
-      page.should have_selector hangover_link
-    end
-  end
-
-  context "following the link to the hangover" do
-    before do
-      within(parent_selector) do
-        click_link "hangover_#{hangover.id}"
-      end
-    end
-
-    it "should take me to that hangover's show page" do
-      current_path.should == hangover_path(hangover)
-    end
-  end
-
-  context "the user is signed in" do
-    context "and they have not yet 'rated' this hangover" do
-      before { sign_in_user }
-
-      it_should_behave_like "show and follow the rate it link"
-    end
-
-    context "and they have already 'rated' this hangover" do
-      let(:hangover_vote) { Factory(:hangover_vote, :user => voting_user) }
-
-      before do
-        hangover_vote
-        sign_in_user
-      end
-
-      it_should_behave_like "do not show the rate it link"
-    end
-  end
-
-  context "the user is not signed in" do
-    it_should_behave_like "show and follow the rate it link"
-  end
-
-end
-
-def dummy_hangover_examples
-  it "should not show a link to the hangover" do
-    within(parent_selector) do
-      page.should_not have_selector hangover_link
-    end
-  end
-
-  it "should not show a link to '#{rate_it_link_text}'" do
-    within(parent_selector) do
-      page.should_not have_link(rate_it_link_text)
-    end
-  end
-end
-
-def test_hangover_summary_categories(options = {})
+def test_hangover_summary_categories(all = true, sober_periods = {})
   default_hangover = Factory.build(:hangover)
-  options[:title] ||= default_hangover.title
-  options[:image_link] = true unless options[:image_link] == false
+  sober_text = I18n.t("hangover.sober")
 
   summary_categories.each_with_index do |summary_category, index|
-    title = options[summary_category] || options[:title]
-    votes = nil
-    owner = nil
+    caption_options = {}
+    caption_options[:category] = summary_category
 
-    context "within div#hangover_#{index + 1}" do
-      let(:parent_selector) { ".slides_container #hangover_#{index + 1}" }
+    if all || sober_periods[summary_category]
+      caption_options[:title] = sober_text
+    else
+      caption_options[:title] = default_hangover.title
+      caption_options[:votes] = default_hangover.votes_count
+      caption_options[:owner] = default_hangover.user.display_name
+    end
 
-      if options[:image_link] && options[summary_category].nil?
-        votes = default_hangover.votes_count
-        owner = default_hangover.user.display_name
+    caption = I18n.t("hangover.caption", caption_options)
 
-        real_hangover_examples
-      else
-        dummy_hangover_examples
+    within_hangover(index + 1) do
+      it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s caption as: \"#{caption}\"" do
+        within(parent_selector) do
+          page.should have_content(caption)
+        end
       end
-
-      general_hangover_examples(summary_category, title, votes, owner)
-
     end
   end
 end
@@ -200,17 +92,26 @@ describe "Homepage" do
 
     context "no hangovers exist" do
       before { visit_root_path }
-      test_hangover_summary_categories(
-        :title => I18n.t("hangover.sober"),
-        :image_link => false
-      )
-    end
 
-    define_shared_examples
+      test_hangover_summary_categories
+
+      within_hangover do
+        it "should not show a link to the hangover" do
+          within(parent_selector) do
+            page.should_not have_selector hangover_link
+          end
+        end
+
+        it "should not show a link to '#{rate_it_link_text}'" do
+          within(parent_selector) do
+            page.should_not have_link(rate_it_link_text)
+          end
+        end
+      end
+    end
 
     sober_periods = {}
     utc_time = Time.now.utc
-    sober_text = I18n.t("hangover.sober")
     Hangover::TIME_PERIODS.each_with_index do |time_period, index|
       context "a hangover exists this #{time_period}" do
         before do
@@ -219,7 +120,7 @@ describe "Homepage" do
         end
 
         if index.zero?
-          test_hangover_summary_categories
+          test_hangover_summary_categories(false)
         else
           previous_time_period = Hangover::TIME_PERIODS[index - 1]
 
@@ -227,7 +128,7 @@ describe "Homepage" do
             # adds the previous time period to the sober periods
             sober_periods[
               "of_the_#{previous_time_period}".to_sym
-            ] = sober_text
+            ] = true
 
             temporary_sober_periods = {}
             unless time_period == Hangover::TIME_PERIODS.last
@@ -249,10 +150,105 @@ describe "Homepage" do
             end
 
             test_hangover_summary_categories(
+              false,
               sober_periods.merge(temporary_sober_periods)
             )
           end
         end
+      end
+    end
+
+    within_hangover do
+      it "should show the thumbnail image" do
+        visit_root_path
+        within(parent_selector) do
+          page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
+        end
+      end
+
+      context "a hangover exists for today" do
+        before do
+          hangover
+          visit_root_path
+        end
+
+        shared_examples_for "do not show the rate it link" do
+          it "should not show a link to '#{rate_it_link_text}'" do
+            within(parent_selector) do
+              page.should_not have_link(rate_it_link_text)
+            end
+          end
+        end
+
+        shared_examples_for "show and follow the rate it link" do
+          it "should show a link to '#{rate_it_link_text}'" do
+            within(parent_selector) do
+              page.should have_link(rate_it_link_text)
+            end
+          end
+
+          context "following the link '#{rate_it_link_text}'" do
+            before do
+              within(parent_selector) do
+                click_link rate_it_link_text
+              end
+            end
+
+            it "should show that the hangover has 1 vote" do
+              within(parent_selector) do
+                page.should have_content("1 #{I18n.t("vote", :count => 1)}")
+              end
+            end
+
+            it_should_behave_like "do not show the rate it link"
+
+            it "should show '#{you_rate_it}'" do
+              page.should have_content you_rate_it
+            end
+          end
+        end
+
+        it "should have a link to the hangover" do
+          within(parent_selector) do
+            page.should have_selector hangover_link
+          end
+        end
+
+        context "following the link to the hangover" do
+          before do
+            within(parent_selector) do
+              click_link "hangover_#{hangover.id}"
+            end
+          end
+
+          it "should take me to that hangover's show page" do
+            current_path.should == hangover_path(hangover)
+          end
+        end
+
+        context "the user is signed in" do
+          context "and they have not yet 'rated' this hangover" do
+            before { sign_in_user }
+
+            it_should_behave_like "show and follow the rate it link"
+          end
+
+          context "and they have already 'rated' this hangover" do
+            let(:hangover_vote) { Factory(:hangover_vote, :user => voting_user) }
+
+            before do
+              hangover_vote
+              sign_in_user
+            end
+
+            it_should_behave_like "do not show the rate it link"
+          end
+        end
+
+        context "the user is not signed in" do
+          it_should_behave_like "show and follow the rate it link"
+        end
+
       end
     end
 
