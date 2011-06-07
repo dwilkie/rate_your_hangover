@@ -7,6 +7,31 @@ def within_hangover(hangover_index = 1, &block)
   example_group_class.class_eval &block
 end
 
+def showing_and_following_the_rate_it_link(&block)
+
+  it "should show a link to '#{rate_it_link_text}'" do
+    within(parent_selector) do
+      page.should have_link(rate_it_link_text)
+    end
+  end
+
+  example_group_class = context "following the link '#{rate_it_link_text}'" do
+    before do
+      within(parent_selector) do
+        click_link rate_it_link_text
+      end
+    end
+
+    it "should show that the hangover has 1 vote" do
+      within(parent_selector) do
+        page.should have_content("1 #{I18n.t("vote", :count => 1)}")
+      end
+    end
+  end
+
+  example_group_class.class_eval &block
+end
+
 def test_hangover_summary_categories(all = true, sober_periods = {})
   default_hangover = Factory.build(:hangover)
   sober_text = I18n.t("hangover.sober")
@@ -90,6 +115,10 @@ describe "Homepage" do
       click_button('Sign in')
     end
 
+    def sign_out_user
+      visit destroy_user_session_path
+    end
+
     context "no hangovers exist" do
       before { visit_root_path }
 
@@ -126,9 +155,7 @@ describe "Homepage" do
 
           context "but not for this #{previous_time_period}" do
             # adds the previous time period to the sober periods
-            sober_periods[
-              "of_the_#{previous_time_period}".to_sym
-            ] = true
+            sober_periods["of_the_#{previous_time_period}".to_sym] = true
 
             temporary_sober_periods = {}
             unless time_period == Hangover::TIME_PERIODS.last
@@ -167,10 +194,7 @@ describe "Homepage" do
       end
 
       context "a hangover exists for today" do
-        before do
-          hangover
-          visit_root_path
-        end
+        before { hangover }
 
         shared_examples_for "do not show the rate it link" do
           it "should not show a link to '#{rate_it_link_text}'" do
@@ -180,35 +204,14 @@ describe "Homepage" do
           end
         end
 
-        shared_examples_for "show and follow the rate it link" do
-          it "should show a link to '#{rate_it_link_text}'" do
-            within(parent_selector) do
-              page.should have_link(rate_it_link_text)
-            end
-          end
-
-          context "following the link '#{rate_it_link_text}'" do
-            before do
-              within(parent_selector) do
-                click_link rate_it_link_text
-              end
-            end
-
-            it "should show that the hangover has 1 vote" do
-              within(parent_selector) do
-                page.should have_content("1 #{I18n.t("vote", :count => 1)}")
-              end
-            end
-
-            it_should_behave_like "do not show the rate it link"
-
-            it "should show '#{you_rate_it}'" do
-              page.should have_content you_rate_it
-            end
+        shared_examples_for "show that you rate it" do
+          it "should show '#{you_rate_it}'" do
+            page.should have_content you_rate_it
           end
         end
 
         it "should have a link to the hangover" do
+          visit_root_path
           within(parent_selector) do
             page.should have_selector hangover_link
           end
@@ -216,6 +219,7 @@ describe "Homepage" do
 
         context "following the link to the hangover" do
           before do
+            visit_root_path
             within(parent_selector) do
               click_link "hangover_#{hangover.id}"
             end
@@ -227,10 +231,14 @@ describe "Homepage" do
         end
 
         context "the user is signed in" do
+          before { sign_in_user }
           context "and they have not yet 'rated' this hangover" do
-            before { sign_in_user }
+            before { visit_root_path }
 
-            it_should_behave_like "show and follow the rate it link"
+            showing_and_following_the_rate_it_link do
+              it_should_behave_like "show that you rate it"
+              it_should_behave_like "do not show the rate it link"
+            end
           end
 
           context "and they have already 'rated' this hangover" do
@@ -238,7 +246,7 @@ describe "Homepage" do
 
             before do
               hangover_vote
-              sign_in_user
+              visit_root_path
             end
 
             it_should_behave_like "do not show the rate it link"
@@ -246,9 +254,36 @@ describe "Homepage" do
         end
 
         context "the user is not signed in" do
-          it_should_behave_like "show and follow the rate it link"
-        end
+          before { visit_root_path }
+          showing_and_following_the_rate_it_link do
+            it_should_behave_like "show that you rate it"
+            it_should_behave_like "do not show the rate it link"
 
+
+            # This tests the use case where the user votes then
+            # signs out and tries to vote again
+            context "then signing out" do
+              before do
+                sign_out_user
+                visit_root_path
+              end
+
+              showing_and_following_the_rate_it_link do
+
+                it "should not show '#{you_rate_it}'" do
+                  page.should_not have_content you_rate_it
+                end
+
+                it "should show tell the user to sign in to rate it" do
+                  page.should have_content I18n.t(
+                    "hangover.sign_in_to_rate_it",
+                    :sign_in_link => "Sign in"
+                  )
+                end
+              end
+            end
+          end
+        end
       end
     end
 

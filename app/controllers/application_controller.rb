@@ -6,9 +6,11 @@ class ApplicationController < ActionController::Base
   def find_or_create_current_user
     user = current_user
     unless user
-      user = User.create!
-      user.remember_me!
-      sign_in(user)
+      if User.with_ip(request.remote_ip).empty?
+        user = User.create!
+        user.remember_me!
+        sign_in(user)
+      end
     end
     user
   end

@@ -1,14 +1,14 @@
 require 'spec_helper'
 
 describe User do
-  let(:unregistered_user) { Factory(:user) }
+  let(:user) { Factory(:user) }
   let(:registered_user) { Factory(:registered_user) }
 
   describe "Validations" do
 
     context "User factory" do
       it "should be valid" do
-        unregistered_user.should be_valid
+        user.should be_valid
       end
     end
 
@@ -19,7 +19,7 @@ describe User do
     end
 
     context "an unregistered user" do
-      before { unregistered_user }
+      before { user }
 
       context "a new user without an email address" do
         let(:second_user) { Factory(:user) }
@@ -63,6 +63,40 @@ describe User do
 
     it "should have many hangovers" do
       subject.should respond_to(:hangovers)
+    end
+  end
+
+  describe ".with_ip" do
+    SAMPLE_IP = "127.0.0.1"
+
+    shared_examples_for "find the user by ip" do
+      it "should contain the user" do
+        User.with_ip(SAMPLE_IP).should include(user)
+      end
+    end
+
+    context "the user is currently signed in" do
+      before do
+        user.current_sign_in_ip = SAMPLE_IP
+        user.save!
+      end
+
+      it_should_behave_like "find the user by ip"
+    end
+
+    context "user was previously signed in with this ip" do
+      before do
+        user.last_sign_in_ip = SAMPLE_IP
+        user.save!
+      end
+
+      it_should_behave_like "find the user by ip"
+    end
+
+    context "user is not or was prevously not signed in with this ip address" do
+      it "should not contain the user" do
+        User.with_ip(SAMPLE_IP).should_not include(user)
+      end
     end
   end
 end

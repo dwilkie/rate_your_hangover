@@ -1,5 +1,5 @@
 def rate_it_link_text
-  I18n.t('hangover.rate_it')
+  I18n.t("hangover.rate_it")
 end
 
 def you_rate_it

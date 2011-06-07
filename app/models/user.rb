@@ -10,6 +10,12 @@ class User < ActiveRecord::Base
 
   validates :display_name, :presence => true, :if => :password_required?
 
+  def self.with_ip(ip)
+    self.where{
+      (current_sign_in_ip == ip ) | (last_sign_in_ip == ip)
+    }
+  end
+
   protected
 
   # Checks whether a password is needed or not. For validations only.
