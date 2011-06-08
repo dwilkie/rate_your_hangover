@@ -62,8 +62,10 @@ describe "hangovers/index.html.haml" do
     end
   end
 
-  it "should show a link to '#{I18n.t("hangover.got_one")}'" do
-    rendered.should have_selector "p", :text => I18n.t("hangover.got_one")
+  it "should show a link to '#{spec_translate(:got_a_hangover)}'" do
+    rendered.should have_selector(
+      "a[@href='/hangovers/new']", :text => spec_translate(:got_a_hangover)
+    )
   end
 
 end

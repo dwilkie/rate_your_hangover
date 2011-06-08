@@ -64,7 +64,6 @@ describe "hangovers/_hangover.html.haml" do
         end
       end
 
-
       context "hangover is not persisted" do
         before do
           hangover.as_new_record
@@ -86,9 +85,9 @@ describe "hangovers/_hangover.html.haml" do
         end
 
         within_caption do
-          it "should have a link to: '#{rate_it_link_text}'" do
+          it "should have a link to: '#{spec_translate(:rate_it)}'" do
             parent_selector << "a[@href='/hangover_votes/#{SAMPLE_ID}' and @data-method='post']"
-            rendered.should have_parent_selector(:text => rate_it_link_text)
+            rendered.should have_parent_selector(:text => spec_translate(:rate_it))
           end
         end
       end
@@ -100,9 +99,9 @@ describe "hangovers/_hangover.html.haml" do
         end
 
         within_caption do
-          it "should not have a link to: '#{rate_it_link_text}'" do
+          it "should not have a link to: '#{spec_translate(:rate_it)}'" do
             parent_selector << "a"
-            rendered.should_not have_parent_selector(:text => rate_it_link_text)
+            rendered.should_not have_parent_selector(:text => spec_translate(:rate_it))
           end
         end
       end

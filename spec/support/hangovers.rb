@@ -1,9 +1,13 @@
-def rate_it_link_text
-  I18n.t("hangover.rate_it")
-end
+TRANSLATIONS = {
+  :rate_it => "hangover.rate_it",
+  :you_rate_it => "hangover.you_rate_it",
+  :got_a_hangover => "hangover.got_one",
+  :sign_up => "sign_up",
+  :sign_in => "sign_in"
+}
 
-def you_rate_it
-  I18n.t("hangover.you_rate_it")
+def spec_translate(key)
+  I18n.t(TRANSLATIONS[key])
 end
 
 def summary_categories

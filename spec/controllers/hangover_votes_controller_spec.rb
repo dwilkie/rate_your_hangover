@@ -53,7 +53,7 @@ describe HangoverVotesController do
           flash[:error].should == I18n.t(
             "hangover.sign_in_to_rate_it",
             :sign_in_link => controller.view_context.link_to(
-              "Sign in", new_user_session_path
+              spec_translate(:sign_in), new_user_session_path
             )
           )
         end
@@ -99,9 +99,9 @@ describe HangoverVotesController do
 
     context "vote saves successfully" do
       before { hangover_vote.stub(:save).and_return(true) }
-      it "should set the flash[:notice] to: '#{you_rate_it}'" do
+      it "should set the flash[:notice] to: '#{spec_translate(:you_rate_it)}'" do
         do_post
-        flash[:notice].should == you_rate_it
+        flash[:notice].should == spec_translate(:you_rate_it)
       end
     end
 

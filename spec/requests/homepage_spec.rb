@@ -9,16 +9,16 @@ end
 
 def showing_and_following_the_rate_it_link(&block)
 
-  it "should show a link to '#{rate_it_link_text}'" do
+  it "should show a link to '#{spec_translate(:rate_it)}'" do
     within(parent_selector) do
-      page.should have_link(rate_it_link_text)
+      page.should have_link(spec_translate(:rate_it))
     end
   end
 
-  example_group_class = context "following the link '#{rate_it_link_text}'" do
+  example_group_class = context "following the link '#{spec_translate(:rate_it)}'" do
     before do
       within(parent_selector) do
-        click_link rate_it_link_text
+        click_link spec_translate(:rate_it)
       end
     end
 
@@ -112,7 +112,7 @@ describe "Homepage" do
       visit new_user_session_path
       fill_in 'Email', :with => voting_user.email
       fill_in 'Password', :with => 'secret'
-      click_button('Sign in')
+      click_button(spec_translate(:sign_in))
     end
 
     def sign_out_user
@@ -131,9 +131,9 @@ describe "Homepage" do
           end
         end
 
-        it "should not show a link to '#{rate_it_link_text}'" do
+        it "should not show a link to '#{spec_translate(:rate_it)}'" do
           within(parent_selector) do
-            page.should_not have_link(rate_it_link_text)
+            page.should_not have_link(spec_translate(:rate_it))
           end
         end
       end
@@ -197,16 +197,16 @@ describe "Homepage" do
         before { hangover }
 
         shared_examples_for "do not show the rate it link" do
-          it "should not show a link to '#{rate_it_link_text}'" do
+          it "should not show a link to '#{spec_translate(:rate_it)}'" do
             within(parent_selector) do
-              page.should_not have_link(rate_it_link_text)
+              page.should_not have_link(spec_translate(:rate_it))
             end
           end
         end
 
         shared_examples_for "show that you rate it" do
-          it "should show '#{you_rate_it}'" do
-            page.should have_content you_rate_it
+          it "should show '#{spec_translate(:you_rate_it)}'" do
+            page.should have_content spec_translate(:you_rate_it)
           end
         end
 
@@ -270,14 +270,14 @@ describe "Homepage" do
 
               showing_and_following_the_rate_it_link do
 
-                it "should not show '#{you_rate_it}'" do
-                  page.should_not have_content you_rate_it
+                it "should not show '#{spec_translate(:you_rate_it)}'" do
+                  page.should_not have_content spec_translate(:you_rate_it)
                 end
 
                 it "should show tell the user to sign in to rate it" do
                   page.should have_content I18n.t(
                     "hangover.sign_in_to_rate_it",
-                    :sign_in_link => "Sign in"
+                    :sign_in_link => spec_translate(:sign_in)
                   )
                 end
               end
@@ -287,9 +287,48 @@ describe "Homepage" do
       end
     end
 
-    it "should show a link to '#{I18n.t('hangover.got_one')}'" do
-      visit root_path
-      page.should have_link(I18n.t('hangover.got_one'))
+    context "'#{spec_translate(:got_a_hangover)}' link" do
+      before { visit_root_path }
+
+      it "should show a link to '#{spec_translate(:got_a_hangover)}'" do
+        page.should have_link spec_translate(:got_a_hangover)
+      end
+
+      context "following the link to #{spec_translate(:got_a_hangover)}" do
+        before { click_link(spec_translate(:got_a_hangover)) }
+        it "should go to the new hangover page" do
+          current_path.should == new_hangover_path
+        end
+      end
+    end
+
+    context "menu bar" do
+      before {visit_root_path }
+
+      it "should show a link to '#{spec_translate(:sign_up)}'" do
+        page.should have_link spec_translate(:sign_up)
+      end
+
+      context "following the '#{spec_translate(:sign_up)}' link" do
+        before { click_link(spec_translate(:sign_up)) }
+
+        it "should go to the sign up page" do
+          current_path.should == new_user_registration_path
+        end
+
+      end
+
+      it "should show a link to '#{spec_translate(:sign_in)}'" do
+        page.should have_link spec_translate(:sign_in)
+      end
+
+      context "following the '#{spec_translate(:sign_in)}' link" do
+        before { click_link(spec_translate(:sign_in)) }
+
+        it "should go to the sign in page" do
+          current_path.should == new_user_session_path
+        end
+      end
     end
   end
 end
