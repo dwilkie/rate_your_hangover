@@ -1,3 +1,12 @@
+require 'spec_helper'
+
+describe "application/_menu.html.haml" do
+  before { render }
+
+  context "within" do
+    include HangoverExampleHelpers
+    let(:parent_selector) { [] }
+
     context "div#menu ul li" do
       before { parent_selector << "div[@id='menu']/ul/li" }
 
@@ -11,4 +20,6 @@
         rendered.should have_parent_selector :text => spec_translate(:sign_in)
       end
     end
+  end
+end
 
