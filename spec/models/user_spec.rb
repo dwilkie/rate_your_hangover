@@ -2,55 +2,54 @@ require 'spec_helper'
 
 describe User do
   let(:user) { Factory(:user) }
-  let(:registered_user) { Factory(:registered_user) }
+  let(:unregistered_user) { Factory.build(:unregistered_user) }
 
   describe "Validations" do
 
-    context "User factory" do
+    context "factory" do
       it "should be valid" do
         user.should be_valid
       end
     end
 
-    context "Registered user factory" do
-      it "should be valid" do
-        registered_user.should be_valid
+    context "unregistered" do
+      it "should not be valid" do
+        unregistered_user.should_not be_valid
       end
     end
 
-    context "an unregistered user" do
-      before { user }
+    context "an unregistered user already exists" do
+      before { unregistered_user.save(:validate => false) }
 
-      context "a new user without an email address" do
-        let(:second_user) { Factory(:user) }
+      context "a new unregistered user" do
+        let(:second_user) { Factory.build(:unregistered_user) }
+
+        before { second_user.save(:validate => false) }
 
         # Tests database uniqueness constraint
         it "should save" do
-          second_user.save.should be_true
+          second_user.save(:validate => false).should be_true
         end
       end
     end
 
-    context "a registered user" do
-      before { registered_user }
+    context "new" do
+      let(:new_user) { Factory.build(:user) }
 
       it "should not be valid without a password" do
-        registered_user.password = nil
-        registered_user.should_not be_valid
+        new_user.password = nil
+        new_user.should_not be_valid
       end
 
       it "should not be valid without a display name" do
-        registered_user.display_name = nil
-        registered_user.should_not be_valid
+        new_user.display_name = nil
+        new_user.should_not be_valid
       end
 
-      context "another user with the same email address" do
-        let(:duplicate_user) { Factory.build(
-          :registered_user,
-          :email => registered_user.email
-        )}
+      context "another user with the same email address already exists" do
+        before { new_user.email = user.email }
         it "should not be valid" do
-          duplicate_user.should_not be_valid
+          new_user.should_not be_valid
         end
       end
     end

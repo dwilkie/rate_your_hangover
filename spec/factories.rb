@@ -1,7 +1,7 @@
-Factory.define :user do |f|
+Factory.define :unregistered_user, :class => User do |f|
 end
 
-Factory.define :registered_user, :parent => :user do |f|
+Factory.define :user, :parent => :unregistered_user do |f|
   f.display_name "Dave"
   f.sequence(:email) {|n| "user#{n}@example.com" }
   f.password "secret"
