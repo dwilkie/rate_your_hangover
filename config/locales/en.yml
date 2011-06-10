@@ -17,7 +17,12 @@ en:
   vote:
     one: vote
     other: votes
-  sign_in: Sign in
-  sign_up: Sign up
-  sign_out: Sign out
+  devise:
+    passwords:
+      forgot_password: Forgot your password?
+    sessions:
+      sign_in: Sign in
+      sign_out: Sign out
+    registrations:
+      sign_up: Sign up
 
