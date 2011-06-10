@@ -5,7 +5,12 @@ describe HangoverVotesController do
 
   describe "POST /hangover_votes" do
     let(:hangover_vote) { mock_model(Vote).as_null_object.as_new_record }
-    let(:user) { Factory(:user) }
+    let(:registered_user) { Factory(:user) }
+    let(:unregistered_user) {
+      user = Factory.build(:unregistered_user)
+      user.save!(:validate => false)
+      user
+    }
 
     def do_post
       post :create, :id => 1
@@ -26,20 +31,20 @@ describe HangoverVotesController do
 
     context "the user is not signed in" do
       context "another user has signed in with this ip before" do
-        before { User.stub(:with_ip).and_return([user]) }
+        before { User.stub(:with_ip).and_return([unregistered_user]) }
 
         it "should not create a new user" do
-          User.should_not_receive(:create!)
+          User.should_not_receive(:new)
           do_post
         end
 
         it "should not sign in the existing user" do
           do_post
-          controller.current_user.should_not == user
+          controller.current_user.should_not == unregistered_user
         end
 
         it "should not remember the new user" do
-          user.should_not_receive(:remember_me!)
+          unregistered_user.should_not_receive(:remember_me!)
           do_post
         end
 
@@ -62,28 +67,37 @@ describe HangoverVotesController do
           do_post
           flash[:error].should be_html_safe
         end
-
       end
 
       context "there's no record of another user with this ip" do
+
+        let(:new_unregistered_user) { mock_model(User).as_null_object.as_new_record }
+
         before do
-          User.stub(:create!).and_return(user)
+          User.stub(:new).and_return(new_unregistered_user)
+          controller.stub(:sign_in)
           User.stub(:with_ip).and_return([])
         end
 
-        it "should create a new user" do
-          User.should_receive(:create!)
+
+        it "should create a new unregistered user" do
+          new_unregistered_user.should_receive(:save!).with(
+            hash_including(:validate => false)
+          )
           do_post
         end
 
-        it "should sign in the new user" do
-          do_post
-          controller.current_user.should == user
-        end
+        context "the new unregistered user" do
 
-        it "should remember the new user" do
-          user.should_receive(:remember_me!)
-          do_post
+          it "should be signed in" do
+            controller.should_receive(:sign_in).with(new_unregistered_user)
+            do_post
+          end
+
+          it "should be remembered" do
+            new_unregistered_user.should_receive(:remember_me!)
+            do_post
+          end
         end
 
         it_should_behave_like "save the hangover vote"
@@ -92,7 +106,7 @@ describe HangoverVotesController do
     end
 
     context "user is already signed in" do
-      before { sign_in user }
+      before { sign_in registered_user }
 
       it_should_behave_like "save the hangover vote"
     end

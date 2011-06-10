@@ -64,7 +64,7 @@ describe "Homepage" do
   describe "GET /" do
 
     let(:hangover) { Factory(:hangover) }
-    let(:voting_user) { Factory(:registered_user) }
+    let(:voting_user) { Factory(:user) }
 
     def visit_root_path
       visit root_path

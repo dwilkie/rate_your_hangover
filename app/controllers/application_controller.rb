@@ -7,7 +7,8 @@ class ApplicationController < ActionController::Base
     user = current_user
     unless user
       if User.with_ip(request.remote_ip).empty?
-        user = User.create!
+        user = User.new
+        user.save!(:validate => false)
         user.remember_me!
         sign_in(user)
       end

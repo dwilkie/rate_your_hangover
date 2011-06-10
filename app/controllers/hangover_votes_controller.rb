@@ -11,7 +11,8 @@ class HangoverVotesController < ApplicationController
     else
       flash[:error] = I18n.t(
         "hangover.sign_in_to_rate_it",
-        :sign_in_link => view_context.link_to(I18n.t(:sign_in), new_user_session_path)
+        :sign_in_link => view_context.link_to(
+          I18n.t("devise.sessions.sign_in"), new_user_session_path)
       ).html_safe
     end
     redirect_to :back
