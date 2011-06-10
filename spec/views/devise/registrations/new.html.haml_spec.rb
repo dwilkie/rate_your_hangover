@@ -48,19 +48,12 @@ describe "devise/registrations/new.html.haml" do
   before do
     view.stub(:resource).and_return(user)
     view.stub(:resource_name).and_return(:user)
-    view.stub(:devise_mapping).and_return(Devise.mappings[:user])
+    stub_template "devise/shared/_links.html.haml" => ""
   end
 
-  it "should have a link to #{spec_translate(:sign_in)}" do
+  it "should render the shared links" do
     render
-    parent_selector << "a[@href='/users/sign_in']"
-    rendered.should have_parent_selector(:text => spec_translate(:sign_in))
-  end
-
-  it "should have a link to #{spec_translate(:forgot_password)}" do
-    render
-    parent_selector << "a[@href='/users/password/new']"
-    rendered.should have_parent_selector(:text => spec_translate(:forgot_password))
+    rendered.should render_template :partial => "devise/shared/_links"
   end
 
   context "within" do
