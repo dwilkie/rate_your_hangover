@@ -41,7 +41,7 @@ def it_should_submit_to(options = {})
   end
 
   it "should post to #{options[:action]}" do
-    render unless options[:do_render] == false
+    render
     rendered.should have_parent_selector
   end
 end

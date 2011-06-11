@@ -7,16 +7,13 @@ describe "devise/sessions/new.html.haml" do
   let(:user) {stub_model(User).as_null_object.as_new_record}
   let(:parent_selector) { [] }
 
-  before do
-    stub_devise(:mapping => true)
-    render
-  end
+  before { stub_devise(:mapping => true) }
 
-  it_should_render_devise_shared_links(:do_render => false)
+  it_should_render_devise_shared_links
   it_should_set_the_title(:to => spec_translate(:sign_in))
 
   context "form" do
-    it_should_submit_to(:action => "/users/sign_in", :method => "post", :do_render => false)
+    it_should_submit_to(:action => "/users/sign_in", :method => "post")
     it_should_have_button(:text => spec_translate(:sign_in))
 
 
@@ -24,6 +21,8 @@ describe "devise/sessions/new.html.haml" do
       before { parent_selector << "div" }
 
       context "inputs" do
+        before { render }
+
         it_should_have_input(:user, :email)
         it_should_have_input(:user, :password)
       end

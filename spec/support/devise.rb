@@ -9,9 +9,9 @@ module Devise::CustomTestHelpers
   end
 end
 
-def it_should_render_devise_shared_links(options = {})
+def it_should_render_devise_shared_links
   it "should render the devise shared links" do
-    render unless options[:do_render] == false
+    render
     rendered.should render_template :partial => "devise/shared/_links"
   end
 end
