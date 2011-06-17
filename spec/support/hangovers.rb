@@ -9,8 +9,10 @@ TRANSLATIONS = {
   :password => Proc.new { User.human_attribute_name(:password) },
   :password_confirmation => Proc.new { User.human_attribute_name(:password_confirmation) },
   :signed_up => "devise.registrations.signed_up",
+  :signed_in => "devise.sessions.signed_in",
   :cant_be_blank => "errors.messages.blank",
-  :forgot_password => "devise.passwords.forgot_password"
+  :forgot_password => "devise.passwords.forgot_password",
+  :incorrect_credentials => "devise.failure.invalid"
 }
 
 def spec_translate(key)
@@ -19,6 +21,8 @@ def spec_translate(key)
     I18n.t(translation)
   elsif translation.is_a?(Proc)
     translation.call
+  else
+    raise "Translation '#{key}' not found. Add it to #{__FILE__}"
   end
 end
 
