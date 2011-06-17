@@ -58,6 +58,11 @@ describe "New Hangover" do
       it "should take me to the sign in page" do
         current_path.should == new_user_session_path
       end
+
+      it "should show me '#{spec_translate(:sign_up_or_sign_in_to_continue)}'" do
+        page.should have_content spec_translate(:sign_up_or_sign_in_to_continue)
+      end
+
     end
 
   end

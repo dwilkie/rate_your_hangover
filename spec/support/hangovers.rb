@@ -21,7 +21,8 @@ TRANSLATIONS = {
   :hangover_created => "hangover.created",
   :sign_in_to_rate_it => "hangover.sign_in_to_rate_it",
   :vote => "vote",
-  :caption => "hangover.caption"
+  :caption => "hangover.caption",
+  :sign_up_or_sign_in_to_continue => "devise.failure.unauthenticated"
 }
 
 def spec_translate(key, options = {})
