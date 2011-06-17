@@ -24,7 +24,7 @@ def showing_and_following_the_rate_it_link(&block)
 
     it "should show that the hangover has 1 vote" do
       within(parent_selector) do
-        page.should have_content("1 #{I18n.t("vote", :count => 1)}")
+        page.should have_content("1 #{spec_translate(:vote, :count => 1)}")
       end
     end
   end
@@ -34,7 +34,7 @@ end
 
 def test_hangover_summary_categories(all = true, sober_periods = {})
   default_hangover = Factory.build(:hangover)
-  sober_text = I18n.t("hangover.sober")
+  sober_text = spec_translate(:sober)
 
   summary_categories.each_with_index do |summary_category, index|
     caption_options = {}
@@ -48,7 +48,7 @@ def test_hangover_summary_categories(all = true, sober_periods = {})
       caption_options[:owner] = default_hangover.user.display_name
     end
 
-    caption = I18n.t("hangover.caption", caption_options)
+    caption = spec_translate(:caption, caption_options)
 
     within_hangover(index + 1) do
       it "should show the hangover: \"#{summary_category.to_s.humanize.downcase}\"'s caption as: \"#{caption}\"" do
@@ -61,6 +61,8 @@ def test_hangover_summary_categories(all = true, sober_periods = {})
 end
 
 describe "Homepage" do
+  include RequestHelpers
+
   describe "GET /" do
 
     let(:hangover) { Factory(:hangover) }
@@ -106,17 +108,6 @@ describe "Homepage" do
       end
 
       hangover.update_attribute(:created_at, create_hangover_at)
-    end
-
-    def sign_in_user
-      visit new_user_session_path
-      fill_in 'Email', :with => voting_user.email
-      fill_in 'Password', :with => 'secret'
-      click_button(spec_translate(:sign_in))
-    end
-
-    def sign_out_user
-      visit destroy_user_session_path
     end
 
     context "no hangovers exist" do
@@ -231,7 +222,7 @@ describe "Homepage" do
         end
 
         context "the user is signed in" do
-          before { sign_in_user }
+          before { sign_in(voting_user) }
           context "and they have not yet 'rated' this hangover" do
             before { visit_root_path }
 
@@ -264,7 +255,7 @@ describe "Homepage" do
             # signs out and tries to vote again
             context "then signing out" do
               before do
-                sign_out_user
+                sign_out
                 visit_root_path
               end
 
@@ -275,8 +266,8 @@ describe "Homepage" do
                 end
 
                 it "should show tell the user to sign in to rate it" do
-                  page.should have_content I18n.t(
-                    "hangover.sign_in_to_rate_it",
+                  page.should have_content spec_translate(
+                    :sign_in_to_rate_it,
                     :sign_in_link => spec_translate(:sign_in)
                   )
                 end

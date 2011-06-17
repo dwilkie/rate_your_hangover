@@ -14,6 +14,9 @@ en:
     rate_it: I rate it!
     you_rate_it: You rate this hangover!
     sign_in_to_rate_it: "%{sign_in_link} to rate this hangover"
+    new: New Hangover
+    create: Register Hangover
+    created: Your hangover has been registered!
   vote:
     one: vote
     other: votes

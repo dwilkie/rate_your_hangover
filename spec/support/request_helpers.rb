@@ -34,3 +34,16 @@ def it_should_behave_like_clicking_forgot_password
   end
 end
 
+module RequestHelpers
+  def sign_in(user)
+    visit new_user_session_path
+    fill_in 'Email', :with => user.email
+    fill_in 'Password', :with => 'secret'
+    click_button(spec_translate(:sign_in))
+  end
+
+  def sign_out
+    visit destroy_user_session_path
+  end
+end
+

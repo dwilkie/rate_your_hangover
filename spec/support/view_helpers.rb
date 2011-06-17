@@ -33,10 +33,7 @@ end
 
 def it_should_submit_to(options = {})
   before do
-    xpath_attributes = to_xpath_attributes(
-      :action => options[:action],
-      :method => options[:method]
-    )
+    xpath_attributes = to_xpath_attributes(options)
     parent_selector << "form[#{xpath_attributes}]"
   end
 

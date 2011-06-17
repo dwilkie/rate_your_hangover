@@ -5,6 +5,8 @@ describe HangoversController do
   SAMPLE_ID = 1
 
   let(:hangover) { mock_model(Hangover).as_null_object }
+  let(:hangover_params) { {:hangover => {:title => "bliind", :image => "some image" }} }
+  let(:current_user) { Factory(:user) }
 
   describe "GET /hangovers" do
 
@@ -60,6 +62,97 @@ describe HangoversController do
       do_show
       assigns[:hangover].should == hangover
     end
+  end
+
+  describe "GET /hangovers/new" do
+
+    def do_new
+      get :new
+    end
+
+    context "user is signed in" do
+      before do
+        sign_in current_user
+        Hangover.stub(:new).and_return(hangover.as_new_record)
+      end
+
+      it "should render the new template" do
+        do_new
+        response.should render_template(:new)
+      end
+
+      it "should build a new hangover" do
+        Hangover.should_receive(:new)
+        do_new
+      end
+
+      it "should assign '@hangover'" do
+        do_new
+        assigns[:hangover].should == hangover
+      end
+    end
+
+    context "user is not signed in" do
+      it "should redirect the user to the sign in path" do
+        do_new
+        response.should redirect_to(new_user_session_path)
+      end
+    end
+
+  end
+
+  describe "POST /hangovers" do
+
+    def do_create(params = {})
+      post :create, params
+    end
+
+    context "user is signed in" do
+
+      before do
+        sign_in current_user
+        # this is required otherwise devise will query the db for the current user
+        # then return a different user. i.e. the object_id will be different
+        controller.stub(:current_user).and_return(current_user)
+        current_user.stub_chain(:hangovers, :build).and_return(hangover.as_new_record)
+      end
+
+      it "should build a new hangover for the current user" do
+        hangovers = mock("Hangovers")
+        current_user.stub(:hangovers).and_return(hangovers)
+
+        # restub build
+        hangovers.stub(:build).and_return(hangover.as_new_record)
+
+        hangovers.should_receive(:build)
+        do_create hangover_params
+      end
+
+      it "should try to save the hangover" do
+        hangover.should_receive(:save)
+        do_create
+      end
+
+      it "should redirect to the index action" do
+        do_create
+        response.should redirect_to(:action => :index)
+      end
+
+      it "should set the flash message to '#{spec_translate(:hangover_created)}'" do
+        do_create
+        flash[:notice].should == spec_translate(:hangover_created)
+      end
+    end
+
+    context "user is not signed in" do
+
+      it "should redirect the user to sign in" do
+        do_create
+        response.should redirect_to new_user_session_path
+      end
+
+    end
+
   end
 
 #  it "show action should render show template" do

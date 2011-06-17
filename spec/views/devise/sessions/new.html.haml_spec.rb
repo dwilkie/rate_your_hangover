@@ -16,7 +16,6 @@ describe "devise/sessions/new.html.haml" do
     it_should_submit_to(:action => "/users/sign_in", :method => "post")
     it_should_have_button(:text => spec_translate(:sign_in))
 
-
     context "div" do
       before { parent_selector << "div" }
 

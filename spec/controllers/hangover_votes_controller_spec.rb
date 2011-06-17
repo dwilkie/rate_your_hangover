@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe HangoverVotesController do
   SAMPLE_REFERRER = "http://rateyourhangover.com/hangovers"
+  SAMPLE_HANGOVER_ID = 1
 
   describe "POST /hangover_votes" do
     let(:hangover_vote) { mock_model(Vote).as_null_object.as_new_record }
@@ -13,7 +14,7 @@ describe HangoverVotesController do
     }
 
     def do_post
-      post :create, :id => 1
+      post :create, :id => SAMPLE_HANGOVER_ID
     end
 
     before do
@@ -23,6 +24,24 @@ describe HangoverVotesController do
     end
 
     shared_examples_for "save the hangover vote" do
+
+      it "should try to find the hangover from the id" do
+        Hangover.should_receive(:find).with(SAMPLE_HANGOVER_ID)
+        do_post
+      end
+
+      it "should build a new hangover for the user" do
+        # override stub in before block
+        hangover_votes = mock("HangoverVotes")
+        Hangover.stub_chain(:find, :votes).and_return(hangover_votes)
+
+        # restub build to return the hangover vote
+        hangover_votes.stub(:build).and_return(hangover_vote)
+
+        hangover_votes.should_receive(:build).with(:user => user)
+        do_post
+      end
+
       it "should try to save the hangover vote" do
         hangover_vote.should_receive(:save)
         do_post
@@ -100,7 +119,9 @@ describe HangoverVotesController do
           end
         end
 
-        it_should_behave_like "save the hangover vote"
+        it_should_behave_like "save the hangover vote" do
+          let(:user) { new_unregistered_user }
+        end
 
       end
     end
@@ -108,7 +129,9 @@ describe HangoverVotesController do
     context "user is already signed in" do
       before { sign_in registered_user }
 
-      it_should_behave_like "save the hangover vote"
+      it_should_behave_like "save the hangover vote" do
+        let(:user) { registered_user }
+      end
     end
 
     context "vote saves successfully" do

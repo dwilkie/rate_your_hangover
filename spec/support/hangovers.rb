@@ -1,5 +1,6 @@
 TRANSLATIONS = {
   :rate_it => "hangover.rate_it",
+  :sober => "hangover.sober",
   :you_rate_it => "hangover.you_rate_it",
   :got_a_hangover => "hangover.got_one",
   :sign_up => "devise.registrations.sign_up",
@@ -12,13 +13,21 @@ TRANSLATIONS = {
   :signed_in => "devise.sessions.signed_in",
   :cant_be_blank => "errors.messages.blank",
   :forgot_password => "devise.passwords.forgot_password",
-  :incorrect_credentials => "devise.failure.invalid"
+  :incorrect_credentials => "devise.failure.invalid",
+  :new_hangover => "hangover.new",
+  :create_hangover => "hangover.create",
+  :title => Proc.new { Hangover.human_attribute_name(:title) },
+  :image => Proc.new { Hangover.human_attribute_name(:image) },
+  :hangover_created => "hangover.created",
+  :sign_in_to_rate_it => "hangover.sign_in_to_rate_it",
+  :vote => "vote",
+  :caption => "hangover.caption"
 }
 
-def spec_translate(key)
+def spec_translate(key, options = {})
   translation = TRANSLATIONS[key]
   if translation.is_a?(String)
-    I18n.t(translation)
+    I18n.t(translation, options)
   elsif translation.is_a?(Proc)
     translation.call
   else
@@ -34,6 +43,10 @@ def summary_categories
   categories.unshift(Hangover::EXTRA_SUMMARY_CATEGORIES.first)
   categories << Hangover::EXTRA_SUMMARY_CATEGORIES.last
   categories
+end
+
+def image_fixture_path
+  File.join(fixture_path, 'images', 'rails.png')
 end
 
 module HangoverExampleHelpers
