@@ -14,10 +14,10 @@ def it_should_show_the_page_title(title)
   end
 end
 
-def it_should_display_errors_for(field, message)
+def it_should_display_errors_for(resource, field, message)
   context field.to_s do
     it "should show #{spec_translate(message)}" do
-      within(:xpath, ".//input[@id='user_#{field}']/..") do
+      within(:xpath, ".//input[@id='#{resource}_#{field}']/..") do
         page.should have_content spec_translate(message)
       end
     end

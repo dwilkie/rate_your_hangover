@@ -117,6 +117,11 @@ describe HangoversController do
         current_user.stub_chain(:hangovers, :build).and_return(hangover.as_new_record)
       end
 
+      it "should assign '@hangover'" do
+        do_create
+        assigns[:hangover].should == hangover
+      end
+
       it "should build a new hangover for the current user" do
         hangovers = mock("Hangovers")
         current_user.stub(:hangovers).and_return(hangovers)
@@ -133,15 +138,29 @@ describe HangoversController do
         do_create
       end
 
-      it "should redirect to the index action" do
-        do_create
-        response.should redirect_to(:action => :index)
+      context "hangover saves successfully" do
+        before { hangover.stub(:save).and_return(true) }
+
+        it "should redirect to the index action" do
+          do_create
+          response.should redirect_to(:action => :index)
+        end
+
+        it "should set the flash message to '#{spec_translate(:hangover_created)}'" do
+          do_create
+          flash[:notice].should == spec_translate(:hangover_created)
+        end
       end
 
-      it "should set the flash message to '#{spec_translate(:hangover_created)}'" do
-        do_create
-        flash[:notice].should == spec_translate(:hangover_created)
+      context "hangover does not save successfully" do
+        before { hangover.stub(:save).and_return(false) }
+
+        it "should render the new action" do
+          do_create
+          response.should render_template(:new)
+        end
       end
+
     end
 
     context "user is not signed in" do

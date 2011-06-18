@@ -22,7 +22,8 @@ TRANSLATIONS = {
   :sign_in_to_rate_it => "hangover.sign_in_to_rate_it",
   :vote => "vote",
   :caption => "hangover.caption",
-  :sign_up_or_sign_in_to_continue => "devise.failure.unauthenticated"
+  :sign_up_or_sign_in_to_continue => "devise.failure.unauthenticated",
+  :invalid_file_type => "errors.messages.carrierwave_integrity_error"
 }
 
 def spec_translate(key, options = {})
@@ -46,8 +47,9 @@ def summary_categories
   categories
 end
 
-def image_fixture_path
-  File.join(fixture_path, 'images', 'rails.png')
+def image_fixture_path(options = {})
+  file_name = options[:invalid] ? "rails.invalid" : "rails.png"
+  File.join(fixture_path, 'images', file_name)
 end
 
 module HangoverExampleHelpers

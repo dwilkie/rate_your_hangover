@@ -47,6 +47,26 @@ describe "New Hangover" do
         end
 
       end
+
+      context "pressing '#{spec_translate(:create_hangover)}' without filling in the form" do
+        before { click_button spec_translate(:create_hangover) }
+
+        context "within" do
+          it_should_display_errors_for(:hangover, :title, :cant_be_blank)
+          it_should_display_errors_for(:hangover, :image, :cant_be_blank)
+        end
+      end
+
+      context "try to upload an invalid file" do
+        before do
+          attach_file(spec_translate(:image), image_fixture_path(:invalid => true))
+          click_button spec_translate(:create_hangover)
+        end
+
+        context "within" do
+          it_should_display_errors_for(:hangover, :image, :invalid_file_type)
+        end
+      end
     end
 
     context "user is not signed in" do

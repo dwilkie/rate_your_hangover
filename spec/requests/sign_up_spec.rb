@@ -28,9 +28,9 @@ describe "Sign up" do
       before { click_button spec_translate(:sign_up) }
 
       context "within" do
-        it_should_display_errors_for(:display_name, :cant_be_blank)
-        it_should_display_errors_for(:email, :cant_be_blank)
-        it_should_display_errors_for(:password, :cant_be_blank)
+        it_should_display_errors_for(:user, :display_name, :cant_be_blank)
+        it_should_display_errors_for(:user, :email, :cant_be_blank)
+        it_should_display_errors_for(:user, :password, :cant_be_blank)
       end
     end
 

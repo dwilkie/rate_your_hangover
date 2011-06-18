@@ -28,6 +28,19 @@ describe "hangovers/new.html.haml" do
         it_should_have_input(:hangover, :title, :type => :text)
         it_should_have_input(:hangover, :image, :type => :file)
       end
+
+      context "error messages" do
+        before do
+          hangover.stub_chain(:errors, :[]).and_return(
+            [spec_translate(:cant_be_blank)]
+          )
+          render
+        end
+
+        it_should_display_error_messages_for(:hangover, :title)
+        it_should_display_error_messages_for(:hangover, :image)
+      end
+
     end
   end
 end

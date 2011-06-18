@@ -10,6 +10,9 @@ end
 Factory.define :hangover do |f|
   f.title "Alan"
   f.association :user, :factory => :user
+  f.image File.open(
+    File.join(Rails.root, 'spec', 'fixtures', 'images', 'rails.png')
+  )
 end
 
 Factory.define :hangover_vote, :class => Vote do |f|

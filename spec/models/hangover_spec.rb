@@ -59,6 +59,19 @@ describe Hangover do
       end
     end
 
+    context "without an image" do
+      before do
+        hangover.remove_image = true
+        # required to actually remove the image
+        # see: http://groups.google.com/group/carrierwave/browse_thread/thread/6ea2d0da9aa136a6
+        hangover.save
+      end
+
+      it "should not be valid" do
+        hangover.should_not be_valid
+      end
+    end
+
   end
 
   describe "Associations" do
@@ -157,8 +170,6 @@ describe Hangover do
   end
 
   describe ".summary" do
-
-
     summary_categories.each_with_index do |summary_category, index|
 
       it "should call .#{summary_category}" do

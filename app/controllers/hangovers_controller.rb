@@ -14,10 +14,13 @@ class HangoversController < ApplicationController
   end
 
   def create
-    hangover = current_user.hangovers.build(params[:hangover])
-    hangover.save
-    flash[:notice] = I18n.t("hangover.created")
-    redirect_to :action => :index
+    @hangover = current_user.hangovers.build(params[:hangover])
+    if @hangover.save
+      flash[:notice] = I18n.t("hangover.created")
+      redirect_to :action => :index
+    else
+      render :new
+    end
 
 #    @hangover = Hangover.new(params[:hangover])
 #    @hangover.owner = request.remote_ip

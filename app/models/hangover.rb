@@ -8,7 +8,7 @@ class Hangover < ActiveRecord::Base
   belongs_to :user
   mount_uploader :image, ImageUploader
 
-  validates :user, :title, :presence => true
+  validates :user, :title, :image, :presence => true
 
   EXTRA_SUMMARY_CATEGORIES = [:latest, :best]
   TIME_PERIODS = [:day, :week, :month, :year]

@@ -116,6 +116,12 @@ describe "Homepage" do
       test_hangover_summary_categories
 
       within_hangover do
+        it "should show the default thumbnail image" do
+          within(parent_selector) do
+            page.should have_selector "img[src=\"#{ImageUploader.new.default_url}\"]"
+          end
+        end
+
         it "should not show a link to the hangover" do
           within(parent_selector) do
             page.should_not have_selector hangover_link
@@ -177,13 +183,6 @@ describe "Homepage" do
     end
 
     within_hangover do
-      it "should show the thumbnail image" do
-        visit_root_path
-        within(parent_selector) do
-          page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
-        end
-      end
-
       context "a hangover exists for today" do
         before { hangover }
 
@@ -198,6 +197,13 @@ describe "Homepage" do
         shared_examples_for "show that you rate it" do
           it "should show '#{spec_translate(:you_rate_it)}'" do
             page.should have_content spec_translate(:you_rate_it)
+          end
+        end
+
+        it "should show the hangover's thumbnail image" do
+          visit_root_path
+          within(parent_selector) do
+            page.should have_selector "img[src=\"#{hangover.image_url(:thumb)}\"]"
           end
         end
 
@@ -283,13 +289,6 @@ describe "Homepage" do
 
       it "should show a link to '#{spec_translate(:got_a_hangover)}'" do
         page.should have_link spec_translate(:got_a_hangover)
-      end
-
-      context "following the link to #{spec_translate(:got_a_hangover)}" do
-        before { click_link(spec_translate(:got_a_hangover)) }
-        it "should go to the new hangover page" do
-          current_path.should == new_hangover_path
-        end
       end
     end
 
