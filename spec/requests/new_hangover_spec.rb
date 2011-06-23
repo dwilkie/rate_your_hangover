@@ -45,7 +45,6 @@ describe "New Hangover" do
             :owner => SAMPLE_DISPLAY_NAME
           )
         end
-
       end
 
       context "pressing '#{spec_translate(:create_hangover)}' without filling in the form" do
@@ -82,9 +81,7 @@ describe "New Hangover" do
       it "should show me '#{spec_translate(:sign_up_or_sign_in_to_continue)}'" do
         page.should have_content spec_translate(:sign_up_or_sign_in_to_continue)
       end
-
     end
-
   end
 end
 
