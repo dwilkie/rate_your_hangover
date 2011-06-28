@@ -1,9 +1,7 @@
 - title t("hangover.new")
 
 = simple_form_for @hangover do |f|
-  - #f.hidden_field :image_cache
-  = f.input  :title
-  - #image_tag(@hangover.image_url) if @hangover.image?
+  = f.input  :title, :required => false
   = f.input  :image, :required => true
   = f.button :submit, t("hangover.create")
 
