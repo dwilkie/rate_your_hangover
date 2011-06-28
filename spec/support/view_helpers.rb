@@ -2,7 +2,7 @@ def to_xpath_attributes(options = {})
   attributes = []
 
   options.each do |key, value|
-    attributes << "@#{key}='#{value}'"
+    attributes << ((value == false) ? "not(@#{key})" : "@#{key}='#{value}'")
   end
 
   attributes.join(" and ")
@@ -12,7 +12,7 @@ def it_should_have_button(options = {})
   context "button" do
     before { render }
 
-    it "should have a button to #{options[:text]}" do
+    it "should have a button '#{options[:text]}'" do
       xpath_attributes = to_xpath_attributes(
         :name => :commit, :type => :submit, :value => options[:text]
       )
@@ -45,18 +45,23 @@ end
 
 def it_should_have_input(resource_name, input, options = {})
   options[:type] ||= input
-  options[:required] ||= "required"
   options[:id] ||= "#{resource_name}_#{input}"
   options[:name] ||= "#{resource_name}[#{input}]"
+  options[:required] ||= "required" unless options[:required] == false
 
+  has_label = true unless options[:type].to_sym == :hidden
+
+  input_text = has_label ? spec_translate(input) : input
   xpath_attributes = to_xpath_attributes(options)
 
-  it "should have a label for #{spec_translate(input)}" do
-    parent_selector << "label[@for='#{options[:id]}']"
-    rendered.should have_parent_selector :text => spec_translate(input)
+  if has_label
+    it "should have a label for '#{spec_translate(input)}'" do
+      parent_selector << "label[@for='#{options[:id]}']"
+      rendered.should have_parent_selector :text => spec_translate(input)
+    end
   end
 
-  it "should have an input for #{spec_translate(input)}" do
+  it "should have an input for '#{input_text}'" do
     parent_selector << "input[#{xpath_attributes}]"
     rendered.should have_parent_selector
   end

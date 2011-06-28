@@ -1,0 +1,12 @@
+- title t("hangover.new")
+
+= simple_form_for @image_uploader, :url => @image_uploader.direct_fog_url do |f|
+  = f.hidden_field :key,                     :name => "key"
+  = f.hidden_field :aws_access_key_id,       :name => "AWSAccessKeyId"
+  = f.hidden_field :acl,                     :name => "acl"
+  = f.hidden_field :success_action_redirect, :name => "success_action_redirect"
+  = f.hidden_field :policy,                  :name => "policy"
+  = f.hidden_field :signature,               :name => "signature"
+  = f.input        :image,                   :input_html => { :name => "file" }
+  = f.submit t("hangover.next_step")
+
