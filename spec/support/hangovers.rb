@@ -54,9 +54,13 @@ end
 
 module HangoverExampleHelpers
   def have_parent_selector(options = {})
+    have_selector(:xpath, parent_selector_xpath, options)
+  end
+
+  def parent_selector_xpath
     xpath = parent_selector.join("/")
     xpath = ".//#{xpath}" unless xpath[0..2] == ".//"
-    have_selector(:xpath, xpath, options)
+    xpath
   end
 end
 

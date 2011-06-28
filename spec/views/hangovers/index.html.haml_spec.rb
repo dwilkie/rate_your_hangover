@@ -14,12 +14,6 @@ describe "hangovers/index.html.haml" do
     do_render
   }
 
-  # It's not possible check for a render within a selector
-  # see https://github.com/rspec/rspec-rails/issues/387
-  it "should render the hangovers" do
-    rendered.should render_template hangovers
-  end
-
   context "within" do
     include HangoverExampleHelpers
 
@@ -58,6 +52,18 @@ describe "hangovers/index.html.haml" do
           parent_selector << "div[@class='slides_container']"
           rendered.should have_parent_selector
         end
+
+        context "div.slides_container", :type => :request do
+          before { parent_selector << "div[@class='slides_container']" }
+
+          # It's not possible check for a render within a selector
+          # see https://github.com/jnicklas/capybara/issues/384
+          it "should render the hangovers" do
+            rendered.should render_template hangovers
+            #rendered.find(parent_selector_xpath).should render_template hangovers
+          end
+        end
+
       end
     end
   end
