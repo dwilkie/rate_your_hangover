@@ -20,7 +20,8 @@ gem 'fog'
 gem 'haml-rails'
 gem 'simple_form'
 gem 'devise'
-gem "squeel", :git => "git://github.com/ernie/squeel.git" # Track git repo
+gem 'squeel', :git => "git://github.com/ernie/squeel.git" # Track git repo
+gem 'uuid'
 
 group :development do
   gem 'nifty-generators'
@@ -51,6 +52,8 @@ group :test do
   gem 'spork', :git => 'git://github.com/timcharper/spork.git'
   gem 'capybara', :git => 'git://github.com/jnicklas/capybara.git'
   gem 'database_cleaner'
+  gem 'fakeweb'
+  gem 'timecop'
   gem 'launchy'
 end
 

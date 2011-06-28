@@ -2,6 +2,7 @@ RateYourHangover::Application.routes.draw do
   devise_for :users
 
   resources :hangovers
+  resources :hangover_images, :only => [:new, :create]
 
   match 'hangover_votes/:id', :to => 'hangover_votes#create', :via => :post, :as => 'hangover_votes'
 

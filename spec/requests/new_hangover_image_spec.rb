@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe "New Hangover" do
+describe "New Hangover Image" do
   include RequestHelpers
 
-  describe "GET /hangovers/new" do
+  describe "GET /hangover_images/new" do
 
     context "user is signed in" do
       SAMPLE_DISPLAY_NAME = "Mara"
@@ -12,44 +12,26 @@ describe "New Hangover" do
 
       before do
         sign_in(user)
-        visit new_hangover_path
+        visit new_hangover_image_path
       end
 
       it_should_show_the_page_title(spec_translate(:new_hangover))
 
-      context "Filling in the form correctly then pressing '#{spec_translate(:create_hangover)}'" do
-        SAMPLE_HANGOVER_TITLE = "Bliiiiind"
-
+      context "Selecting a valid file then pressing '#{spec_translate(:next)}'" do
         before do
-          fill_in(spec_translate(:title), :with => SAMPLE_HANGOVER_TITLE)
           attach_file(spec_translate(:image), image_fixture_path)
-          click_button spec_translate(:create_hangover)
+          click_button spec_translate(:next)
         end
 
-        it "should redirect the me to the hangovers page" do
-          current_path.should == hangovers_path
-        end
-
-        it "should show me '#{spec_translate(:hangover_created)}'" do
-          page.should have_content spec_translate(:hangover_created)
-        end
-
-        it "should show me the new hangover as the latest hangover" do
-          page.should have_content spec_translate(
-            :caption,
-            :category => summary_categories.first,
-            :votes => 0,
-            :title => SAMPLE_HANGOVER_TITLE,
-            :owner => SAMPLE_DISPLAY_NAME
-          )
+        it "should redirect the me to the new hangover page" do
+          current_path.should == new_hangover_path
         end
       end
 
-      context "pressing '#{spec_translate(:create_hangover)}' without filling in the form" do
+      context "pressing '#{spec_translate(:create_hangover)}' selecting a file" do
         before { click_button spec_translate(:create_hangover) }
 
         context "within" do
-          it_should_display_errors_for(:hangover, :title, :cant_be_blank)
           it_should_display_errors_for(:hangover, :image, :cant_be_blank)
         end
       end

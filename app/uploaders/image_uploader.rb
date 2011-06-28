@@ -1,6 +1,68 @@
 # encoding: utf-8
 
 class ImageUploader < CarrierWave::Uploader::Base
+  DEFAULT_UPLOAD_EXPIRATION = 10.hours
+
+  include ActiveModel::Conversion
+  extend ActiveModel::Naming
+
+  attr_reader :success_action_redirect
+
+  def direct_fog_url
+    CarrierWave::Storage::Fog::File.new(self, nil, nil).public_url
+  end
+
+  def key
+    @key ||= "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{UUID.generate}/${filename}"
+  end
+
+  self.fog_credentials.keys.each do |key|
+    define_method(key) do
+      fog_credentials[key]
+    end
+  end
+
+
+
+#  def image
+#    self
+#  end
+
+  def persisted?
+    false
+  end
+
+  def acl
+    s3_access_policy.to_s.gsub('_', '-')
+  end
+
+  def policy(options = {})
+    options[:expiration] ||= DEFAULT_UPLOAD_EXPIRATION
+    Base64.encode64(
+      {
+        'expiration' => options[:expiration].from_now,
+        'conditions' => [
+          ["starts-with", "$utf8", ""],
+          ["starts-with", "$key", "uploads/"],
+          ["starts-with", "$authenticity_token", ""],
+          {'bucket' => fog_directory},
+          {'acl' => acl},
+          {'success_action_redirect' => success_action_redirect},
+          ["content-length-range", 1.megabyte, 1.megabytes]
+        ]
+      }.to_json
+    ).gsub("\n","")
+  end
+
+#  def signature
+#    Base64.encode64(
+#      OpenSSL::HMAC.digest(
+#        OpenSSL::Digest::Digest.new('sha1'),
+#        aws_secret_access_key, policy
+#      )
+#    ).gsub("\n","")
+#  end
+
 
   # Include RMagick or ImageScience support:
   include CarrierWave::RMagick
