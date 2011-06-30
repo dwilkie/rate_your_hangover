@@ -6,6 +6,14 @@ describe ImageUploader do
   let(:hangover) { stub_model(Hangover).as_null_object }
   let(:uploader_for_image) { ImageUploader.new(hangover, :image) }
 
+  it "should respond to #key=" do
+    subject.should be_respond_to("key=")
+  end
+
+  it "should respond to #success_action_redirect=" do
+    subject.should be_respond_to("success_action_redirect=")
+  end
+
   it "should respond to #success_action_redirect" do
     subject.should be_respond_to(:success_action_redirect)
   end
@@ -32,31 +40,46 @@ describe ImageUploader do
     end
   end
 
-  describe "#store_key" do
-    it "should return a guid" do
-      subject.store_key.should =~ /^[\d\w\-]+$/
-    end
+  describe "#key" do
+    context "for a 'hangover' mounted as an 'image'" do
+      context "where the key is not set" do
+        before { uploader_for_image.key = nil }
 
-    it "should be the same guid for the same object" do
-      subject.store_key.should == subject.store_key
+        it "should return 'uploads/hangover/image/{guid}'" do
+          uploader_for_image.key.should =~ /^uploads\/hangover\/image\/[\d\w\-]+\/\$\{filename\}$/
+        end
+      end
+
+      SAMPLE_KEY = "maggot"
+      context "where the key is set to '#{SAMPLE_KEY}'" do
+
+        before { uploader_for_image.key = SAMPLE_KEY }
+
+        it "should return '#{SAMPLE_KEY}'" do
+          uploader_for_image.key.should == SAMPLE_KEY
+        end
+      end
     end
   end
 
   describe "#store_dir" do
-    context "a store key has been generated" do
-      uploader_for_image.store_key
+    SAMPLE_DIRECTORY = "my_pics"
+    SAMPLE_FILENAME = "pic1.png"
 
+    context "where the #key = '#{SAMPLE_DIRECTORY}/#{SAMPLE_FILENAME}'" do
+      before { subject.key = "#{SAMPLE_DIRECTORY}/#{SAMPLE_FILENAME}" }
+
+      it "should return '#{SAMPLE_DIRECTORY}'" do
+        subject.store_dir.should == SAMPLE_DIRECTORY
+      end
     end
 
-    it "should return 'uploads/hangover/image/{guid}" do
-      uploader_for_image.store_dir.should =~ /^uploads\/hangover\/image\/#{uploader_for_image.store_key}$/
+    context "where #key is not set" do
+      it "should return nil" do
+        subject.store_dir.should be_nil
+      end
     end
-  end
 
-  describe "#key" do
-    it "should return {store_dir}/${filename}" do
-      uploader_for_image.key.should =~ /^#{uploader_for_image.store_dir}\/\$\{filename\}$/
-    end
   end
 
   describe "#acl" do
@@ -65,11 +88,25 @@ describe ImageUploader do
     end
   end
 
+  describe "#success_action_redirect" do
+    SAMPLE_URL = "http://example.com/some_url"
+
+    context "where #success_action_redirect = '#{SAMPLE_URL}'" do
+
+      before { subject.success_action_redirect = SAMPLE_URL }
+
+      it "should return #{SAMPLE_URL}" do
+        subject.success_action_redirect.should == SAMPLE_URL
+      end
+    end
+  end
+
   # http://aws.amazon.com/articles/1434?_encoding=UTF8
   describe "#policy" do
-    def decoded_policy(uploader = nil)
-      uploader ||= subject
-      JSON.parse(Base64.decode64(uploader.policy))
+
+    def decoded_policy(options = {})
+      uploader = options.delete(:uploader) || subject
+      JSON.parse(Base64.decode64(uploader.policy(options)))
     end
 
     it "should return Base64-encoded JSON" do
@@ -81,39 +118,97 @@ describe ImageUploader do
     end
 
     context "expiration" do
+      SAMPLE_EXPIRATION = 2.minutes
 
-      let(:expiration) { decoded_policy["expiration"] }
+      def expiration(options = {})
+        decoded_policy(options)["expiration"]
+      end
+
+      def have_expiration(expires_in = ImageUploader::DEFAULT_UPLOAD_EXPIRATION)
+        eql(
+          JSON.parse({
+            "expiry" => expires_in.from_now.to_time
+          }.to_json)["expiry"].to_time
+        )
+      end
 
       it "should be #{ImageUploader::DEFAULT_UPLOAD_EXPIRATION / 3600} hours from now" do
         Timecop.freeze(Time.now) do
-          expiration.to_time.should == JSON.parse({
-            "expiry" => ImageUploader::DEFAULT_UPLOAD_EXPIRATION.from_now.to_time
-          }.to_json)["expiry"].to_time
+          expiration.to_time.should have_expiration
         end
       end
+
+      it "should be #{SAMPLE_EXPIRATION / 60 } minutes from now when passing {:expiration => #{SAMPLE_EXPIRATION}}" do
+        Timecop.freeze(Time.now) do
+          expiration(:expiration => SAMPLE_EXPIRATION).to_time.should have_expiration(SAMPLE_EXPIRATION)
+        end
+      end
+
     end
 
     context "conditions" do
 
-      let(:conditions) { decoded_policy["conditions"] }
-
-      # Rails form builder conditions
-
-      it "should have a utf8" do
-        conditions.should include(["starts-with", "$utf8", ""])
+      def conditions(options = {})
+        decoded_policy(options)["conditions"]
       end
 
-      it "should have an authenticity token" do
-        conditions.should include(["starts-with", "$authenticity_token", ""])
+      def have_condition(field, value = nil)
+        field.is_a?(Hash) ? include(field) : include(["starts-with", "$#{field}", value.to_s])
       end
 
-      it "should have a key" do
-        decoded_policy(uploader_for_image)["conditions"].should include(["starts-with", "$key", uploader_for_image.store_dir])
-      end
+      context "should include" do
 
+        # Rails form builder conditions
+
+        it "'utf8'" do
+          conditions.should have_condition(:utf8)
+        end
+
+        it "'authenticity_token'" do
+          conditions.should have_condition(:authenticity_token)
+        end
+
+        # S3 conditions
+
+        it "'key'" do
+          uploader_for_image.key
+          conditions(
+            :uploader => uploader_for_image
+          ).should have_condition(:key, uploader_for_image.store_dir)
+        end
+
+        it "'bucket'" do
+          conditions.should have_condition("bucket" => subject.fog_directory)
+        end
+
+        it "'acl'" do
+          conditions.should have_condition("acl" => subject.acl)
+        end
+
+        it "'success_action_redirect'" do
+          subject.success_action_redirect = "http://example.com/some_url"
+          conditions.should have_condition("success_action_redirect" => "http://example.com/some_url")
+        end
+
+        context "'content-length-range of'" do
+          SAMPLE_MAX_FILE_SIZE = 10.megabytes
+
+          def have_content_length_range(max_file_size = ImageUploader::DEFAULT_MAX_FILE_SIZE)
+            include(["content-length-range", 0, max_file_size])
+          end
+
+          it "#{ImageUploader::DEFAULT_MAX_FILE_SIZE} bytes" do
+            conditions.should have_content_length_range
+          end
+
+          it "#{SAMPLE_MAX_FILE_SIZE} bytes when passing {:max_file_size => #{SAMPLE_MAX_FILE_SIZE}}" do
+            conditions(
+              :max_file_size => SAMPLE_MAX_FILE_SIZE
+            ).should have_content_length_range(SAMPLE_MAX_FILE_SIZE)
+          end
+        end
+      end
     end
-
-
   end
 
 #  before do

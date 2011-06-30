@@ -2,22 +2,20 @@
 
 class ImageUploader < CarrierWave::Uploader::Base
   DEFAULT_UPLOAD_EXPIRATION = 10.hours
+  DEFAULT_MAX_FILE_SIZE = 5.megabytes
 
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
-  attr_reader :success_action_redirect
+  attr_accessor :success_action_redirect
+  attr_writer :key
 
   def direct_fog_url
     CarrierWave::Storage::Fog::File.new(self, nil, nil).public_url
   end
 
-  def store_key
-    @store_key ||= UUID.generate
-  end
-
   def key
-    @key ||= "#{store_dir}}/${filename}"
+    @key ||= "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{UUID.generate}/${filename}"
   end
 
   self.fog_credentials.keys.each do |key|
@@ -40,6 +38,8 @@ class ImageUploader < CarrierWave::Uploader::Base
 
   def policy(options = {})
     options[:expiration] ||= DEFAULT_UPLOAD_EXPIRATION
+    options[:max_file_size] ||= DEFAULT_MAX_FILE_SIZE
+
     Base64.encode64(
       {
         'expiration' => options[:expiration].from_now,
@@ -50,7 +50,7 @@ class ImageUploader < CarrierWave::Uploader::Base
           {"bucket" => fog_directory},
           {"acl" => acl},
           {"success_action_redirect" => success_action_redirect},
-          ["content-length-range", 1.megabyte, 1.megabytes]
+          ["content-length-range", 0, options[:max_file_size]]
         ]
       }.to_json
     ).gsub("\n","")
@@ -77,7 +77,11 @@ class ImageUploader < CarrierWave::Uploader::Base
   # Override the directory where uploaded files will be stored.
   # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
-    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{@store_key}"
+    if @key
+      key_path = @key.split("/")
+      key_path.pop
+      key_path.join("/")
+    end
   end
 
   # Provide a default URL as a default if there hasn't been a file uploaded:
