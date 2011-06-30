@@ -28,13 +28,34 @@ describe ImageUploader do
 
   describe "#persisted?" do
     it "should return false" do
-      subject.persisted?.should be_false
+      subject.should_not be_persisted
+    end
+  end
+
+  describe "#store_key" do
+    it "should return a guid" do
+      subject.store_key.should =~ /^[\d\w\-]+$/
+    end
+
+    it "should be the same guid for the same object" do
+      subject.store_key.should == subject.store_key
+    end
+  end
+
+  describe "#store_dir" do
+    context "a store key has been generated" do
+      uploader_for_image.store_key
+
+    end
+
+    it "should return 'uploads/hangover/image/{guid}" do
+      uploader_for_image.store_dir.should =~ /^uploads\/hangover\/image\/#{uploader_for_image.store_key}$/
     end
   end
 
   describe "#key" do
-    it "should return 'uploads/hangover/image/{guid}/${filename}'" do
-      uploader_for_image.key.should =~ /^uploads\/hangover\/image\/[\d\w\-]+\/\$\{filename\}$/
+    it "should return {store_dir}/${filename}" do
+      uploader_for_image.key.should =~ /^#{uploader_for_image.store_dir}\/\$\{filename\}$/
     end
   end
 
@@ -46,8 +67,9 @@ describe ImageUploader do
 
   # http://aws.amazon.com/articles/1434?_encoding=UTF8
   describe "#policy" do
-    def decoded_policy
-      JSON.parse(Base64.decode64(subject.policy))
+    def decoded_policy(uploader = nil)
+      uploader ||= subject
+      JSON.parse(Base64.decode64(uploader.policy))
     end
 
     it "should return Base64-encoded JSON" do
@@ -58,16 +80,39 @@ describe ImageUploader do
       subject.policy.should_not include("\n")
     end
 
-      context "expiration" do
+    context "expiration" do
+
+      let(:expiration) { decoded_policy["expiration"] }
 
       it "should be #{ImageUploader::DEFAULT_UPLOAD_EXPIRATION / 3600} hours from now" do
         Timecop.freeze(Time.now) do
-          decoded_policy["expiration"].to_time.should == JSON.parse({
+          expiration.to_time.should == JSON.parse({
             "expiry" => ImageUploader::DEFAULT_UPLOAD_EXPIRATION.from_now.to_time
           }.to_json)["expiry"].to_time
         end
       end
     end
+
+    context "conditions" do
+
+      let(:conditions) { decoded_policy["conditions"] }
+
+      # Rails form builder conditions
+
+      it "should have a utf8" do
+        conditions.should include(["starts-with", "$utf8", ""])
+      end
+
+      it "should have an authenticity token" do
+        conditions.should include(["starts-with", "$authenticity_token", ""])
+      end
+
+      it "should have a key" do
+        decoded_policy(uploader_for_image)["conditions"].should include(["starts-with", "$key", uploader_for_image.store_dir])
+      end
+
+    end
+
 
   end
 

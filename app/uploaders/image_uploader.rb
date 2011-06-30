@@ -12,8 +12,12 @@ class ImageUploader < CarrierWave::Uploader::Base
     CarrierWave::Storage::Fog::File.new(self, nil, nil).public_url
   end
 
+  def store_key
+    @store_key ||= UUID.generate
+  end
+
   def key
-    @key ||= "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{UUID.generate}/${filename}"
+    @key ||= "#{store_dir}}/${filename}"
   end
 
   self.fog_credentials.keys.each do |key|
@@ -21,8 +25,6 @@ class ImageUploader < CarrierWave::Uploader::Base
       fog_credentials[key]
     end
   end
-
-
 
 #  def image
 #    self
@@ -43,11 +45,11 @@ class ImageUploader < CarrierWave::Uploader::Base
         'expiration' => options[:expiration].from_now,
         'conditions' => [
           ["starts-with", "$utf8", ""],
-          ["starts-with", "$key", "uploads/"],
           ["starts-with", "$authenticity_token", ""],
-          {'bucket' => fog_directory},
-          {'acl' => acl},
-          {'success_action_redirect' => success_action_redirect},
+          ["starts-with", "$key", store_dir],
+          {"bucket" => fog_directory},
+          {"acl" => acl},
+          {"success_action_redirect" => success_action_redirect},
           ["content-length-range", 1.megabyte, 1.megabytes]
         ]
       }.to_json
@@ -75,7 +77,7 @@ class ImageUploader < CarrierWave::Uploader::Base
   # Override the directory where uploaded files will be stored.
   # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
-    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
+    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{@store_key}"
   end
 
   # Provide a default URL as a default if there hasn't been a file uploaded:
