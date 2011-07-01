@@ -2,8 +2,9 @@ require 'spec_helper'
 
 describe "New Hangover Image" do
   include RequestHelpers
+  include AmazonS3Helpers
 
-  describe "GET /hangover_images/new" do
+  describe "Create a new hangover" do
 
     context "user is signed in" do
       SAMPLE_DISPLAY_NAME = "Mara"
@@ -18,32 +19,42 @@ describe "New Hangover Image" do
       it_should_show_the_page_title(spec_translate(:new_hangover))
 
       context "Selecting a valid file then pressing '#{spec_translate(:next)}'" do
+
         before do
           attach_file(spec_translate(:image), image_fixture_path)
-          click_button spec_translate(:next)
+          upload_to_s3 spec_translate(:next)
         end
+
+        # This test is here for a placeholder only. It does not actually check that
+        # Amazon redirects me to /hangovers/new. This is difficult to check without
+        # actually contacting Amazon. Even using FakeWeb you still know the desired
+        # outcome before the test starts.
 
         it "should redirect the me to the new hangover page" do
           current_path.should == new_hangover_path
         end
       end
 
-      context "pressing '#{spec_translate(:create_hangover)}' selecting a file" do
-        before { click_button spec_translate(:create_hangover) }
+      context "pressing '#{spec_translate(:create_hangover)}' without selecting a file" do
+        before { upload_to_s3 spec_translate(:next), :fail => true }
 
-        context "within" do
-          it_should_display_errors_for(:hangover, :image, :cant_be_blank)
+        # This test is here for a placeholder only. It does not actually check that
+        # Amazon returns an error page
+
+        it "should remain on the amazon s3 upload page" do
+          current_url.should == ImageUploader.new.direct_fog_url
         end
       end
 
-      context "try to upload an invalid file" do
+      context "Upload an invalid file" do
         before do
           attach_file(spec_translate(:image), image_fixture_path(:invalid => true))
-          click_button spec_translate(:create_hangover)
+          upload_to_s3 spec_translate(:next)
         end
 
-        context "within" do
-          it_should_display_errors_for(:hangover, :image, :invalid_file_type)
+        # Placeholder test
+        it "should redirect the me to the new hangover page" do
+          current_path.should == new_hangover_path
         end
       end
     end
@@ -51,7 +62,7 @@ describe "New Hangover Image" do
     context "user is not signed in" do
       before do
         sign_out
-        visit new_hangover_path
+        visit new_hangover_image_path
       end
 
       it "should take me to the sign in page" do

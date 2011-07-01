@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.1.0.rc1'
+gem 'rails', '3.1.0.rc4'
 
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
@@ -19,7 +19,7 @@ gem "rmagick"
 gem 'fog'
 gem 'haml-rails'
 gem 'simple_form'
-gem 'devise'
+gem 'devise', '1.4.0'
 gem 'squeel', :git => "git://github.com/ernie/squeel.git" # Track git repo
 gem 'uuid'
 
@@ -52,7 +52,6 @@ group :test do
   gem 'spork', :git => 'git://github.com/timcharper/spork.git'
   gem 'capybara', :git => 'git://github.com/jnicklas/capybara.git'
   gem 'database_cleaner'
-  gem 'fakeweb'
   gem 'timecop'
   gem 'launchy'
 end

@@ -1,6 +1,6 @@
 - title t("hangover.new")
 
-= simple_form_for @image_uploader, :url => @image_uploader.direct_fog_url do |f|
+= simple_form_for @image_uploader, :url => @image_uploader.direct_fog_url, :authenticity_token => false do |f|
   = f.hidden_field :key,                     :name => "key"
   = f.hidden_field :aws_access_key_id,       :name => "AWSAccessKeyId"
   = f.hidden_field :acl,                     :name => "acl"

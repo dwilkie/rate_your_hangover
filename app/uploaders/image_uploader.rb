@@ -24,9 +24,9 @@ class ImageUploader < CarrierWave::Uploader::Base
     end
   end
 
-#  def image
-#    self
-#  end
+  def image
+    self
+  end
 
   def persisted?
     false
@@ -45,25 +45,24 @@ class ImageUploader < CarrierWave::Uploader::Base
         'expiration' => options[:expiration].from_now,
         'conditions' => [
           ["starts-with", "$utf8", ""],
-          ["starts-with", "$authenticity_token", ""],
           ["starts-with", "$key", store_dir],
           {"bucket" => fog_directory},
           {"acl" => acl},
           {"success_action_redirect" => success_action_redirect},
-          ["content-length-range", 0, options[:max_file_size]]
+          ["content-length-range", 1, options[:max_file_size]]
         ]
       }.to_json
     ).gsub("\n","")
   end
 
-#  def signature
-#    Base64.encode64(
-#      OpenSSL::HMAC.digest(
-#        OpenSSL::Digest::Digest.new('sha1'),
-#        aws_secret_access_key, policy
-#      )
-#    ).gsub("\n","")
-#  end
+  def signature
+    Base64.encode64(
+      OpenSSL::HMAC.digest(
+        OpenSSL::Digest::Digest.new('sha1'),
+        aws_secret_access_key, policy
+      )
+    ).gsub("\n","")
+  end
 
 
   # Include RMagick or ImageScience support:

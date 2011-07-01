@@ -23,6 +23,10 @@ describe ImageUploader do
       it "should return the #{key.to_s.titleize}" do
         subject.send(key).should == ImageUploader.fog_credentials[key]
       end
+
+      it "should not be nil" do
+        subject.send(key).should_not be_nil
+      end
     end
   end
 
@@ -164,10 +168,6 @@ describe ImageUploader do
           conditions.should have_condition(:utf8)
         end
 
-        it "'authenticity_token'" do
-          conditions.should have_condition(:authenticity_token)
-        end
-
         # S3 conditions
 
         it "'key'" do
@@ -194,7 +194,7 @@ describe ImageUploader do
           SAMPLE_MAX_FILE_SIZE = 10.megabytes
 
           def have_content_length_range(max_file_size = ImageUploader::DEFAULT_MAX_FILE_SIZE)
-            include(["content-length-range", 0, max_file_size])
+            include(["content-length-range", 1, max_file_size])
           end
 
           it "#{ImageUploader::DEFAULT_MAX_FILE_SIZE} bytes" do
@@ -208,6 +208,25 @@ describe ImageUploader do
           end
         end
       end
+    end
+  end
+
+  describe "#signature" do
+    it "should not contain any new lines" do
+      subject.signature.should_not include("\n")
+    end
+
+    it "should return a base64 encoded 'sha1' hash of the secret key and policy document" do
+      Base64.decode64(subject.signature).should == OpenSSL::HMAC.digest(
+        OpenSSL::Digest::Digest.new('sha1'),
+        subject.aws_secret_access_key, subject.policy
+      )
+    end
+  end
+
+  describe "#image" do
+    it "should return itself" do
+      subject.image.should == subject
     end
   end
 

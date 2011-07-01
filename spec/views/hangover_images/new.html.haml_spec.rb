@@ -60,6 +60,13 @@ describe "hangover_images/new.html.haml" do
         before { render }
 
         it_should_have_input(:image_uploader, :image, :type => :file, :name => :file)
+
+        # this test is for documentation only.
+        # the authenticity_token field is not rendered regardless in the test environment
+        it "should not have an input for 'authenticity_token'" do
+          parent_selector << "input[@name='authenticity_token']"
+          rendered.should_not have_parent_selector
+        end
       end
     end
 
