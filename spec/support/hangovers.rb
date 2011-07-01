@@ -19,6 +19,7 @@ TRANSLATIONS = {
   :title => Proc.new { Hangover.human_attribute_name(:title) },
   :image => Proc.new { Hangover.human_attribute_name(:image) },
   :hangover_created => "hangover.created",
+  :hangover_being_created => "hangover.being_created",
   :sign_in_to_rate_it => "hangover.sign_in_to_rate_it",
   :vote => "vote",
   :caption => "hangover.caption",
