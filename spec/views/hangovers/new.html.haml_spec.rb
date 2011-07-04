@@ -14,7 +14,6 @@ describe "hangovers/new.html.haml" do
     it_should_submit_to(
       :action => "/hangovers",
       :method => "post",
-      :enctype => "multipart/form-data"
     )
 
     it_should_have_button(:text => spec_translate(:create_hangover))
@@ -26,7 +25,6 @@ describe "hangovers/new.html.haml" do
         before { render }
 
         it_should_have_input(:hangover, :title, :type => :text)
-        it_should_have_input(:hangover, :image, :type => :file)
       end
 
       context "error messages" do
@@ -38,7 +36,6 @@ describe "hangovers/new.html.haml" do
         end
 
         it_should_display_error_messages_for(:hangover, :title)
-        it_should_display_error_messages_for(:hangover, :image)
       end
 
     end

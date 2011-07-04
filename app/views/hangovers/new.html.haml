@@ -1,7 +1,6 @@
 - title t("hangover.new")
 
 = simple_form_for @hangover do |f|
-  = f.input  :title, :required => false
-  = f.input  :image, :required => true
+  = f.input  :title
   = f.button :submit, t("hangover.create")
 

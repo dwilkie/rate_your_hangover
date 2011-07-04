@@ -35,10 +35,10 @@ def it_should_submit_to(options = {})
   before do
     xpath_attributes = to_xpath_attributes(options)
     parent_selector << "form[#{xpath_attributes}]"
+    render
   end
 
   it "should post to #{options[:action]}" do
-    render
     rendered.should have_parent_selector
   end
 end
