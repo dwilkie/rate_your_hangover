@@ -129,7 +129,7 @@ describe HangoversController do
         # restub build
         hangovers.stub(:build).and_return(hangover.as_new_record)
 
-        hangovers.should_receive(:build)
+        hangovers.should_receive(:build).with(hangover_params[:hangover].stringify_keys)
         do_create hangover_params
       end
 
