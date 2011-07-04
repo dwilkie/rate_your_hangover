@@ -15,8 +15,9 @@ class HangoversController < ApplicationController
 
   def create
     @hangover = current_user.hangovers.build(params[:hangover])
-    if @hangover.save
-      flash[:notice] = I18n.t("hangover.created")
+    @hangover.valid?
+    if @hangover.errors[:title].blank?
+      flash[:notice] = I18n.t("hangover.being_created")
       redirect_to :action => :index
     else
       render :new

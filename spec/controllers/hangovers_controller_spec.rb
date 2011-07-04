@@ -133,34 +133,43 @@ describe HangoversController do
         do_create hangover_params
       end
 
-      it "should try to save the hangover" do
-        hangover.should_receive(:save)
+      it "should validate the hangover" do
+        hangover.should_receive(:valid?)
         do_create
       end
 
-      context "hangover saves successfully" do
-        before { hangover.stub(:save).and_return(true) }
+      it "should not try to save the hangover" do
+        hangover.should_not_receive(:save)
+        do_create
+      end
+
+      it "should check for errors on 'title'" do
+        hangover.errors.should_receive(:[]).with(:title)
+        do_create
+      end
+
+      context "hangover title is valid" do
+        before { hangover.errors.stub(:[]).with(:title).and_return([]) }
 
         it "should redirect to the index action" do
           do_create
           response.should redirect_to(:action => :index)
         end
 
-        it "should set the flash message to '#{spec_translate(:hangover_created)}'" do
+        it "should set the flash message to '#{spec_translate(:hangover_being_created)}'" do
           do_create
-          flash[:notice].should == spec_translate(:hangover_created)
+          flash[:notice].should == spec_translate(:hangover_being_created)
         end
       end
 
-      context "hangover does not save successfully" do
-        before { hangover.stub(:save).and_return(false) }
+      context "hangover title is not valid" do
+        before { hangover.errors.stub(:[]).with(:title).and_return(["some error"]) }
 
         it "should render the new action" do
           do_create
           response.should render_template(:new)
         end
       end
-
     end
 
     context "user is not signed in" do
