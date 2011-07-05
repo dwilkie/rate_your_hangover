@@ -10,13 +10,12 @@ class HangoversController < ApplicationController
   end
 
   def new
-    @hangover = Hangover.new
+    @hangover = Hangover.new(params)
   end
 
   def create
     @hangover = current_user.hangovers.build(params[:hangover])
-    @hangover.valid?
-    if @hangover.errors[:title].blank?
+    if @hangover.save_and_process_image
       flash[:notice] = I18n.t("hangover.being_created")
       redirect_to :action => :index
     else

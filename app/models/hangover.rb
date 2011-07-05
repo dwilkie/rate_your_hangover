@@ -1,14 +1,15 @@
 class Hangover < ActiveRecord::Base
 
   attr_reader :caption
+  attr_accessor :key
 
-  attr_accessible :title, :image
+  attr_accessible :title, :key
 
   has_many :votes, :as => :voteable
   belongs_to :user
   mount_uploader :image, ImageUploader
 
-  validates :user, :title, :image, :presence => true
+  validates :user, :title, :image, :key, :presence => true
 
   EXTRA_SUMMARY_CATEGORIES = [:latest, :best]
   TIME_PERIODS = [:day, :week, :month, :year]
@@ -74,6 +75,11 @@ class Hangover < ActiveRecord::Base
     return nil if new_record?
     return false if user.nil?
     self.votes.by_user(user).any?
+  end
+
+  def save_and_process_image
+    valid?
+    errors.count == errors[:image].count
   end
 
   private

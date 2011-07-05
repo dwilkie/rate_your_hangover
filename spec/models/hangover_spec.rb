@@ -33,10 +33,20 @@ def test_captions(options = {})
 end
 
 describe Hangover do
+  include UploaderHelpers
 
   let(:hangover) {
     Factory(:hangover)
   }
+
+  def remove_image
+    hangover.remove_image = true
+    # required to actually remove the image
+    # http://groups.google.com/group/carrierwave/browse_thread/thread/6ea2d0da9aa136a6
+    hangover.save
+  end
+
+  it_should_have_accessor(:key, :accessible => true)
 
   describe "Validations" do
     it "Factory should be valid" do
@@ -60,18 +70,28 @@ describe Hangover do
     end
 
     context "without an image" do
-      before do
-        hangover.remove_image = true
-        # required to actually remove the image
-        # see: http://groups.google.com/group/carrierwave/browse_thread/thread/6ea2d0da9aa136a6
-        hangover.save
-      end
+      before { remove_image }
 
       it "should not be valid" do
         hangover.should_not be_valid
       end
     end
 
+    context "without a key" do
+      before { hangover.key = nil }
+
+      it "should not be valid" do
+        hangover.should_not be_valid
+      end
+    end
+
+    context "with an invalid key" do
+      before { hangover.key = sample_key(:subject => subject, :valid => false) }
+
+      it "should not be valid" do
+        hangover.should_not be_valid
+      end
+    end
   end
 
   describe "Associations" do
@@ -265,7 +285,32 @@ describe Hangover do
         hangover.rated_by?(user).should be_false
       end
     end
+  end
 
+  describe "#save_and_process_image" do
+    context "other than the image" do
+      context "the hangover has no errors" do
+        before { remove_image }
+
+        context "s3 key is present" do
+          before { hangover.key = "some key" }
+
+          it "should queue the image to be downloaded and processed" do
+            pending
+          end
+
+          it "should return true" do
+            hangover.save_and_process_image.should be_true
+          end
+        end
+      end
+
+      context "the hangover still has errors" do
+        it "should return false" do
+          subject.save_and_process_image.should be_false
+        end
+      end
+    end
   end
 end
 

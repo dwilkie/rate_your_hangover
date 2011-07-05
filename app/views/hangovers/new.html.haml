@@ -1,6 +1,7 @@
 - title t("hangover.new")
 
 = simple_form_for @hangover do |f|
+  = f.hidden_field :key
   = f.input  :title
   = f.button :submit, t("hangover.create")
 

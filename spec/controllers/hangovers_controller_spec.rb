@@ -5,6 +5,7 @@ describe HangoversController do
   SAMPLE_ID = 1
 
   let(:hangover) { mock_model(Hangover).as_null_object }
+  let(:s3_params) { { :key => "key", :etag => "etag", :bucket => "bucket" } }
   let(:hangover_params) { {:hangover => {:title => "bliind", :image => "some image" }} }
   let(:current_user) { Factory(:user) }
 
@@ -66,8 +67,8 @@ describe HangoversController do
 
   describe "GET /hangovers/new" do
 
-    def do_new
-      get :new
+    def do_new(params = {})
+      get :new, params
     end
 
     context "user is signed in" do
@@ -81,9 +82,11 @@ describe HangoversController do
         response.should render_template(:new)
       end
 
-      it "should build a new hangover" do
-        Hangover.should_receive(:new)
-        do_new
+      it "should build a new hangover with the input params" do
+        Hangover.should_receive(:new).with(
+          hash_including(s3_params.stringify_keys)
+        )
+        do_new s3_params
       end
 
       it "should assign '@hangover'" do
@@ -133,23 +136,13 @@ describe HangoversController do
         do_create hangover_params
       end
 
-      it "should validate the hangover" do
-        hangover.should_receive(:valid?)
+      it "should direct the hangover to save and process it's image" do
+        hangover.should_receive(:save_and_process_image)
         do_create
       end
 
-      it "should not try to save the hangover" do
-        hangover.should_not_receive(:save)
-        do_create
-      end
-
-      it "should check for errors on 'title'" do
-        hangover.errors.should_receive(:[]).with(:title)
-        do_create
-      end
-
-      context "hangover title is valid" do
-        before { hangover.errors.stub(:[]).with(:title).and_return([]) }
+      context "#save_and_process_image returns true" do
+        before { hangover.stub(:save_and_process_image).and_return(true) }
 
         it "should redirect to the index action" do
           do_create
@@ -162,8 +155,8 @@ describe HangoversController do
         end
       end
 
-      context "hangover title is not valid" do
-        before { hangover.errors.stub(:[]).with(:title).and_return(["some error"]) }
+      context "#save_and_process_image returns false" do
+        before { hangover.stub(:save_and_process_image).and_return(false) }
 
         it "should render the new action" do
           do_create

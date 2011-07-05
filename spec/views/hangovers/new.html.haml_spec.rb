@@ -6,7 +6,14 @@ describe "hangovers/new.html.haml" do
   let(:hangover) { stub_model(Hangover).as_new_record.as_null_object }
   let(:parent_selector) { [] }
 
-  before { assign(:hangover, hangover) }
+  # given in the callback url from Amazon
+  # http://aws.amazon.com/articles/1434?_encoding=UTF8
+  hidden_field = :key
+
+  before do
+    assign(:hangover, hangover)
+    hangover.stub(hidden_field).and_return(hidden_field)
+  end
 
   it_should_set_the_title(:to => spec_translate(:new_hangover))
 
@@ -37,8 +44,13 @@ describe "hangovers/new.html.haml" do
 
         it_should_display_error_messages_for(:hangover, :title)
       end
-
     end
+
+    it_should_have_input(
+      :hangover, hidden_field, :type => :hidden,
+      :value => hidden_field, :required => false
+    )
+
   end
 end
 

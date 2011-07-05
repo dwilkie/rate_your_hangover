@@ -1,3 +1,6 @@
+require File.expand_path("support/uploader_helpers", File.dirname(__FILE__))
+include UploaderHelpers
+
 Factory.define :unregistered_user, :class => User do |f|
 end
 
@@ -13,6 +16,7 @@ Factory.define :hangover do |f|
   f.image File.open(
     File.join(Rails.root, 'spec', 'fixtures', 'images', 'rails.png')
   )
+  f.key UploaderHelpers.sample_key(:subject => Hangover.new)
 end
 
 Factory.define :hangover_vote, :class => Vote do |f|

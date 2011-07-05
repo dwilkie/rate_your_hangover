@@ -22,6 +22,7 @@ gem 'simple_form'
 gem 'devise', '1.4.0'
 gem 'squeel', :git => "git://github.com/ernie/squeel.git" # Track git repo
 gem 'uuid'
+gem 'resque'
 
 group :development do
   gem 'nifty-generators'
@@ -54,5 +55,6 @@ group :test do
   gem 'database_cleaner'
   gem 'timecop'
   gem 'launchy'
+  gem 'resque_spec'
 end
 
