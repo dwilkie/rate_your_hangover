@@ -48,60 +48,63 @@ describe Hangover do
 
   it_should_have_accessor(:key, :accessible => true)
 
-  describe "Validations" do
-    it "Factory should be valid" do
-      hangover.should be_valid
-    end
 
-    context "without a title" do
-      before { hangover.title = nil }
+  # Validations
+  it "Factory should be valid" do
+    hangover.should be_valid
+  end
 
-      it "should not be valid" do
-        hangover.should_not be_valid
-      end
-    end
+  context "without a title" do
+    before { hangover.title = nil }
 
-    context "without a user" do
-      before { hangover.user = nil }
-
-      it "should not be valid" do
-        hangover.should_not be_valid
-      end
-    end
-
-    context "without an image" do
-      before { remove_image }
-
-      it "should not be valid" do
-        hangover.should_not be_valid
-      end
-    end
-
-    context "without a key" do
-      before { hangover.key = nil }
-
-      it "should not be valid" do
-        hangover.should_not be_valid
-      end
-    end
-
-    context "with an invalid key" do
-      before { hangover.key = sample_key(:subject => subject, :valid => false) }
-
-      it "should not be valid" do
-        hangover.should_not be_valid
-      end
+    it "should not be valid" do
+      hangover.should_not be_valid
     end
   end
 
-  describe "Associations" do
-    it "should belong to a user" do
-      subject.should respond_to(:user)
+  context "without a user" do
+    before { hangover.user = nil }
+
+    it "should not be valid" do
+      hangover.should_not be_valid
+    end
+  end
+
+  context "without an image" do
+    before { remove_image }
+
+    it "should not be valid" do
+      hangover.should_not be_valid
+    end
+  end
+
+  context "without a key" do
+    before { hangover.key = nil }
+
+    it "should not be valid on create" do
+      hangover.should_not be_valid(:create)
     end
 
-    it "should have many votes" do
-      subject.should respond_to(:votes)
+    it "should be valid on update" do
+      hangover.should be_valid(:update)
     end
+  end
+
+  context "with an invalid key" do
+    before { hangover.key = sample_key(:subject => subject.class, :valid => false) }
+
+    it "should not be valid" do
+      hangover.should_not be_valid
+    end
+  end
+
+  # Associations
+  it "should belong to a user" do
+    subject.should respond_to(:user)
+  end
+
+  it "should have many votes" do
+    subject.should respond_to(:votes)
   end
 
   Hangover::TIME_PERIODS.each do |time_period|
@@ -288,20 +291,18 @@ describe Hangover do
   end
 
   describe "#save_and_process_image" do
+    before { ResqueSpec.reset! }
+
     context "other than the image" do
       context "the hangover has no errors" do
         before { remove_image }
 
-        context "s3 key is present" do
-          before { hangover.key = "some key" }
+        it "should queue the image to be downloaded and processed" do
+          pending
+        end
 
-          it "should queue the image to be downloaded and processed" do
-            pending
-          end
-
-          it "should return true" do
-            hangover.save_and_process_image.should be_true
-          end
+        it "should return true" do
+          hangover.save_and_process_image.should be_true
         end
       end
 

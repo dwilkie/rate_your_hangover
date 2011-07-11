@@ -16,7 +16,7 @@ Factory.define :hangover do |f|
   f.image File.open(
     File.join(Rails.root, 'spec', 'fixtures', 'images', 'rails.png')
   )
-  f.key UploaderHelpers.sample_key(:subject => Hangover.new)
+  f.key UploaderHelpers.sample_key(:subject => Hangover)
 end
 
 Factory.define :hangover_vote, :class => Vote do |f|
