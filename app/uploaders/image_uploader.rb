@@ -10,12 +10,25 @@ class ImageUploader < CarrierWave::Uploader::Base
   attr_accessor :success_action_redirect
   attr_writer :key
 
+  def self.key(model_class, mounted_as, options = {})
+    key_path = "uploads/#{model_class.to_s.underscore}/#{mounted_as}/#{UUID.generate}/${filename}"
+    if options[:as] == :regexp
+      key_parts = key_path.split("/")
+      key_parts.pop
+      key_parts.pop
+      key_path = key_parts.join("/")
+      uploader_instance = self.new
+      key_path = /\A#{key_path}\/[a-f\d\-]+\/.+\.(#{uploader_instance.extension_white_list.join("|")})\z/
+    end
+    key_path
+  end
+
   def direct_fog_url
     CarrierWave::Storage::Fog::File.new(self, nil, nil).public_url
   end
 
   def key
-    @key ||= "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{UUID.generate}/${filename}"
+    @key ||= self.class.key(model.class, mounted_as)
   end
 
   self.fog_credentials.keys.each do |key|

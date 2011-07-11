@@ -6,6 +6,66 @@ describe ImageUploader do
   let(:hangover) { stub_model(Hangover).as_null_object }
   let(:uploader_for_image) { ImageUploader.new(hangover, :image) }
 
+  describe ".key" do
+    context "'NightOut', :pic" do
+      it "should return 'uploads/night_out/pic/{guid}/${filename}'" do
+        ImageUploader.key("NightOut", :pic).should =~ /^uploads\/night_out\/pic\/[\d\a-f\-]+\/\$\{filename\}$/
+      end
+
+      context ":as => :regexp" do
+        include UploaderHelpers
+
+        it "should return a regexp" do
+          ImageUploader.key("NightOut", :pic, :as => :regexp).should be_a(Regexp)
+        end
+
+        context "a valid key" do
+          let(:key) {
+            sample_key(:subject => "NightOut", :mounted_as => :pic, :extension => "jpg")
+          }
+
+          let(:image_uploader) { mock("ImageUploader") }
+
+          before {
+            ImageUploader.stub(:new).and_return(image_uploader)
+          }
+
+          context "with a valid extension" do
+            before { image_uploader.stub(:extension_white_list).and_return(["jpg"]) }
+
+            it "should be matched by the returned regexp" do
+              key.should =~ ImageUploader.key("NightOut", :pic, :as => :regexp)
+            end
+          end
+
+          context "with an invalid extension" do
+            before { image_uploader.stub(:extension_white_list).and_return(["exe"]) }
+
+            it "should not be matched by the returned regexp" do
+              key.should_not =~ ImageUploader.key("NightOut", :pic, :as => :regexp)
+            end
+          end
+        end
+
+        context "an invalid key" do
+          let(:key) {
+            sample_key(:invalid => true, :subject => "NightOut", :mounted_as => :pic)
+          }
+
+          it "should not be matched by the returned regexp" do
+            key.should_not =~ ImageUploader.key("NightOut", :pic, :as => :regexp)
+          end
+        end
+      end
+    end
+  end
+
+  describe "#extension_white_list" do
+    it "should return 'jpg, jpeg, gif and png'" do
+      subject.extension_white_list.should == %w(jpg jpeg gif png)
+    end
+  end
+
   it "should respond to #key=" do
     subject.should be_respond_to("key=")
   end
@@ -49,8 +109,9 @@ describe ImageUploader do
       context "where the key is not set" do
         before { uploader_for_image.key = nil }
 
-        it "should return 'uploads/hangover/image/{guid}'" do
-          uploader_for_image.key.should =~ /^uploads\/hangover\/image\/[\d\w\-]+\/\$\{filename\}$/
+        it "should return the result of '.key Hangover :image" do
+          ImageUploader.stub(:key).with(Hangover, :image).and_return("maggot")
+          uploader_for_image.key.should == "maggot"
         end
       end
 
