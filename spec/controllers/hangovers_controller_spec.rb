@@ -149,10 +149,21 @@ describe HangoversController do
           response.should redirect_to(:action => :index)
         end
 
-        it "should set the flash message to '#{spec_translate(:hangover_being_created)}'" do
+        it "should set the flash message to tell the user that the hangover is being created" do
           do_create
-          flash[:notice].should == spec_translate(:hangover_being_created)
+          flash[:notice].should == spec_translate(
+            :hangover_being_created,
+            :refresh_link => controller.view_context.link_to(
+              spec_translate(:refresh), hangovers_path
+            )
+          )
         end
+
+        it "the flash message should be html_safe" do
+          do_create
+          flash[:notice].should be_html_safe
+        end
+
       end
 
       context "#save_and_process_image returns false" do

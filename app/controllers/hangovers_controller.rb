@@ -16,7 +16,12 @@ class HangoversController < ApplicationController
   def create
     @hangover = current_user.hangovers.build(params[:hangover])
     if @hangover.save_and_process_image
-      flash[:notice] = I18n.t("hangover.being_created")
+      flash[:notice] = I18n.t(
+        "hangover.being_created",
+        :refresh_link => view_context.link_to(
+          I18n.t("hangover.refresh"), hangovers_path
+        )
+      ).html_safe
       redirect_to :action => :index
     else
       render :new
