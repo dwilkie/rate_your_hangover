@@ -40,7 +40,9 @@ describe "Create a new hangover" do
 
           before do
             fill_in(spec_translate(:title), :with => SAMPLE_HANGOVER_TITLE)
-            click_button spec_translate(:create_hangover)
+            with_resque do
+              click_button spec_translate(:create_hangover)
+            end
           end
 
           # FIXME Change this to my_hangovers
@@ -48,13 +50,16 @@ describe "Create a new hangover" do
             current_path.should == hangovers_path
           end
 
-          it "should show me '#{spec_translate(:hangover_being_created)}'" do
-            page.should have_content spec_translate(:hangover_being_created)
+          it "should show me that the hangover is being created" do
+            page.should have_content spec_translate(
+              :hangover_being_created,
+              :refresh_link => spec_translate(:refresh)
+            )
           end
 
           context "when the hangover is successfully created" do
-            context "and I refresh the page" do
-              before { visit hangovers_path }
+            context "and I click '#{spec_translate(:refresh)}'" do
+              before { click_link(spec_translate(:refresh)) }
 
               it "should show me the new hangover as the latest hangover" do
                 page.should have_content spec_translate(
@@ -65,10 +70,6 @@ describe "Create a new hangover" do
                   :owner => SAMPLE_DISPLAY_NAME
                 )
               end
-            end
-
-            it "should send me an email notification" do
-              pending
             end
           end
         end

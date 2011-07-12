@@ -37,7 +37,9 @@ ActiveRecord::Schema.define(:version => 20110525095827) do
     t.datetime "updated_at"
   end
 
+  add_index "users", ["current_sign_in_ip"], :name => "index_users_on_current_sign_in_ip"
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
+  add_index "users", ["last_sign_in_ip"], :name => "index_users_on_last_sign_in_ip"
   add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
 
   create_table "votes", :force => true do |t|
