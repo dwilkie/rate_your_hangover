@@ -18,7 +18,8 @@ en:
     next_step: Next
     create: Register Hangover
     created: Your hangover has been registered!
-    being_created: Please wait while we check your hangover. We'll email you when we're done
+    being_created: "Please wait while we check your hangover. You can %{refresh_link} the page to see if we're done"
+    refresh: refresh
   vote:
     one: vote
     other: votes
