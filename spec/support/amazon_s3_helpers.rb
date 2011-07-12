@@ -5,7 +5,7 @@ module AmazonS3Helpers
 
     if options[:success]
       redirect_url = URI.parse(page.find("input[@name='success_action_redirect']").value)
-      key = page.find("input[@name='key']").value.split("/")
+      key = page.find("input[@name='key']").value
       redirect_url.query = Rack::Utils.build_nested_query({
         :bucket => ImageUploader.fog_directory,
         :key => UploaderHelpers.sample_key(:base => key),
