@@ -21,14 +21,6 @@ class HangoversController < ApplicationController
     else
       render :new
     end
-
-#    @hangover = Hangover.new(params[:hangover])
-#    @hangover.owner = request.remote_ip
-#    if @hangover.save
-#      redirect_to @hangover, :notice => "Successfully created hangover."
-#    else
-#      render :action => 'new'
-#    end
   end
 
 #  def edit
