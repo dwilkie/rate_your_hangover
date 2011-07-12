@@ -39,15 +39,14 @@ describe Hangover do
     Factory(:hangover)
   }
 
-  def remove_image
-    hangover.remove_image = true
+  def remove_image(from = hangover)
+    from.remove_image = true
     # required to actually remove the image
     # http://groups.google.com/group/carrierwave/browse_thread/thread/6ea2d0da9aa136a6
-    hangover.save
+    from.save unless from.new_record?
   end
 
   it_should_have_accessor(:key, :accessible => true)
-
 
   # Validations
   it "Factory should be valid" do
@@ -295,14 +294,18 @@ describe Hangover do
 
     context "other than the image" do
       context "the hangover has no errors" do
-        before { remove_image }
 
-        it "should queue the image to be downloaded and processed" do
-          pending
+        let(:new_hangover) { Factory.build(:hangover) }
+
+        before { remove_image(new_hangover) }
+
+        it "should queue the image to processed and the hangover saved" do
+          new_hangover.save_and_process_image
+          ImageProcessor.should have_queued(new_hangover.attributes, new_hangover.key).in(:image_processor_queue)
         end
 
         it "should return true" do
-          hangover.save_and_process_image.should be_true
+          new_hangover.save_and_process_image.should be_true
         end
       end
 

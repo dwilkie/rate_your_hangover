@@ -84,7 +84,10 @@ class Hangover < ActiveRecord::Base
 
   def save_and_process_image
     valid?
-    errors.count == errors[:image].count
+    if no_errors = (errors.count == errors[:image].count)
+      Resque.enqueue(ImageProcessor, attributes, key)
+    end
+    no_errors
   end
 
   private
