@@ -40,6 +40,7 @@ describe "Create a new hangover" do
 
           before do
             fill_in(spec_translate(:title), :with => SAMPLE_HANGOVER_TITLE)
+            ResqueSpec.reset!
             with_resque do
               click_button spec_translate(:create_hangover)
             end
@@ -80,6 +81,16 @@ describe "Create a new hangover" do
           context "within" do
             it_should_display_errors_for(:hangover, :title, :cant_be_blank)
             it_should_display_errors_for(:hangover, :image, :cant_be_blank)
+          end
+        end
+      end
+    end
+
+    context "and navigate away from this page" do
+      context "24 hours later" do
+        context "the uploaded image" do
+          it "should be deleted" do
+            pending
           end
         end
       end

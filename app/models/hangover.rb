@@ -82,10 +82,15 @@ class Hangover < ActiveRecord::Base
     self.votes.by_user(user).any?
   end
 
-  def save_and_process_image
+  def save_and_process_image(options = {})
     valid?
     if no_errors = (errors.count == errors[:image].count)
-      Resque.enqueue(ImageProcessor, attributes, key)
+      if options[:now]
+        remote_image_url = key
+        save!
+      else
+        Resque.enqueue(ImageProcessor, attributes.merge("key" => key))
+      end
     end
     no_errors
   end

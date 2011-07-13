@@ -39,12 +39,9 @@ describe Hangover do
     Factory(:hangover)
   }
 
-  def remove_image(from = hangover)
-    from.remove_image = true
-    # required to actually remove the image
-    # http://groups.google.com/group/carrierwave/browse_thread/thread/6ea2d0da9aa136a6
-    from.save unless from.new_record?
-  end
+  let(:hangover_without_image) {
+    Factory.build(:hangover_without_image)
+  }
 
   it_should_have_accessor(:key, :accessible => true)
 
@@ -70,10 +67,8 @@ describe Hangover do
   end
 
   context "without an image" do
-    before { remove_image }
-
     it "should not be valid" do
-      hangover.should_not be_valid
+      hangover_without_image.should_not be_valid
     end
   end
 
@@ -295,13 +290,29 @@ describe Hangover do
     context "other than the image" do
       context "the hangover has no errors" do
 
-        let(:new_hangover) { Factory.build(:hangover) }
+        let(:new_hangover) { Factory.build(:hangover_without_image) }
 
-        before { remove_image(new_hangover) }
+        context "passing no args" do
+          it "should queue the image to be processed and the hangover saved" do
+            new_hangover.save_and_process_image
+            ImageProcessor.should have_queued(
+              new_hangover.attributes.merge(
+                "key" => new_hangover.key
+              )
+            ).in(:image_processor_queue)
+          end
+        end
 
-        it "should queue the image to processed and the hangover saved" do
-          new_hangover.save_and_process_image
-          ImageProcessor.should have_queued(new_hangover.attributes, new_hangover.key).in(:image_processor_queue)
+        context "passing '{:now => true}'" do
+          it "should download the image through carrierwave" do
+            new_hangover.save_and_process_image(:now => true)
+            new_hangover.remote_image_url.should == new_hangover.key
+          end
+
+          it "should successfully save the hangover" do
+            new_hangover.save_and_process_image(:now => true)
+            new_hangover.should be_persisted
+          end
         end
 
         it "should return true" do

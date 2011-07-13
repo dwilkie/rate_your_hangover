@@ -10,13 +10,16 @@ Factory.define :user, :parent => :unregistered_user do |f|
   f.password "secret"
 end
 
-Factory.define :hangover do |f|
+Factory.define :hangover_without_image, :class => Hangover do |f|
   f.title "Alan"
   f.association :user, :factory => :user
+  f.key UploaderHelpers.sample_key(:subject => Hangover)
+end
+
+Factory.define :hangover, :parent => :hangover_without_image do |f|
   f.image File.open(
     File.join(Rails.root, 'spec', 'fixtures', 'images', 'rails.png')
   )
-  f.key UploaderHelpers.sample_key(:subject => Hangover)
 end
 
 Factory.define :hangover_vote, :class => Vote do |f|
