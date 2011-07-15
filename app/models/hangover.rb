@@ -89,7 +89,11 @@ class Hangover < ActiveRecord::Base
         self.remote_image_url = image.direct_fog_url(key)
         save!
       else
-        Resque.enqueue(ImageProcessor, attributes.merge("key" => key))
+        Resque.enqueue(
+          ImageProcessor,
+          attributes.merge("key" => key),
+          ["user_id"]
+        )
       end
     end
     no_errors

@@ -306,7 +306,7 @@ describe Hangover do
             ImageProcessor.should have_queued(
               new_hangover.attributes.merge(
                 "key" => new_hangover.key
-              )
+              ), ["user_id"]
             ).in(:image_processor_queue)
           end
         end
