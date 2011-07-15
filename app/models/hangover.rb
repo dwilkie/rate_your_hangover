@@ -86,7 +86,7 @@ class Hangover < ActiveRecord::Base
     valid?
     if no_errors = (errors.count == errors[:image].count)
       if options[:now]
-        remote_image_url = key
+        self.remote_image_url = image.direct_fog_url(key)
         save!
       else
         Resque.enqueue(ImageProcessor, attributes.merge("key" => key))

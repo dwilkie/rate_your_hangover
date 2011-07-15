@@ -96,6 +96,14 @@ describe ImageUploader do
         subject, nil, nil
       ).public_url
     end
+
+    SAMPLE_PATH = "upload_dir/bliind.exe"
+
+    context SAMPLE_PATH do
+      it "should return the full url with '/#{SAMPLE_PATH}' as the path" do
+        URI.parse(subject.direct_fog_url(SAMPLE_PATH)).path.should == "/#{SAMPLE_PATH}"
+      end
+    end
   end
 
   describe "#persisted?" do

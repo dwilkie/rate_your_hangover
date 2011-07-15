@@ -35,6 +35,10 @@ end
 describe Hangover do
   include UploaderHelpers
 
+  def hangover_key(options = {})
+    sample_key(options.merge(:subject => subject.class))
+  end
+
   let(:hangover) {
     Factory(:hangover)
   }
@@ -85,7 +89,7 @@ describe Hangover do
   end
 
   context "with an invalid key" do
-    before { hangover.key = sample_key(:subject => subject.class, :valid => false) }
+    before { hangover.key = hangover_key(:valid => false) }
 
     it "should not be valid" do
       hangover.should_not be_valid
@@ -303,15 +307,21 @@ describe Hangover do
           end
         end
 
-        context "passing '{:now => true}'" do
-          it "should download the image through carrierwave" do
-            new_hangover.save_and_process_image(:now => true)
-            new_hangover.remote_image_url.should == new_hangover.key
+        context "passing {:now => true}" do
+          before do
+            new_hangover.stub(:remote_image_url=)
+            new_hangover.stub(:save!)
           end
 
-          it "should successfully save the hangover" do
+          it "should try to download the image from a url based off the key" do
+            new_hangover.key = key = hangover_key
+            new_hangover.should_receive(:remote_image_url=).with(/\/#{key}$/)
             new_hangover.save_and_process_image(:now => true)
-            new_hangover.should be_persisted
+          end
+
+          it "should try and save! the hangover" do
+            new_hangover.should_receive(:save!)
+            new_hangover.save_and_process_image(:now => true)
           end
         end
 

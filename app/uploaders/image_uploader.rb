@@ -23,8 +23,15 @@ class ImageUploader < CarrierWave::Uploader::Base
     key_path
   end
 
-  def direct_fog_url
-    CarrierWave::Storage::Fog::File.new(self, nil, nil).public_url
+  def direct_fog_url(path = nil)
+    fog_uri = CarrierWave::Storage::Fog::File.new(self, nil, nil).public_url
+    if path
+      uri = URI.parse(fog_uri)
+      path = "/#{path}" unless path[0] == "/"
+      uri.path = path
+      fog_uri = uri.to_s
+    end
+    fog_uri
   end
 
   def key
