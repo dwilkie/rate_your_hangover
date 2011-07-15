@@ -47,7 +47,9 @@ describe Hangover do
     Factory.build(:hangover_without_image)
   }
 
-  [:key, :title, {:user_id => 1}].each do |accessor|
+  it_should_have_accessor(:user_id => 1, :accessible => false)
+
+  [:key, :title].each do |accessor|
     it_should_have_accessor(accessor, :accessible => true)
   end
 
