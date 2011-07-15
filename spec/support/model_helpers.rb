@@ -1,10 +1,15 @@
 def it_should_have_accessor(name, options = {})
+  if name.is_a?(Hash)
+    key = name.keys.first
+    sample_data = name[key]
+    name = key
+  else
+    sample_data = "sample #{name}"
+  end
+
   it "should respond to ##{name}=" do
     subject.should respond_to("#{name}=")
   end
-
-
-  sample_data = "sample #{name}"
 
   describe "##{name}" do
 

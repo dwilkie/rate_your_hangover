@@ -47,7 +47,9 @@ describe Hangover do
     Factory.build(:hangover_without_image)
   }
 
-  it_should_have_accessor(:key, :accessible => true)
+  [:key, :title, {:user_id => 1}].each do |accessor|
+    it_should_have_accessor(accessor, :accessible => true)
+  end
 
   # Validations
   it "Factory should be valid" do

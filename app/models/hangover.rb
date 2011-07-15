@@ -3,7 +3,7 @@ class Hangover < ActiveRecord::Base
   attr_reader :caption
   attr_accessor :key
 
-  attr_accessible :title, :key
+  attr_accessible :title, :key, :user_id
 
   has_many :votes, :as => :voteable
   belongs_to :user
