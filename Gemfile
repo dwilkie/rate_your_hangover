@@ -23,7 +23,7 @@ gem 'devise', '1.4.0'
 gem 'squeel', :git => "git://github.com/ernie/squeel.git" # Track git repo
 gem 'uuid'
 gem 'resque'
-gem 'resque-scheduler'
+gem 'resque-scheduler', :require => "resque_scheduler"
 
 group :development do
   gem 'nifty-generators'
