@@ -11,7 +11,7 @@ class HangoversController < ApplicationController
 
   def new
     @hangover = Hangover.new(params)
-    @hangover.delete_image_later
+    @hangover.delete_upload
   end
 
   def create

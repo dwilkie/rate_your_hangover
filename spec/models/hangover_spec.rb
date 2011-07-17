@@ -293,19 +293,27 @@ describe Hangover do
   end
 
   describe "#delete_upload" do
-    before do
-      ResqueSpec.reset!
-      Timecop.freeze(Time.now)
+    context "passing no args" do
+      before do
+        ResqueSpec.reset!
+        Timecop.freeze(Time.now)
+      end
+
+      after {Timecop.return}
+
+      it "should schedule the remote upload to be deleted 24 hours from now" do
+        hangover_without_image.delete_upload
+        UploadGarbageCollector.should have_scheduled_at(
+          24.hours.from_now,
+          {:key => hangover_without_image.key}
+        )
+      end
     end
 
-    after {Timecop.return}
+    context "passing {:now => true}" do
+      it "should try and delete the remote upload" do
 
-    it "should schedule the remote upload to be deleted 24 hours from now" do
-      hangover_without_image.delete_upload
-      UploadGarbageCollector.should have_scheduled_at(
-        24.hours.from_now,
-        {:key => hangover_without_image.key}
-      )
+      end
     end
   end
 
