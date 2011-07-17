@@ -20,7 +20,7 @@ describe "Create a new hangover" do
 
         before do
           attach_file(spec_translate(:image), image_fixture_path)
-          upload_to_s3 spec_translate(:next)
+          upload_to_s3 spec_translate(:next), :process_image => true
         end
 
         # This test is here for a placeholder only. It does not actually check that
@@ -80,7 +80,6 @@ describe "Create a new hangover" do
 
           context "within" do
             it_should_display_errors_for(:hangover, :title, :cant_be_blank)
-            it_should_display_errors_for(:hangover, :image, :cant_be_blank)
           end
         end
       end
