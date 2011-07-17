@@ -3,7 +3,7 @@ require 'spec_helper'
 describe ImageProcessor do
   context "@queue" do
     it "should == :image_processor_queue" do
-      ImageProcessor.instance_variable_get(:@queue).should == :image_processor_queue
+      subject.class.instance_variable_get(:@queue).should == :image_processor_queue
     end
   end
 
@@ -24,12 +24,12 @@ describe ImageProcessor do
 
     it "should build a new hangover from the parameters" do
       Hangover.should_receive(:new).with(SAMPLE_ATTRIBUTES)
-      ImageProcessor.perform(SAMPLE_ATTRIBUTES)
+      subject.class.perform(SAMPLE_ATTRIBUTES)
     end
 
     it "should tell the hangover to process it's image and save" do
       new_hangover.should_receive(:save_and_process_image).with(:now => true)
-      ImageProcessor.perform(SAMPLE_ATTRIBUTES)
+      subject.class.perform(SAMPLE_ATTRIBUTES)
     end
 
     describe EXPLICIT_ATTRIBUTES do
@@ -38,7 +38,7 @@ describe ImageProcessor do
           new_hangover.should_receive(
             "#{attribute}="
           ).with(SAMPLE_ATTRIBUTES[attribute])
-          ImageProcessor.perform(SAMPLE_ATTRIBUTES, EXPLICIT_ATTRIBUTES)
+          subject.class.perform(SAMPLE_ATTRIBUTES, EXPLICIT_ATTRIBUTES)
         end
       end
     end
