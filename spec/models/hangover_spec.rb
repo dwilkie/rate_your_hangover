@@ -292,20 +292,34 @@ describe Hangover do
     end
   end
 
+  describe "#delete_upload" do
+    before do
+      ResqueSpec.reset!
+      Timecop.freeze(Time.now)
+    end
+
+    after {Timecop.return}
+
+    it "should schedule the remote upload to be deleted 24 hours from now" do
+      hangover_without_image.delete_upload
+      UploadGarbageCollector.should have_scheduled_at(
+        24.hours.from_now,
+        {:key => hangover_without_image.key}
+      )
+    end
+  end
+
   describe "#save_and_process_image" do
     before { ResqueSpec.reset! }
 
     context "other than the image" do
       context "the hangover has no errors" do
-
-        let(:new_hangover) { Factory.build(:hangover_without_image) }
-
         context "passing no args" do
           it "should queue the image to be processed and the hangover saved" do
-            new_hangover.save_and_process_image
+            hangover_without_image.save_and_process_image
             ImageProcessor.should have_queued(
-              new_hangover.attributes.merge(
-                "key" => new_hangover.key
+              hangover_without_image.attributes.merge(
+                "key" => hangover_without_image.key
               ), ["user_id"]
             ).in(:image_processor_queue)
           end
@@ -313,24 +327,24 @@ describe Hangover do
 
         context "passing {:now => true}" do
           before do
-            new_hangover.stub(:remote_image_url=)
-            new_hangover.stub(:save!)
+            hangover_without_image.stub(:remote_image_url=)
+            hangover_without_image.stub(:save!)
           end
 
           it "should try to download the image from a url based off the key" do
-            new_hangover.key = key = hangover_key
-            new_hangover.should_receive(:remote_image_url=).with(/\/#{key}$/)
-            new_hangover.save_and_process_image(:now => true)
+            hangover_without_image.key = key = hangover_key
+            hangover_without_image.should_receive(:remote_image_url=).with(/\/#{key}$/)
+            hangover_without_image.save_and_process_image(:now => true)
           end
 
           it "should try and save! the hangover" do
-            new_hangover.should_receive(:save!)
-            new_hangover.save_and_process_image(:now => true)
+            hangover_without_image.should_receive(:save!)
+            hangover_without_image.save_and_process_image(:now => true)
           end
         end
 
         it "should return true" do
-          new_hangover.save_and_process_image.should be_true
+          hangover_without_image.save_and_process_image.should be_true
         end
       end
 

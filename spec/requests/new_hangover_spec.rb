@@ -58,19 +58,28 @@ describe "Create a new hangover" do
             )
           end
 
-          context "when the hangover is successfully created" do
-            context "and I click '#{spec_translate(:refresh)}'" do
-              before { click_link(spec_translate(:refresh)) }
+          context "assuming my hangover is successfully created" do
 
-              it "should show me the new hangover as the latest hangover" do
-                page.should have_content spec_translate(
-                  :caption,
-                  :category => summary_categories.first,
-                  :votes => 0,
-                  :title => SAMPLE_HANGOVER_TITLE,
-                  :owner => SAMPLE_DISPLAY_NAME
-                )
+            shared_examples_for "the latest hangover is my hangover" do
+              context "by that I mean when I click '#{spec_translate(:refresh)}'" do
+                before { click_link(spec_translate(:refresh)) }
+
+                it "the latest hangover should be my hangover" do
+                  page.should have_content spec_translate(
+                    :caption,
+                    :category => summary_categories.first,
+                    :votes => 0,
+                    :title => SAMPLE_HANGOVER_TITLE,
+                    :owner => SAMPLE_DISPLAY_NAME
+                  )
+                end
               end
+            end
+
+            it_should_behave_like "the latest hangover is my hangover"
+
+            context "a little more than 24 hours later" do
+              it_should_behave_like "the latest hangover is my hangover"
             end
           end
         end
@@ -80,16 +89,6 @@ describe "Create a new hangover" do
 
           context "within" do
             it_should_display_errors_for(:hangover, :title, :cant_be_blank)
-          end
-        end
-      end
-    end
-
-    context "and navigate away from this page" do
-      context "24 hours later" do
-        context "the uploaded image" do
-          it "should be deleted" do
-            pending
           end
         end
       end

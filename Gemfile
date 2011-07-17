@@ -57,6 +57,6 @@ group :test do
   gem 'fakeweb'
   gem 'timecop'
   gem 'launchy'
-  gem 'resque_spec'
+  gem 'resque_spec', :require => 'resque_spec/scheduler'
 end
 

@@ -89,6 +89,11 @@ describe HangoversController do
         do_new s3_params
       end
 
+      it "should tell the hangover to delete it's image later" do
+        hangover.should_receive(:delete_image_later)
+        do_new
+      end
+
       it "should assign '@hangover'" do
         do_new
         assigns[:hangover].should == hangover

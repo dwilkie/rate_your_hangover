@@ -99,6 +99,10 @@ class Hangover < ActiveRecord::Base
     no_errors
   end
 
+  def delete_upload
+    Resque.enqueue_in(24.hours, UploadGarbageCollector, :key => key)
+  end
+
   private
 
   def self.build_summary(summary_category)
