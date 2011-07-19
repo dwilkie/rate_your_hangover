@@ -58,5 +58,6 @@ group :test do
   gem 'timecop'
   gem 'launchy'
   gem 'resque_spec', :require => 'resque_spec/scheduler'
+  gem 'guard-rspec'
 end
 
