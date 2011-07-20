@@ -7,17 +7,44 @@ describe ImageUploader do
   let(:hangover) { stub_model(Hangover).as_null_object }
   let(:uploader_for_image) { ImageUploader.new(hangover, :image) }
 
-  describe ".key" do
+  describe ".store_dir" do
     context "'NightOut', :pic" do
-      it "should return 'uploads/night_out/pic/{guid}/${filename}'" do
-        ImageUploader.key("NightOut", :pic).should =~ /^uploads\/night_out\/pic\/[\d\a-f\-]+\/\$\{filename\}$/
+      it "should return 'uploads/night_out/pic'" do
+        subject.class.store_dir("NightOut", :pic).should == "uploads/night_out/pic"
+      end
+    end
+  end
+
+  describe ".key" do
+    context ":store_dir => 'uploads/night_out/pic'" do
+      let(:options) { {:store_dir => 'uploads/night_out/pic' } }
+
+      it "should == uploads/night_out/pic/{guid}/${filename}'" do
+        subject.class.key(
+          options
+        ).should =~ /^uploads\/night_out\/pic\/[\d\a-f\-]+\/\$\{filename\}$/
+      end
+
+    end
+
+    context ":model_class =>'NightOut', :mounted_as => :pic" do
+      let(:options) { {:model_class =>'NightOut', :mounted_as => :pic} }
+
+      before { subject.class.stub(:store_dir).and_return("store_dir") }
+
+      it 'should == #{store_dir(NightOut, :pic)}/{guid}/${filename}' do
+        subject.class.key(
+          options
+        ).should =~ /^store_dir\/[\d\a-f\-]+\/\$\{filename\}$/
       end
 
       context ":as => :regexp" do
         include UploaderHelpers
 
+        before {options.merge!(:as => :regexp)}
+
         it "should return a regexp" do
-          ImageUploader.key("NightOut", :pic, :as => :regexp).should be_a(Regexp)
+          subject.class.key(options).should be_a(Regexp)
         end
 
         context "a valid key" do
@@ -28,14 +55,14 @@ describe ImageUploader do
           let(:image_uploader) { mock("ImageUploader") }
 
           before {
-            ImageUploader.stub(:new).and_return(image_uploader)
+            subject.class.stub(:new).and_return(image_uploader)
           }
 
           context "with a valid extension" do
             before { image_uploader.stub(:extension_white_list).and_return(["jpg"]) }
 
             it "should be matched by the returned regexp" do
-              key.should =~ ImageUploader.key("NightOut", :pic, :as => :regexp)
+              key.should =~ subject.class.key(options)
             end
           end
 
@@ -43,7 +70,7 @@ describe ImageUploader do
             before { image_uploader.stub(:extension_white_list).and_return(["exe"]) }
 
             it "should not be matched by the returned regexp" do
-              key.should_not =~ ImageUploader.key("NightOut", :pic, :as => :regexp)
+              key.should_not =~ subject.class.key(options)
             end
           end
         end
@@ -54,7 +81,7 @@ describe ImageUploader do
           }
 
           it "should not be matched by the returned regexp" do
-            key.should_not =~ ImageUploader.key("NightOut", :pic, :as => :regexp)
+            key.should_not =~ subject.class.key(options)
           end
         end
       end
@@ -114,46 +141,58 @@ describe ImageUploader do
   end
 
   describe "#key" do
-    context "for a 'hangover' mounted as an 'image'" do
-      context "where the key is not set" do
-        before { uploader_for_image.key = nil }
+    context "where the key is not set" do
+      before { uploader_for_image.key = nil }
 
-        it "should return the result of '.key Hangover :image" do
-          ImageUploader.stub(:key).with(Hangover, :image).and_return("maggot")
-          uploader_for_image.key.should == "maggot"
-        end
+      it "should return the result of .key :store_dir => store_dir" do
+        uploader_for_image.stub(:store_dir).and_return("store_dir")
+        subject.class.stub(:key).with(:store_dir => "store_dir").and_return("maggot")
+        uploader_for_image.key.should == "maggot"
       end
+    end
 
-      SAMPLE_KEY = "maggot"
-      context "where the key is set to '#{SAMPLE_KEY}'" do
+    SAMPLE_KEY = "maggot"
+    context "where the key is set to '#{SAMPLE_KEY}'" do
 
-        before { uploader_for_image.key = SAMPLE_KEY }
+      before { uploader_for_image.key = SAMPLE_KEY }
 
-        it "should return '#{SAMPLE_KEY}'" do
-          uploader_for_image.key.should == SAMPLE_KEY
-        end
+      it "should return '#{SAMPLE_KEY}'" do
+        uploader_for_image.key.should == SAMPLE_KEY
       end
     end
   end
 
-  describe "#store_dir" do
-    SAMPLE_DIRECTORY = "my_pics"
-    SAMPLE_FILENAME = "pic1.png"
+  describe "#filename" do
+    SAMPLE_KEY = "store_dir/guid/filename"
 
-    context "where the #key = '#{SAMPLE_DIRECTORY}/#{SAMPLE_FILENAME}'" do
-      before { subject.key = "#{SAMPLE_DIRECTORY}/#{SAMPLE_FILENAME}" }
+    context "#key is set to '#{SAMPLE_KEY}'" do
+      before { subject.key = SAMPLE_KEY }
 
-      it "should return '#{SAMPLE_DIRECTORY}'" do
-        subject.store_dir.should == SAMPLE_DIRECTORY
+      filename = SAMPLE_KEY.split("/")
+      filename.shift
+      filename = filename.join("/")
+
+      it "should return '#{filename}'" do
+        subject.filename.should == filename
       end
     end
 
-    context "where #key is not set" do
+    context "#key is not set" do
       it "should return nil" do
-        subject.store_dir.should be_nil
+        subject.filename.should be_nil
       end
     end
 
+  end
+
+  describe "#store_dir" do
+    context "for a 'hangover' mounted as an 'image'" do
+
+      it "should return the result from .store_dir Hangover :image" do
+        subject.class.stub(:store_dir).with(Hangover, :image).and_return("store_dir")
+        uploader_for_image.store_dir.should == "store_dir"
+      end
+    end
   end
 
   describe "#acl" do

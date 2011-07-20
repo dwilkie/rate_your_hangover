@@ -3,7 +3,7 @@ module UploaderHelpers
     options[:valid] = true unless options[:valid] == false
     options[:valid] &&= !options[:invalid]
     options[:mounted_as] ||= :image
-    options[:base] ||= ImageUploader.key(options[:subject], options[:mounted_as])
+    options[:base] ||= ImageUploader.key(:model_class => options[:subject], :mounted_as => options[:mounted_as])
     if options[:filename]
       filename_parts = options[:filename].split(".")
       options[:extension] = filename_parts.pop if filename_parts.size > 1

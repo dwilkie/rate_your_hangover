@@ -10,8 +10,13 @@ class ImageUploader < CarrierWave::Uploader::Base
   attr_accessor :success_action_redirect
   attr_writer :key
 
-  def self.key(model_class, mounted_as, options = {})
-    key_path = "uploads/#{model_class.to_s.underscore}/#{mounted_as}/#{UUID.generate}/${filename}"
+  def self.store_dir(model_class, mounted_as)
+    "uploads/#{model_class.to_s.underscore}/#{mounted_as}"
+  end
+
+  def self.key(options = {})
+    options[:store_dir] ||= store_dir(options[:model_class], options[:mounted_as])
+    key_path = "#{options[:store_dir]}/#{UUID.generate}/${filename}"
     if options[:as] == :regexp
       key_parts = key_path.split("/")
       key_parts.pop
@@ -35,7 +40,7 @@ class ImageUploader < CarrierWave::Uploader::Base
   end
 
   def key
-    @key ||= self.class.key(model.class, mounted_as)
+    @key ||= self.class.key(:store_dir => store_dir)
   end
 
   self.fog_credentials.keys.each do |key|
@@ -96,10 +101,16 @@ class ImageUploader < CarrierWave::Uploader::Base
   # Override the directory where uploaded files will be stored.
   # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
+    self.class.store_dir(model.class, mounted_as)
+  end
+
+  def filename
     if @key
       key_path = @key.split("/")
-      key_path.pop
-      key_path.join("/")
+      filename_parts = []
+      filename_parts.unshift(key_path.pop)
+      filename_parts.unshift(key_path.pop)
+      File.join(filename_parts)
     end
   end
 
