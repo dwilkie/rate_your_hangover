@@ -1,7 +1,6 @@
 class Hangover < ActiveRecord::Base
 
   attr_reader :caption
-  attr_accessor :key
 
   attr_accessible :title, :key
 
@@ -15,9 +14,9 @@ class Hangover < ActiveRecord::Base
   mount_uploader MOUNT_AS, ImageUploader
 
   validates :user, :title, :image, :presence => true
-  validates :key, :presence => {:on => :create},
-                  :format => ImageUploader.key(self, MOUNT_AS, :as => :regexp),
-                  :allow_nil => true
+  validates :key, :presence => true,
+                  :format => ImageUploader.key(:model_class => self, :mounted_as => MOUNT_AS, :as => :regexp),
+                  :allow_nil => true, :on => :create
 
   def self.best
     order("votes_count DESC").first
@@ -53,6 +52,14 @@ class Hangover < ActiveRecord::Base
     @@hangovers
   end
 
+  def key
+    send(MOUNT_AS).key
+  end
+
+  def key=(k)
+    send(MOUNT_AS).key = k
+  end
+
   def self.inventory(type = nil)
     summary
   end
@@ -86,7 +93,7 @@ class Hangover < ActiveRecord::Base
     valid?
     if no_errors = (errors.count == errors[:image].count)
       if options[:now]
-        self.remote_image_url = image.direct_fog_url(key)
+        self.remote_image_url = image.direct_fog_url(:with_key => true)
         save!
       else
         Resque.enqueue(

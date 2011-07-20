@@ -47,10 +47,23 @@ describe Hangover do
     Factory.build(:hangover_without_image)
   }
 
-  it_should_have_accessor(:user_id => 1, :accessible => false)
+  # Accessors
 
-  [:key, :title].each do |accessor|
-    it_should_have_accessor(accessor, :accessible => true)
+  it_should_have_accessor(:user_id => 1, :accessible => false)
+  it_should_have_accessor(:title, :accessible => true)
+
+  describe "#key = 'sample key'" do
+    it "should set the image key" do
+      subject.key = "sample key"
+      subject.image.key.should == "sample key"
+    end
+  end
+
+  describe "#key" do
+    it "should return the key from the image" do
+      subject.image.key = "sample key"
+      subject.key.should == "sample key"
+    end
   end
 
   # Validations
@@ -95,8 +108,12 @@ describe Hangover do
   context "with an invalid key" do
     before { hangover.key = hangover_key(:valid => false) }
 
-    it "should not be valid" do
-      hangover.should_not be_valid
+    it "should not be valid on create" do
+      hangover.should_not be_valid(:create)
+    end
+
+    it "should be valid on update" do
+      hangover.should be_valid(:update)
     end
   end
 
