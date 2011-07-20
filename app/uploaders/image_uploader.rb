@@ -28,11 +28,11 @@ class ImageUploader < CarrierWave::Uploader::Base
     key_path
   end
 
-  def direct_fog_url(path = nil)
+  def direct_fog_url(options = {})
     fog_uri = CarrierWave::Storage::Fog::File.new(self, nil, nil).public_url
-    if path
+    if options[:with_path]
       uri = URI.parse(fog_uri)
-      path = "/#{path}" unless path[0] == "/"
+      path = "/#{key}"
       uri.path = path
       fog_uri = uri.to_s
     end
@@ -129,6 +129,15 @@ class ImageUploader < CarrierWave::Uploader::Base
   # Create different versions of your uploaded files:
   version :thumb do
     process :resize_to_limit => [200, 200]
+
+    def full_filename(for_file)
+      unless for_file
+        self.key = model.send("#{mounted_as}_url")
+        for_file = filename
+      end
+      extname = File.extname(for_file)
+      [for_file.chomp(extname), version_name].compact.join('_') << extname
+    end
   end
 
   # Add a white list of extensions which are allowed to be uploaded.

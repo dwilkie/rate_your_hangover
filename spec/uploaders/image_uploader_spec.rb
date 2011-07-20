@@ -125,11 +125,14 @@ describe ImageUploader do
       ).public_url
     end
 
-    SAMPLE_PATH = "upload_dir/bliind.exe"
+    context ":with_path => true" do
+      sample_path = "upload_dir/bliind.exe"
+      context "#key is set to '#{sample_path}'" do
+        before { subject.key = sample_path }
 
-    context SAMPLE_PATH do
-      it "should return the full url with '/#{SAMPLE_PATH}' as the path" do
-        URI.parse(subject.direct_fog_url(SAMPLE_PATH)).path.should == "/#{SAMPLE_PATH}"
+        it "should return the full url with '/#{sample_path}' as the path" do
+          URI.parse(subject.direct_fog_url(:with_path => true)).path.should == "/#{sample_path}"
+        end
       end
     end
   end
