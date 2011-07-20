@@ -50,7 +50,7 @@ end
 group :test do
   # Pretty printed test output
   gem 'turn', :require => false
-  gem 'factory_girl_rails'
+  gem 'factory_girl'
   gem 'spork', :git => 'git://github.com/timcharper/spork.git'
   gem 'capybara', :git => 'git://github.com/jnicklas/capybara.git'
   gem 'database_cleaner'
@@ -59,5 +59,6 @@ group :test do
   gem 'launchy'
   gem 'resque_spec', :require => 'resque_spec/scheduler'
   gem 'guard-rspec'
+  gem 'guard-spork'
 end
 
