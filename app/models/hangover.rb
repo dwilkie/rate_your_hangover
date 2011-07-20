@@ -93,7 +93,7 @@ class Hangover < ActiveRecord::Base
     valid?
     if no_errors = (errors.count == errors[:image].count)
       if options[:now]
-        self.remote_image_url = image.direct_fog_url(:with_key => true)
+        self.remote_image_url = image.direct_fog_url(:with_path => true)
         save!
       else
         Resque.enqueue(
