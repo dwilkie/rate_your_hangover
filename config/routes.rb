@@ -3,6 +3,7 @@ RateYourHangover::Application.routes.draw do
 
   resources :hangovers
   resources :hangover_images, :only => [:new, :create]
+  resources :notifications
 
   match 'hangover_votes/:id', :to => 'hangover_votes#create', :via => :post, :as => 'hangover_votes'
 
