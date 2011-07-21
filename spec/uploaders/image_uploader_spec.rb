@@ -342,14 +342,21 @@ describe ImageUploader do
     end
   end
 
-#  before do
-#    uploader.store!(File.open(image_fixture_path))
-#  end
+  sample_url = "http://anyurl.com/any_path/image_dir/filename.jpg"
 
-#  context 'the thumb version' do
-#    it "should scale down a landscape image to fit within 200 by 200 pixels" do
-#      uploader.thumb.should be_no_larger_than(200, 200)
-#    end
-#  end
+  context "the attachment has been stored" do
+    before do
+      uploader_for_image.model.stub("#{uploader_for_image.mounted_as}_url").and_return(sample_url)
+      uploader_for_image.store!(File.open(image_fixture_path))
+    end
+
+    context "#url returns '#{sample_url}'" do
+      context "the thumb version's url" do
+        it "should be like '/image_dir/filename_thumb.jpg'" do
+          uploader_for_image.thumb.url.should =~ /\/image_dir\/filename_thumb.jpg$/
+        end
+      end
+    end
+  end
 end
 
