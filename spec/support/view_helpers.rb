@@ -77,3 +77,39 @@ def it_should_display_error_messages_for(resource_name, input)
   end
 end
 
+def it_should_have_conditional_link(condition, options = {})
+  context = condition.keys.first
+  assertion = condition[context]
+  unless assertion.is_a?(Hash)
+    assertion = {:value => assertion}
+    pretext = "##{context} returns"
+    assertion[:positive] = "#{pretext} #{assertion[:value]}"
+    assertion[:negative] = "#{pretext} #{!assertion[:value]}"
+  end
+
+  link_text = options.delete(:text)
+
+  context assertion[:positive] do
+    before do
+      view.stub(context).and_return(assertion[:value])
+      render
+    end
+
+    it "should show a link to '#{link_text}'" do
+      parent_selector << "a[#{to_xpath_attributes(options)}]"
+      rendered.should have_parent_selector :text => link_text
+    end
+  end
+
+  context assertion[:negative] do
+    before do
+      view.stub(context).and_return(!assertion[:value])
+      render
+    end
+
+    it "should not show '#{link_text}'" do
+      rendered.should_not have_content(link_text)
+    end
+  end
+end
+

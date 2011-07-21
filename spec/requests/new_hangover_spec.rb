@@ -10,19 +10,31 @@ describe "Given I want to create a new hangover" do
       :hangover_title => "Bliiiiind"
     }.freeze
 
+    NARRATIVES = {
+      :create_hangover => "and I fill in title correctly then press '#{spec_translate(:create_hangover)}'",
+      :click_refresh => "when I click '#{spec_translate(:refresh)}'"
+    }.freeze
+
     let(:user) { Factory(:user, :display_name => sample(:display_name)) }
 
     before { sign_in(user) }
 
     context "and on the new hangover by upload page" do
 
-      create_hangover_narrative = "and I fill in title correctly then press '#{spec_translate(:create_hangover)}'".freeze
-
       def create_hangover(options = {})
         fill_in(spec_translate(:title), :with => sample(:hangover_title))
         ResqueSpec.reset!
         with_resque do
           click_button spec_translate(:create_hangover)
+        end
+      end
+
+      shared_examples_for "a flash message that" do
+        it "should show me that the hangover is being created" do
+          page.should have_content spec_translate(
+            :hangover_being_created,
+            :refresh_link => spec_translate(:refresh)
+          )
         end
       end
 
@@ -49,7 +61,7 @@ describe "Given I want to create a new hangover" do
 
         it_should_show_the_page_title(spec_translate(:new_hangover))
 
-        context create_hangover_narrative do
+        context narrative(:create_hangover) do
 
           before { create_hangover }
 
@@ -58,15 +70,10 @@ describe "Given I want to create a new hangover" do
             current_path.should == hangovers_path
           end
 
-          it "should show me that the hangover is being created" do
-            page.should have_content spec_translate(
-              :hangover_being_created,
-              :refresh_link => spec_translate(:refresh)
-            )
-          end
+          it_should_behave_like "a flash message that"
 
           context "assuming my hangover is successfully created" do
-            context "when I click '#{spec_translate(:refresh)}'" do
+            context narrative(:click_refresh) do
               before { click_link(spec_translate(:refresh)) }
 
               it "should show the latest hangover as my hangover" do
@@ -105,7 +112,7 @@ describe "Given I want to create a new hangover" do
       context "and I upload an invalid file" do
         before do
           attach_file(spec_translate(:image), image_fixture_path(:invalid => true))
-          upload_to_s3 spec_translate(:next)
+          upload_to_s3 spec_translate(:next), :process_image => true
         end
 
         # Placeholder test
@@ -113,10 +120,18 @@ describe "Given I want to create a new hangover" do
           current_path.should == new_hangover_path
         end
 
-        context create_hangover_narrative do
-          context "when the hangover fails to create" do
-            it "should send an email notification" do
-              pending
+        context narrative(:create_hangover) do
+          before { create_hangover }
+
+          it_should_behave_like "a flash message that"
+
+          context "after the hangover fails to create" do
+            context narrative(:click_refresh) do
+              it "should show me that I have 1 new notification" do
+                within(".usernav .unread_count") do
+                  page.should have_content "1"
+                end
+              end
             end
           end
         end

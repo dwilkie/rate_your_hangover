@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
+  before_filter :check_for_new_notifications
 
   private
 
@@ -14,6 +15,12 @@ class ApplicationController < ActionController::Base
       end
     end
     user
+  end
+
+  def check_for_new_notifications
+    if user_signed_in?
+      @unread_notification_count = current_user.notifications.unread.count
+     end
   end
 end
 

@@ -1,7 +1,11 @@
-#menu
+.usernav
   %ul
-    %li
-      = link_to t("devise.sessions.sign_in"), new_user_session_path
-    %li
-      = link_to t("devise.registrations.sign_up"), new_user_registration_path
+    - if user_signed_in?
+      %li
+        = link_to @unread_notification_count, notifications_path, :class => "unread_count"
+    - else
+      %li
+        = link_to t("devise.sessions.sign_in"), new_user_session_path
+      %li
+        = link_to t("devise.registrations.sign_up"), new_user_registration_path
 
