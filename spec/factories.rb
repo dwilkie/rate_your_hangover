@@ -27,3 +27,11 @@ Factory.define :hangover_vote, :class => Vote do |f|
   f.association :voteable, :factory => :hangover
 end
 
+Factory.define :notification do |f|
+  f.association :user
+end
+
+Factory.define :read_notification, :parent => :notification do |f|
+  f.read_at Time.now
+end
+
