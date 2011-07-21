@@ -1,17 +1,31 @@
 require 'spec_helper'
 
-describe "Create a new hangover" do
+describe "Given I want to create a new hangover" do
   include RequestHelpers
   include AmazonS3Helpers
 
-  context "Given I am signed in" do
-    sample_display_name = "Mara".freeze
+  context "and I am signed in" do
+    SAMPLE_DATA = {
+      :display_name => "Mara",
+      :hangover_title => "Bliiiiind"
+    }.freeze
 
-    let(:user) { Factory(:user, :display_name => sample_display_name) }
+    let(:user) { Factory(:user, :display_name => sample(:display_name)) }
 
     before { sign_in(user) }
 
     context "and on the new hangover by upload page" do
+
+      create_hangover_narrative = "and I fill in title correctly then press '#{spec_translate(:create_hangover)}'".freeze
+
+      def create_hangover(options = {})
+        fill_in(spec_translate(:title), :with => sample(:hangover_title))
+        ResqueSpec.reset!
+        with_resque do
+          click_button spec_translate(:create_hangover)
+        end
+      end
+
       before { visit new_hangover_image_path }
 
       it_should_show_the_page_title(spec_translate(:new_hangover))
@@ -35,16 +49,9 @@ describe "Create a new hangover" do
 
         it_should_show_the_page_title(spec_translate(:new_hangover))
 
-        context "and I fill in title correctly then press '#{spec_translate(:create_hangover)}'" do
-          sample_hangover_title = "Bliiiiind".freeze
+        context create_hangover_narrative do
 
-          before do
-            fill_in(spec_translate(:title), :with => sample_hangover_title)
-            ResqueSpec.reset!
-            with_resque do
-              click_button spec_translate(:create_hangover)
-            end
-          end
+          before { create_hangover }
 
           # FIXME Change this to my_hangovers
           it "should redirect me to /hangovers" do
@@ -67,8 +74,8 @@ describe "Create a new hangover" do
                   :caption,
                   :category => summary_categories.first,
                   :votes => 0,
-                  :title => sample_hangover_title,
-                  :owner => sample_display_name
+                  :title => sample(:hangover_title),
+                  :owner => sample(:display_name)
                 )
               end
             end
@@ -106,7 +113,7 @@ describe "Create a new hangover" do
           current_path.should == new_hangover_path
         end
 
-        context "I fill in title correctly then press '#{spec_translate(:create_hangover)}'" do
+        context create_hangover_narrative do
           context "when the hangover fails to create" do
             it "should send an email notification" do
               pending
@@ -125,7 +132,7 @@ describe "Create a new hangover" do
     end
   end
 
-  context "Given I am not signed in" do
+  context "and I am not signed in" do
     before do
       sign_out
       visit new_hangover_image_path
