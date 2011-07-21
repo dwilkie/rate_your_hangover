@@ -13,7 +13,7 @@ class Hangover < ActiveRecord::Base
 
   mount_uploader MOUNT_AS, ImageUploader
 
-  validates :user, :title, :image, :presence => true
+  validates :user, :title, MOUNT_AS, :presence => true
   validates :key, :presence => true,
                   :format => ImageUploader.key(:model_class => self, :mounted_as => MOUNT_AS, :as => :regexp),
                   :allow_nil => true, :on => :create
@@ -91,7 +91,7 @@ class Hangover < ActiveRecord::Base
 
   def save_and_process_image(options = {})
     valid?
-    if no_errors = (errors.count == errors[:image].count)
+    if no_errors = (errors.count == errors[MOUNT_AS].count)
       if options[:now]
         self.remote_image_url = image.direct_fog_url(:with_path => true)
         save!
@@ -106,8 +106,14 @@ class Hangover < ActiveRecord::Base
     no_errors
   end
 
-  def delete_upload
-    Resque.enqueue_in(24.hours, UploadGarbageCollector, :key => key)
+  def delete_upload(options = {})
+    if options[:now]
+      Fog::Storage.new(image.fog_credentials).directories.new(
+        :key => image.fog_directory, :public => image.fog_public
+      ).files.new(:key => key).destroy unless self.class.exists?(MOUNT_AS => send(MOUNT_AS).filename)
+    else
+      Resque.enqueue_in(24.hours, UploadGarbageCollector, :key => key)
+    end
   end
 
   private

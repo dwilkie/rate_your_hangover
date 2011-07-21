@@ -328,8 +328,37 @@ describe Hangover do
     end
 
     context "passing {:now => true}" do
-      it "should try and delete the remote upload" do
+      let(:args) { { :now => true } }
+      let(:uploaded_file) { mock("Fog::File") }
 
+      def stub_fog
+         Fog::Storage.stub_chain(:new, :directories, :new, :files, :new).and_return(uploaded_file)
+      end
+
+      context "no hangover exists with this upload" do
+
+        before { stub_fog }
+
+        it "should delete the remote upload" do
+          uploaded_file.should_receive(:destroy)
+          hangover_without_image.delete_upload(args)
+        end
+      end
+
+      context "a hangover already exists with this key" do
+        let(:previously_uploaded_image_path) { hangover_key }
+
+        before do
+          Factory(:hangover, :key => previously_uploaded_image_path)
+          hangover_without_image.key = previously_uploaded_image_path
+          # Make sure we stub fog after we create the hangover otherwise it will mess with CarrierWave
+          stub_fog
+        end
+
+        it "should not delete the remote upload" do
+          uploaded_file.should_not_receive(:destroy)
+          hangover_without_image.delete_upload(args)
+        end
       end
     end
   end
