@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
 
   has_many :votes
   has_many :hangovers
+  has_many :notifications
 
   validates :display_name, :presence => true
 
