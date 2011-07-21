@@ -20,6 +20,7 @@ en:
     created: Your hangover has been registered!
     being_created: "Please wait while we check your hangover. You can %{refresh_link} the page to see if we're done"
     refresh: refresh
+    upload_from_url: "Upload from url"
   vote:
     one: vote
     other: votes

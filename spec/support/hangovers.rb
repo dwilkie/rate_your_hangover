@@ -26,7 +26,8 @@ TRANSLATIONS = {
   :sign_up_or_sign_in_to_continue => "devise.failure.unauthenticated",
   :invalid_file_type => "errors.messages.carrierwave_integrity_error",
   :next => "hangover.next_step",
-  :refresh => "hangover.refresh"
+  :refresh => "hangover.refresh",
+  :upload_from_url => "hangover.upload_from_url"
 }
 
 def spec_translate(key, options = {})

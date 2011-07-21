@@ -14,7 +14,9 @@ module AmazonS3Helpers
       })
       FakeWeb.clean_registry
       if options[:process_image]
-        download_url = ImageUploader.new.direct_fog_url(sample_key)
+        image_uploader = ImageUploader.new
+        image_uploader.key = sample_key
+        download_url = image_uploader.direct_fog_url(:with_path => true)
         ImageUploader.enable_processing = false
         FakeWeb.register_uri(:get, download_url, :body => File.open(image_fixture_path))
       end

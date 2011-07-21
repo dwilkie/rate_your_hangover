@@ -43,6 +43,13 @@ describe "hangover_images/new.html.haml" do
 
   it_should_set_the_title(:to => spec_translate(:new_hangover))
 
+  it "should show a link to '#{spec_translate(:upload_from_url)}'" do
+    render
+    rendered.should have_selector(
+      "a[@href='/hangovers/new']", :text => spec_translate(:upload_from_url)
+    )
+  end
+
   context "form" do
 
     it_should_submit_to(
