@@ -7,6 +7,8 @@ class CreateHangovers < ActiveRecord::Migration
       t.integer    :votes_count, :null => false, :default => 0
       t.timestamps
     end
+
+    add_index :hangovers, :image, :unique => true
   end
 
   def self.down
