@@ -380,6 +380,8 @@ describe Hangover do
         end
 
         context "passing {:now => true}" do
+          let(:args) { {:now => true} }
+
           before do
             hangover_without_image.stub(:remote_image_url=)
             hangover_without_image.stub(:save!)
@@ -388,12 +390,102 @@ describe Hangover do
           it "should try to download the image from a url based off the key" do
             hangover_without_image.key = key = hangover_key
             hangover_without_image.should_receive(:remote_image_url=).with(/\/#{key}$/)
-            hangover_without_image.save_and_process_image(:now => true)
+            hangover_without_image.save_and_process_image(args)
           end
 
           it "should try and save! the hangover" do
             hangover_without_image.should_receive(:save!)
-            hangover_without_image.save_and_process_image(:now => true)
+            hangover_without_image.save_and_process_image(args)
+          end
+
+          context "the image download fails" do
+            let(:new_notification) { :for_user! }
+
+            before do
+              hangover_without_image.stub(:remote_image_url=).and_raise(StandardError)
+              hangover_without_image.stub(:raise) # prevent re-raising exception
+              Notification.stub(new_notification)
+            end
+
+            it "should create a new notification for the user" do
+              Notification.should_receive(new_notification).with(
+                hangover_without_image.user, anything
+              )
+              hangover_without_image.save_and_process_image(args)
+            end
+
+            # Don't give away too much information
+            # e.g. we don't want the user to see CarrierWave's default ProcessingError exception message
+            # Failed to manipulate with rmagick, maybe it is not an image? Original Error: Not a JPEG file:
+            # starts with 0x2f 0x2a `/public/uploads/tmp/20110725-1237-2729-9212/thumb_aggregator.jpg'
+
+            context "the notification's message" do
+              error_message = spec_translate(:upload_failed_unknown_error)
+              it "should be '#{error_message}'" do
+                Notification.should_receive(new_notification).with(
+                  anything, :message => error_message
+                )
+                hangover_without_image.save_and_process_image(args)
+              end
+            end
+
+            it "should not try to save! the hangover" do
+              hangover_without_image.should_not_receive(:save!)
+              hangover_without_image.save_and_process_image(args)
+            end
+
+            context "the error" do
+
+              # re-raise unexpected error
+              it "should be re-raised" do
+                hangover_without_image.should_receive(:raise)
+                hangover_without_image.save_and_process_image(args)
+              end
+            end
+
+            shared_examples_for "the error" do
+              it "should not be re-raised" do
+                hangover_without_image.should_not_receive(:raise)
+                hangover_without_image.save_and_process_image(args)
+              end
+            end
+
+            context "because of an integrity error (assuming allowed file types are exe and rb)" do
+              before do
+                hangover_without_image.stub(:remote_image_url=).and_raise(CarrierWave::IntegrityError)
+              end
+
+              # Tell the user that they can only upload valid file types
+              context "the notification's message" do
+                before { hangover_without_image.image.stub(:extension_white_list).and_return(%w{exe rb}) }
+
+                integrity_error = spec_translate(
+                  :upload_failed_integrity_error,
+                  :file_type => ".jpg",
+                  :allowed_file_types => "exe and rb"
+                )
+
+                it "should be '#{integrity_error}'" do
+                  Notification.should_receive(new_notification).with(
+                    anything, :message => integrity_error
+                  )
+                  hangover_without_image.save_and_process_image(args)
+                end
+              end
+
+              # do not re-raise expected error
+              it_should_behave_like "the error"
+            end
+
+            context "because of a processing error" do
+              before do
+                hangover_without_image.stub(:remote_image_url=).and_raise(CarrierWave::ProcessingError)
+              end
+
+              #  do not re-raise expected error
+              it_should_behave_like "the error"
+
+            end
           end
         end
 

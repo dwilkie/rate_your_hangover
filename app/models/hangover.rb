@@ -93,8 +93,24 @@ class Hangover < ActiveRecord::Base
     valid?
     if no_errors = (errors.count == errors[MOUNT_AS].count)
       if options[:now]
-        self.remote_image_url = image.direct_fog_url(:with_path => true)
-        save!
+        begin
+          self.remote_image_url = image.direct_fog_url(:with_path => true)
+        rescue StandardError => error
+        else
+          save!
+        ensure
+          if error
+            message = error.is_a?(
+              CarrierWave::IntegrityError
+            ) ? I18n.t(
+              "notifications.upload_failed_integrity_error",
+              :file_type => File.extname(key),
+              :allowed_file_types => image.extension_white_list.to_sentence
+            ) : I18n.t("notifications.upload_failed_unknown_error")
+            Notification.for_user!(user, :message => message)
+            raise unless error.is_a?(CarrierWave::ProcessingError) || error.is_a?(CarrierWave::IntegrityError)
+          end
+        end
       else
         Resque.enqueue(
           ImageProcessor,

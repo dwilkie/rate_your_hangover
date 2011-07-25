@@ -32,4 +32,7 @@ en:
       sign_out: Sign out
     registrations:
       sign_up: Sign up
+  notifications:
+    upload_failed_integrity_error: "You're not allowed to upload '%{file_type}' files, allowed types are: %{allowed_file_types}"
+    upload_failed_unknown_error: An error occurred when processing your file. Please try again
 
