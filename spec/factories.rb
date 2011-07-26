@@ -13,7 +13,8 @@ end
 Factory.define :hangover_without_image, :class => Hangover do |f|
   f.title "Alan"
   f.association :user, :factory => :user
-  f.key UploaderHelpers.sample_key(:subject => Hangover)
+  # 'key' is a lazy attribute https://github.com/thoughtbot/factory_girl/tree/v1.3.3
+  f.key { UploaderHelpers.sample_key(:subject => Hangover) }
 end
 
 Factory.define :hangover, :parent => :hangover_without_image do |f|
