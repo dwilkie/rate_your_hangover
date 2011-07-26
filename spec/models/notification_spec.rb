@@ -2,8 +2,11 @@ require 'spec_helper'
 
 describe Notification do
 
+  SAMPLE_DATA = {:message => "Your're off your guts!"}.freeze
+
   let(:notification) { Factory(:notification) }
   let(:read_notification) { Factory(:read_notification) }
+  let(:user) { Factory(:user) }
 
   # Associations
   it "should belong to a user" do
@@ -38,6 +41,29 @@ describe Notification do
 
       it "should not include the read notification" do
         subject.class.unread.should_not include(read_notification)
+      end
+    end
+  end
+
+
+  describe ".for_user! <User>" do
+    it "should return a notification" do
+      subject.class.for_user!(user).should be_a(subject.class)
+    end
+
+    context "the returned notification" do
+      it "should be persisted" do
+        subject.class.for_user!(user).should be_persisted
+      end
+
+      it "should belong to the user" do
+        subject.class.for_user!(user).user.should == user
+      end
+    end
+
+    context ":message => '#{sample(:message)}'" do
+      it "should set the message" do
+        subject.class.for_user!(user, :message => sample(:message)).message.should == sample(:message)
       end
     end
   end

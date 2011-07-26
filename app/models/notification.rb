@@ -7,5 +7,13 @@ class Notification < ActiveRecord::Base
     where(:read_at => nil)
   end
 
+  def self.for_user!(usr, options = {})
+    notification = self.new
+    notification.user = usr
+    notification.message = options[:message]
+    notification.save!
+    notification
+  end
+
 end
 
