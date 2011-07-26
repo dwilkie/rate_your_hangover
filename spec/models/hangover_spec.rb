@@ -117,6 +117,20 @@ describe Hangover do
     end
   end
 
+  context "with a duplicate key", :wip => true do
+    let(:hangover_with_duplicate_key) { Factory.build(:hangover, :key => hangover.key) }
+
+    it "should not be valid" do
+      hangover_with_duplicate_key.should_not be_valid
+    end
+
+    # Tests database uniqueness constraint
+    it "should raise a database constraint exception on save" do
+      expect { hangover_with_duplicate_key.save(:validate => false) }.to raise_error(/ConstraintException/)
+    end
+
+  end
+
   # Associations
   it "should belong to a user" do
     subject.should respond_to(:user)

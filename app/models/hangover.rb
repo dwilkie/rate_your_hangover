@@ -1,5 +1,14 @@
 class Hangover < ActiveRecord::Base
 
+  class UniqueFilenameValidator < ActiveModel::EachValidator
+    # implement the method called during validation
+    def validate_each(record, attribute, value)
+      if record.class.where(options[:for] => record.send(options[:for]).filename).exists?
+        record.errors.add(attribute, :taken, options.except(:for).merge(:value => value))
+      end
+    end
+  end
+
   attr_reader :caption
 
   attr_accessible :title, :key
@@ -15,6 +24,7 @@ class Hangover < ActiveRecord::Base
 
   validates :user, :title, MOUNT_AS, :presence => true
   validates :key, :presence => true,
+                  :unique_filename => {:for => MOUNT_AS},
                   :format => ImageUploader.key(:model_class => self, :mounted_as => MOUNT_AS, :as => :regexp),
                   :allow_nil => true, :on => :create
 
