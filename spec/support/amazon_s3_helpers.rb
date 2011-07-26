@@ -6,6 +6,7 @@ module AmazonS3Helpers
     if options[:success]
       redirect_url = URI.parse(page.find("input[@name='success_action_redirect']").value)
       key = page.find("input[@name='key']").value
+      image_path = page.find("input[@name='file']").value
       sample_key = UploaderHelpers.sample_key(:base => key)
       redirect_url.query = Rack::Utils.build_nested_query({
         :bucket => ImageUploader.fog_directory,
@@ -17,8 +18,7 @@ module AmazonS3Helpers
         image_uploader = ImageUploader.new
         image_uploader.key = sample_key
         download_url = image_uploader.direct_fog_url(:with_path => true)
-        ImageUploader.enable_processing = false
-        FakeWeb.register_uri(:get, download_url, :body => File.open(image_fixture_path))
+        FakeWeb.register_uri(:get, download_url, :body => File.open(image_path))
       end
       click_button button_text
       visit redirect_url.to_s
