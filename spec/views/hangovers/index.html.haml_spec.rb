@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "hangovers/index.html.haml", :wip => true do
+describe "hangovers/index.html.haml" do
 
   SAMPLE_DATA = { :hangover => "Sample hangover info" }.freeze
 
