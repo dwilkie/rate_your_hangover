@@ -1,0 +1,4 @@
+%div{:id => "notification_#{notification_counter + 1}"}
+  = link_to notification.subject, notification
+  = link_to truncate(notification.message), notification
+
