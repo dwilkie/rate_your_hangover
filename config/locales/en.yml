@@ -35,5 +35,5 @@ en:
   notifications:
     upload_failed:
       subject: Hangover upload failed
-      message: "An error occurred when processing your hangover. Make allowed files are: %{allowed_file_types}"
+      message: "An error occurred when processing your hangover. Allowed files are: %{allowed_file_types}"
 
