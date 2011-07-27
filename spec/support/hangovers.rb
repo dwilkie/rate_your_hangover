@@ -28,8 +28,8 @@ TRANSLATIONS = {
   :next => "hangover.next_step",
   :refresh => "hangover.refresh",
   :upload_from_url => "hangover.upload_from_url",
-  :upload_failed_integrity_error => "notifications.upload_failed_integrity_error",
-  :upload_failed_unknown_error => "notifications.upload_failed_unknown_error"
+  :upload_failed_subject => "notifications.upload_failed.subject",
+  :upload_failed_message => "notifications.upload_failed.message"
 }
 
 def spec_translate(key, options = {})
