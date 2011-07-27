@@ -40,11 +40,8 @@ describe HangoverImagesController do
       end
     end
 
-    context "user is not signed in" do
-      it "should redirect the user to the sign in path" do
-        do_new
-        response.should redirect_to(new_user_session_path)
-      end
+    it_should_behave_like "an action which requires authentication" do
+      let(:action) { :do_new }
     end
 
   end

@@ -3,11 +3,13 @@ require 'spec_helper'
 describe "Given I want to create a new hangover" do
   include RequestHelpers
   include AmazonS3Helpers
+  include NotificationHelpers
 
   context "and I am signed in" do
     SAMPLE_DATA = {
       :display_name => "Mara",
-      :hangover_title => "Bliiiiind"
+      :hangover_title => "Bliiiiind",
+      :notification_id => 13232
     }.freeze
 
     NARRATIVES = {
@@ -125,7 +127,7 @@ describe "Given I want to create a new hangover" do
         end
       end
 
-      context "and I upload an invalid file" do
+      context "and I upload an invalid file", :wip => true do
         before do
           attach_file(spec_translate(:image), image_fixture_path(:invalid => true))
           upload_to_s3 spec_translate(:next), :process_image => true
@@ -143,11 +145,7 @@ describe "Given I want to create a new hangover" do
 
           context "after the hangover fails to create" do
             context narrative(:click_refresh) do
-              it "should show me that I have 1 new notification" do
-                within(".usernav .unread_count") do
-                  page.should have_content "1"
-                end
-              end
+              it_should_have_a_notification(:upload_failed, :allowed_file_types => "jpg, jpeg, gif, and png)")
             end
           end
         end
@@ -162,6 +160,7 @@ describe "Given I want to create a new hangover" do
       end
     end
   end
+
 
   context "and I am not signed in" do
     before do

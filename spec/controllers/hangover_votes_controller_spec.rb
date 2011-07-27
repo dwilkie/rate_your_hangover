@@ -1,8 +1,11 @@
 require 'spec_helper'
 
 describe HangoverVotesController do
-  SAMPLE_REFERRER = "http://rateyourhangover.com/hangovers"
-  SAMPLE_HANGOVER_ID = 1
+  SAMPLE_DATA = {
+    :referrer => "http://rateyourhangover.com/hangovers",
+    :hangover_id => 1,
+    :error_message => "Vote not valid"
+  }.freeze
 
   describe "POST /hangover_votes" do
     let(:hangover_vote) { mock_model(Vote).as_null_object.as_new_record }
@@ -14,19 +17,19 @@ describe HangoverVotesController do
     }
 
     def do_post
-      post :create, :id => SAMPLE_HANGOVER_ID
+      post :create, :id => sample(:hangover_id)
     end
 
     before do
       Hangover.stub_chain(:find, :votes, :build).and_return(hangover_vote)
       User.stub(:with_ip).and_return([])
-      request.env['HTTP_REFERER'] = SAMPLE_REFERRER
+      request.env['HTTP_REFERER'] = sample(:referrer)
     end
 
     shared_examples_for "save the hangover vote" do
 
       it "should try to find the hangover from the id" do
-        Hangover.should_receive(:find).with(SAMPLE_HANGOVER_ID)
+        Hangover.should_receive(:find).with(sample(:hangover_id))
         do_post
       end
 
@@ -143,23 +146,22 @@ describe HangoverVotesController do
     end
 
     context "vote does not save successfully" do
-      SAMPLE_ERROR_MESSAGE = "Vote not valid"
       before do
         hangover_vote.stub(:save).and_return(false)
         hangover_vote.stub_chain(
           :errors, :full_messages, :to_sentence
-        ).and_return(SAMPLE_ERROR_MESSAGE)
+        ).and_return(sample(:error_message))
       end
 
       it "should set the flash[:error] to the errors" do
         do_post
-        flash[:error].should == SAMPLE_ERROR_MESSAGE
+        flash[:error].should == sample(:error_message)
       end
     end
 
     it "should redirect to the referrer" do
       do_post
-      response.should redirect_to SAMPLE_REFERRER
+      response.should redirect_to sample(:referrer)
     end
   end
 end

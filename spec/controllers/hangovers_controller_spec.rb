@@ -100,11 +100,8 @@ describe HangoversController do
       end
     end
 
-    context "user is not signed in" do
-      it "should redirect the user to the sign in path" do
-        do_new
-        response.should redirect_to(new_user_session_path)
-      end
+    it_should_behave_like "an action which requires authentication" do
+      let(:action) { :do_new }
     end
 
   end
@@ -181,61 +178,10 @@ describe HangoversController do
       end
     end
 
-    context "user is not signed in" do
-
-      it "should redirect the user to sign in" do
-        do_create
-        response.should redirect_to new_user_session_path
-      end
-
+    it_should_behave_like "an action which requires authentication" do
+      let(:action) { :do_create }
     end
-
   end
 
-#  it "show action should render show template" do
-#    get :show, :id => Hangover.first
-#    response.should render_template(:show)
-#  end
-
-#  it "new action should render new template" do
-#    get :new
-#    response.should render_template(:new)
-#  end
-
-#  it "create action should render new template when model is invalid" do
-#    Hangover.any_instance.stubs(:valid?).returns(false)
-#    post :create
-#    response.should render_template(:new)
-#  end
-
-#  it "create action should redirect when model is valid" do
-#    Hangover.any_instance.stubs(:valid?).returns(true)
-#    post :create
-#    response.should redirect_to(hangover_url(assigns[:hangover]))
-#  end
-
-#  it "edit action should render edit template" do
-#    get :edit, :id => Hangover.first
-#    response.should render_template(:edit)
-#  end
-
-#  it "update action should render edit template when model is invalid" do
-#    Hangover.any_instance.stubs(:valid?).returns(false)
-#    put :update, :id => Hangover.first
-#    response.should render_template(:edit)
-#  end
-
-#  it "update action should redirect when model is valid" do
-#    Hangover.any_instance.stubs(:valid?).returns(true)
-#    put :update, :id => Hangover.first
-#    response.should redirect_to(hangover_url(assigns[:hangover]))
-#  end
-
-#  it "destroy action should destroy model and redirect to index action" do
-#    hangover = Hangover.first
-#    delete :destroy, :id => hangover
-#    response.should redirect_to(hangovers_url)
-#    Hangover.exists?(hangover.id).should be_false
-#  end
 end
 
