@@ -1,6 +1,8 @@
 require 'spec_helper'
 
-describe "hangovers/index.html.haml" do
+describe "hangovers/index.html.haml", :wip => true do
+
+  SAMPLE_DATA = { :hangover => "Sample hangover info" }.freeze
 
   let(:hangovers) {[mock_model(Hangover)]}
 
@@ -9,10 +11,10 @@ describe "hangovers/index.html.haml" do
     render
   end
 
-  before {
-    stub_template "hangovers/_hangover.html.haml" => ""
+  before do
+    stub_template "hangovers/_hangover.html.haml" => sample(:hangover)
     do_render
-  }
+  end
 
   context "within" do
     include HangoverExampleHelpers
@@ -56,14 +58,10 @@ describe "hangovers/index.html.haml" do
         context "div.slides_container", :type => :request do
           before { parent_selector << "div[@class='slides_container']" }
 
-          # It's not possible check for a render within a selector
-          # see https://github.com/jnicklas/capybara/issues/384
           it "should render the hangovers" do
-            rendered.should render_template hangovers
-            #rendered.find(parent_selector_xpath).should render_template hangovers
+            rendered.should have_parent_selector(:text => sample(:hangover))
           end
         end
-
       end
     end
   end
