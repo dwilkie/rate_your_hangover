@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(:version => 20110721163633) do
   add_index "hangovers", ["image"], :name => "index_hangovers_on_image", :unique => true
 
   create_table "notifications", :force => true do |t|
+    t.string   "subject"
     t.text     "message"
     t.datetime "read_at"
     t.integer  "user_id"

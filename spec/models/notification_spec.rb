@@ -2,7 +2,10 @@ require 'spec_helper'
 
 describe Notification do
 
-  SAMPLE_DATA = {:message => "Your're off your guts!"}.freeze
+  SAMPLE_DATA = {
+    :message => "Your're off your guts!",
+    :subject => "Drinks?"
+  }.freeze
 
   let(:notification) { Factory(:notification) }
   let(:read_notification) { Factory(:read_notification) }
@@ -22,6 +25,14 @@ describe Notification do
 
   context "without a user" do
     before { notification.user = nil }
+
+    it "should not be valid" do
+      notification.should_not be_valid
+    end
+  end
+
+  context "subject is too long" do
+    before { notification.subject = SecureRandom.hex(128) }
 
     it "should not be valid" do
       notification.should_not be_valid
@@ -64,6 +75,12 @@ describe Notification do
     context ":message => '#{sample(:message)}'" do
       it "should set the message" do
         subject.class.for_user!(user, :message => sample(:message)).message.should == sample(:message)
+      end
+    end
+
+    context ":subject => '#{sample(:subject)}'" do
+      it "should set the subject" do
+        subject.class.for_user!(user, :subject => sample(:subject)).subject.should == sample(:subject)
       end
     end
   end
