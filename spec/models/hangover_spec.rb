@@ -432,13 +432,25 @@ describe Hangover do
             # Don't give away too much information
             # e.g. we don't want the user to see CarrierWave's default ProcessingError exception message
             # Failed to manipulate with rmagick, maybe it is not an image? Original Error: Not a JPEG file:
-            # starts with 0x2f 0x2a `/public/uploads/tmp/20110725-1237-2729-9212/thumb_aggregator.jpg'
+            # starts with 0x2f 0x2a '/public/uploads/tmp/20110725-1237-2729-9212/thumb_aggregator.jpg'
 
-            context "the notification's message" do
-              error_message = spec_translate(:upload_failed_unknown_error)
-              it "should be '#{error_message}'" do
+            context "the notification's message (assuming allowed file types are exe and rb)" do
+              before { hangover_without_image.image.stub(:extension_white_list).and_return(%w{exe rb}) }
+
+              notification_message = spec_translate(:upload_failed_message, :allowed_file_types => "exe and rb")
+              it "should be '#{notification_message}'" do
                 Notification.should_receive(new_notification).with(
-                  anything, :message => error_message
+                  anything, hash_including(:message => notification_message)
+                )
+                hangover_without_image.save_and_process_image(args)
+              end
+            end
+
+            context "the notification's subject" do
+              notification_subject = spec_translate(:upload_failed_subject)
+              it "should be '#{notification_subject}'" do
+                Notification.should_receive(new_notification).with(
+                  anything, hash_including(:subject => notification_subject)
                 )
                 hangover_without_image.save_and_process_image(args)
               end
@@ -450,7 +462,6 @@ describe Hangover do
             end
 
             context "the error" do
-
               # re-raise unexpected error
               it "should be re-raised" do
                 hangover_without_image.should_receive(:raise)
@@ -458,48 +469,18 @@ describe Hangover do
               end
             end
 
-            shared_examples_for "the error" do
-              it "should not be re-raised" do
-                hangover_without_image.should_not_receive(:raise)
-                hangover_without_image.save_and_process_image(args)
-              end
-            end
-
-            context "because of an integrity error (assuming allowed file types are exe and rb)" do
-              before do
-                hangover_without_image.stub(:remote_image_url=).and_raise(CarrierWave::IntegrityError)
-              end
-
-              # Tell the user that they can only upload valid file types
-              context "the notification's message" do
-                before { hangover_without_image.image.stub(:extension_white_list).and_return(%w{exe rb}) }
-
-                integrity_error = spec_translate(
-                  :upload_failed_integrity_error,
-                  :file_type => ".jpg",
-                  :allowed_file_types => "exe and rb"
-                )
-
-                it "should be '#{integrity_error}'" do
-                  Notification.should_receive(new_notification).with(
-                    anything, :message => integrity_error
-                  )
-                  hangover_without_image.save_and_process_image(args)
-                end
-              end
-
-              # do not re-raise expected error
-              it_should_behave_like "the error"
-            end
-
             context "because of a processing error" do
               before do
                 hangover_without_image.stub(:remote_image_url=).and_raise(CarrierWave::ProcessingError)
               end
 
-              #  do not re-raise expected error
-              it_should_behave_like "the error"
-
+              context "the error" do
+                #  do not re-raise expected error
+                it "should not be re-raised" do
+                  hangover_without_image.should_not_receive(:raise)
+                  hangover_without_image.save_and_process_image(args)
+                end
+              end
             end
           end
         end

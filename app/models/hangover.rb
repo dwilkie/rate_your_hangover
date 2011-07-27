@@ -110,15 +110,15 @@ class Hangover < ActiveRecord::Base
           save!
         ensure
           if error
-            message = error.is_a?(
-              CarrierWave::IntegrityError
-            ) ? I18n.t(
-              "notifications.upload_failed_integrity_error",
-              :file_type => File.extname(key),
+            subject = I18n.t(
+              "notifications.upload_failed.subject",
+            )
+            message = I18n.t(
+              "notifications.upload_failed.message",
               :allowed_file_types => image.extension_white_list.to_sentence
-            ) : I18n.t("notifications.upload_failed_unknown_error")
-            Notification.for_user!(user, :message => message)
-            raise unless error.is_a?(CarrierWave::ProcessingError) || error.is_a?(CarrierWave::IntegrityError)
+            )
+            Notification.for_user!(user, :message => message, :subject => subject)
+            raise unless error.is_a?(CarrierWave::ProcessingError)
           end
         end
       else
