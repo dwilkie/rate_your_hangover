@@ -6,8 +6,10 @@ module NotificationHelpers
   module ClassMethods
 
     def it_should_have_a_notification(notification_identifier, options = {})
+      unread_count_selector = ".usernav .unread_count"
+
       it "should show me that I have 1 new notification" do
-        within(".usernav .unread_count") do
+        within(unread_count_selector) do
           page.should have_content "1"
         end
       end
@@ -44,6 +46,12 @@ module NotificationHelpers
 
             it "should show me '#{notification_message}'" do
               page.should have_content notification_message
+            end
+
+            it "should show me that I have 0 new notifications" do
+              within(unread_count_selector) do
+                page.should have_content "0"
+              end
             end
           end
 
