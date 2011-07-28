@@ -18,5 +18,12 @@ class Notification < ActiveRecord::Base
     notification
   end
 
+  def read?
+    read_at.present?
+  end
+
+  def mark_as_read
+    self.update_attribute(:read_at, Time.now)
+  end
 end
 

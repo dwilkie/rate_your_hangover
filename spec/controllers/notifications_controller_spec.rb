@@ -64,12 +64,17 @@ describe NotificationsController do
         do_show
         assigns[:notification].should == notification
       end
+
+      it "should mark the notification as read" do
+        notification.should_receive(:mark_as_read)
+        do_show
+      end
+
     end
 
     it_should_behave_like "an action which requires authentication" do
       let(:action) { :do_show }
     end
-
   end
 end
 

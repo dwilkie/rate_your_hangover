@@ -56,7 +56,6 @@ describe Notification do
     end
   end
 
-
   describe ".for_user! <User>" do
     it "should return a notification" do
       subject.class.for_user!(user).should be_a(subject.class)
@@ -82,6 +81,31 @@ describe Notification do
       it "should set the subject" do
         subject.class.for_user!(user, :subject => sample(:subject)).subject.should == sample(:subject)
       end
+    end
+  end
+
+  describe "#read?" do
+    context "a read notification" do
+      it "should be read" do
+        read_notification.should be_read
+      end
+    end
+
+    context "an unread notification" do
+      it "should not be read" do
+        notification.should_not be_read
+      end
+    end
+  end
+
+  describe "#mark_as_read" do
+    context "on an unread notification" do
+      before { notification.mark_as_read }
+
+      it "should be read" do
+        notification.should be_read
+      end
+
     end
   end
 end
