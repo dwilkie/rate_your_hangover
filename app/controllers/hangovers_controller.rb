@@ -1,5 +1,5 @@
 class HangoversController < ApplicationController
-  before_filter :authenticate_user!, :except => [:index, :show]
+  prepend_before_filter :authenticate_user!, :except => [:index, :show]
 
   def index
     @hangovers = Hangover.inventory(params[:type])

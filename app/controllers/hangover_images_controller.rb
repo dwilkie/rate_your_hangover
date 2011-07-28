@@ -1,5 +1,5 @@
 class HangoverImagesController < ApplicationController
-  before_filter :authenticate_user!
+  prepend_before_filter :authenticate_user!
 
   def new
     @image_uploader = ImageUploader.new(Hangover.new, :image)
