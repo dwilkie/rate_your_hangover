@@ -29,7 +29,13 @@ TRANSLATIONS = {
   :refresh => "hangover.refresh",
   :upload_from_url => "hangover.upload_from_url",
   :upload_failed_subject => "notifications.upload_failed.subject",
-  :upload_failed_message => "notifications.upload_failed.message"
+  :upload_failed_message => "notifications.upload_failed.message",
+  :invalid_upload => Proc.new {
+    Hangover.human_attribute_name(:key) << " " << I18n.t(
+      "activerecord.errors.models.hangover.attributes.key.invalid",
+      :allowed_file_types => ImageUploader.allowed_file_types(:as_sentence => true)
+    )
+  }
 }
 
 def spec_translate(key, options = {})

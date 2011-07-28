@@ -2,6 +2,16 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
+  activerecord:
+    attributes:
+      hangover:
+        key: "Uploaded file"
+    errors:
+      models:
+        hangover:
+          attributes:
+            key:
+              invalid: "is invalid. Allowed files are: %{allowed_file_types}"
   hangover:
     sober: "Everybody's as sober as a bird :("
     latest: Latest Hangover

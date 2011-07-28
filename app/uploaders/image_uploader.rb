@@ -14,6 +14,11 @@ class ImageUploader < CarrierWave::Uploader::Base
     "uploads/#{model_class.to_s.underscore}/#{mounted_as}"
   end
 
+  def self.allowed_file_types(options = {})
+    file_types = %w(jpg jpeg gif png)
+    options[:as_sentence] ? file_types.to_sentence : file_types
+  end
+
   def self.key(options = {})
     options[:store_dir] ||= store_dir(options[:model_class], options[:mounted_as])
     key_path = "#{options[:store_dir]}/#{UUID.generate}/${filename}"
@@ -41,6 +46,10 @@ class ImageUploader < CarrierWave::Uploader::Base
 
   def key
     @key ||= self.class.key(:store_dir => store_dir)
+  end
+
+  def has_key?
+    @key.present?
   end
 
   self.fog_credentials.keys.each do |key|
@@ -143,7 +152,7 @@ class ImageUploader < CarrierWave::Uploader::Base
   # Add a white list of extensions which are allowed to be uploaded.
   # For images you might use something like this:
   def extension_white_list
-    %w(jpg jpeg gif png)
+    self.class.allowed_file_types
   end
 
   def default_url

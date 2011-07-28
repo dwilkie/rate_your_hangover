@@ -15,6 +15,20 @@ describe ImageUploader do
     end
   end
 
+  describe ".allowed_file_types" do
+    context "passing no args" do
+      it "should return ['jpg', 'jpeg', 'gif', 'png']" do
+        subject.class.allowed_file_types.should == %w(jpg jpeg gif png)
+      end
+    end
+
+    context ":as_sentence => true" do
+      it "should return 'jpg, jpeg, gif, and png'" do
+        subject.class.allowed_file_types(:as_sentence => true).should == "jpg, jpeg, gif, and png"
+      end
+    end
+  end
+
   describe ".key" do
     context ":store_dir => 'uploads/night_out/pic'" do
       let(:options) { {:store_dir => 'uploads/night_out/pic' } }
@@ -89,8 +103,26 @@ describe ImageUploader do
   end
 
   describe "#extension_white_list" do
-    it "should return 'jpg, jpeg, gif and png'" do
-      subject.extension_white_list.should == %w(jpg jpeg gif png)
+    it "should return the result from .allowed_file_types" do
+      subject.class.stub(:allowed_file_types).and_return("allowed file types")
+      subject.extension_white_list.should == "allowed file types"
+    end
+  end
+
+  describe "#has_key?" do
+    context "a key has not been set" do
+
+      it "should return false" do
+        subject.should_not have_key
+      end
+    end
+
+    context "a key has been set" do
+      before { subject.key }
+
+      it "should return true" do
+        subject.should have_key
+      end
     end
   end
 

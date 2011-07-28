@@ -112,22 +112,21 @@ describe "Given I want to create a new hangover" do
       end
 
       context "and I upload a file with an invalid extension" do
-
         before do
           attach_file(spec_translate(:image), image_fixture_path(:invalid => true))
-          upload_to_s3 spec_translate(:next), :process_image => true, :invalid_extension => true
+          upload_to_s3 spec_translate(:next)
         end
 
         it "should redirect me to the image upload page" do
-          pending
+          current_path.should == new_hangover_image_path
         end
 
-        it "should show me 'invalid extension'" do
-          pending
+        it "should show me '#{spec_translate(:invalid_upload)}'" do
+          page.should have_content spec_translate(:invalid_upload)
         end
       end
 
-      context "and I upload an invalid file", :wip => true do
+      context "and I upload an invalid file" do
         before do
           attach_file(spec_translate(:image), image_fixture_path(:invalid => true))
           upload_to_s3 spec_translate(:next), :process_image => true

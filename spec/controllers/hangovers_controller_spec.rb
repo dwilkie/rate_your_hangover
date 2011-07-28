@@ -2,7 +2,10 @@ require 'spec_helper'
 
 describe HangoversController do
 
-  SAMPLE_ID = 1
+  SAMPLE_DATA = {
+    :id => 1,
+    :error_messages => ["Uploaded file was wrong", "Uploaded file is silly"]
+  }
 
   let(:hangover) { mock_model(Hangover).as_null_object }
   let(:s3_params) { { :key => "key", :etag => "etag", :bucket => "bucket" } }
@@ -39,14 +42,14 @@ describe HangoversController do
     end
   end
 
-  describe "GET /hangovers/#{SAMPLE_ID}" do
+  describe "GET /hangovers/#{sample(:id)}" do
 
     def do_show
-      get :show, :id => SAMPLE_ID
+      get :show, :id => sample(:id)
     end
 
     before do
-      Hangover.stub(:find).with(SAMPLE_ID).and_return(hangover)
+      Hangover.stub(:find).and_return(hangover)
     end
 
     it "should render the show template" do
@@ -55,7 +58,7 @@ describe HangoversController do
     end
 
     it "should find the hangover" do
-      Hangover.should_receive(:find).with(SAMPLE_ID)
+      Hangover.should_receive(:find).with(sample(:id))
       do_show
     end
 
@@ -71,15 +74,16 @@ describe HangoversController do
       get :new, params
     end
 
+
     context "user is signed in" do
       before do
         sign_in current_user
         Hangover.stub(:new).and_return(hangover.as_new_record)
       end
 
-      it "should render the new template" do
+      it "should tell the hangover to delete its upload later" do
+        hangover.should_receive(:delete_upload)
         do_new
-        response.should render_template(:new)
       end
 
       it "should build a new hangover with the input params" do
@@ -89,14 +93,38 @@ describe HangoversController do
         do_new s3_params
       end
 
-      it "should tell the hangover to delete it's upload later" do
-        hangover.should_receive(:delete_upload)
-        do_new
-      end
+      context "the new hangover's upload path" do
+        context "is valid" do
+          before { hangover.stub(:upload_path_valid?).and_return(true) }
 
-      it "should assign '@hangover'" do
-        do_new
-        assigns[:hangover].should == hangover
+          it "should render the new template" do
+            do_new
+            response.should render_template(:new)
+          end
+
+          it "should assign '@hangover'" do
+            do_new
+            assigns[:hangover].should == hangover
+          end
+        end
+
+        context "is invalid" do
+          before { hangover.stub(:upload_path_valid?).and_return(false) }
+
+          it "should redirect to the new hangover image action" do
+            do_new
+            response.should redirect_to new_hangover_image_path
+          end
+
+          context "with the full messages: '#{sample(:error_messages)}'" do
+            before { hangover.stub_chain(:errors, :full_messages).and_return(sample(:error_messages)) }
+
+            it "should set the flash error to: '#{sample(:error_messages).to_sentence}'" do
+              do_new
+              flash[:error].should == sample(:error_messages).to_sentence
+            end
+          end
+        end
       end
     end
 
@@ -138,7 +166,7 @@ describe HangoversController do
         do_create hangover_params
       end
 
-      it "should direct the hangover to save and process it's image" do
+      it "should direct the hangover to save and process its image" do
         hangover.should_receive(:save_and_process_image)
         do_create
       end

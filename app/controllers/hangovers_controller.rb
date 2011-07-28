@@ -12,6 +12,10 @@ class HangoversController < ApplicationController
   def new
     @hangover = Hangover.new(params)
     @hangover.delete_upload
+    unless @hangover.upload_path_valid?
+      flash[:error] = @hangover.errors.full_messages.to_sentence
+      redirect_to new_hangover_image_path
+    end
   end
 
   def create
@@ -28,24 +32,5 @@ class HangoversController < ApplicationController
       render :new
     end
   end
-
-#  def edit
-#    @hangover = Hangover.find(params[:id])
-#  end
-
-#  def update
-#    @hangover = Hangover.find(params[:id])
-#    if @hangover.update_attributes(params[:hangover])
-#      redirect_to @hangover, :notice  => "Successfully updated hangover."
-#    else
-#      render :action => 'edit'
-#    end
-#  end
-
-#  def destroy
-#    @hangover = Hangover.find(params[:id])
-#    @hangover.destroy
-#    redirect_to hangovers_url, :notice => "Successfully destroyed hangover."
-#  end
 end
 

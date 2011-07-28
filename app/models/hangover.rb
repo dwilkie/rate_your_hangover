@@ -25,8 +25,13 @@ class Hangover < ActiveRecord::Base
   validates :user, :title, MOUNT_AS, :presence => true
   validates :key, :presence => true,
                   :unique_filename => {:for => MOUNT_AS},
-                  :format => ImageUploader.key(:model_class => self, :mounted_as => MOUNT_AS, :as => :regexp),
+                  :format => {
+                    :with => ImageUploader.key(:model_class => self, :mounted_as => MOUNT_AS, :as => :regexp),
+                    :allowed_file_types => ImageUploader.allowed_file_types(:as_sentence => true)
+                  },
                   :allow_nil => true, :on => :create
+
+  public
 
   def self.best
     order("votes_count DESC").first
@@ -99,6 +104,24 @@ class Hangover < ActiveRecord::Base
     self.votes.by_user(user).any?
   end
 
+  def has_upload?
+    send(MOUNT_AS).has_key?
+  end
+
+  def upload_path_valid?
+    if has_upload?
+      valid?
+      key_errors = errors[:key]
+      errors.clear
+      key_errors.each do |key_error|
+        errors.add(:key, key_error)
+      end
+      errors.empty?
+    else
+      true
+    end
+  end
+
   def save_and_process_image(options = {})
     valid?
     if no_errors = (errors.count == errors[MOUNT_AS].count)
@@ -115,7 +138,7 @@ class Hangover < ActiveRecord::Base
             )
             message = I18n.t(
               "notifications.upload_failed.message",
-              :allowed_file_types => image.extension_white_list.to_sentence
+              :allowed_file_types => ImageUploader.allowed_file_types(:as_sentence => true)
             )
             Notification.for_user!(user, :message => message, :subject => subject)
             raise unless error.is_a?(CarrierWave::ProcessingError)
@@ -138,7 +161,7 @@ class Hangover < ActiveRecord::Base
         :key => image.fog_directory, :public => image.fog_public
       ).files.new(:key => key).destroy unless self.class.exists?(MOUNT_AS => send(MOUNT_AS).filename)
     else
-      Resque.enqueue_in(24.hours, UploadGarbageCollector, :key => key)
+      Resque.enqueue_in(24.hours, UploadGarbageCollector, :key => key) if has_upload?
     end
   end
 

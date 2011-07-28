@@ -7,7 +7,7 @@ module UploaderHelpers
     if options[:filename]
       filename_parts = options[:filename].split(".")
       options[:extension] = filename_parts.pop if filename_parts.size > 1
-      options[:filename] = options[:filename].join(".")
+      options[:filename] = filename_parts.join(".")
     end
     options[:filename] ||= "off_me_guts"
     options[:extension] = options[:extension] ? options[:extension].gsub(".", "") : "jpg"

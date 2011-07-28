@@ -326,19 +326,37 @@ describe Hangover do
 
   describe "#delete_upload" do
     context "passing no args" do
-      before do
-        ResqueSpec.reset!
-        Timecop.freeze(Time.now)
-      end
 
-      after {Timecop.return}
+      context "for a hangover" do
+        context "with a key" do
+          before do
+            subject.key = hangover_key
+            ResqueSpec.reset!
+            Timecop.freeze(Time.now)
+          end
 
-      it "should schedule the remote upload to be deleted 24 hours from now" do
-        hangover_without_image.delete_upload
-        UploadGarbageCollector.should have_scheduled_at(
-          24.hours.from_now,
-          {:key => hangover_without_image.key}
-        )
+          after {Timecop.return}
+
+          it "should schedule a job using Resque.enqueue_in" do
+            Resque.should_receive(:enqueue_in)
+            subject.delete_upload
+          end
+
+          it "should schedule the remote upload to be deleted 24 hours from now" do
+            subject.delete_upload
+            UploadGarbageCollector.should have_scheduled_at(
+              24.hours.from_now,
+              {:key => subject.key}
+            )
+          end
+        end
+
+        context "without a key" do
+          it "should not schedule anything to be deleted" do
+            Resque.should_not_receive(:enqueue_in)
+            subject.delete_upload
+          end
+        end
       end
     end
 
@@ -373,6 +391,72 @@ describe Hangover do
         it "should not delete the remote upload" do
           uploaded_file.should_not_receive(:destroy)
           hangover_without_image.delete_upload(args)
+        end
+      end
+    end
+  end
+
+  describe "has_upload?" do
+    context "does not have a key" do
+
+      it "should return false" do
+        subject.should_not have_upload
+      end
+    end
+
+    context "has a key" do
+      before { subject.key }
+
+      it "should return true" do
+        subject.should have_upload
+      end
+    end
+  end
+
+  describe "#upload_path_valid?" do
+
+    shared_examples_for "having empty errors" do
+      before { subject.upload_path_valid? }
+
+      context "where after the call, #errors" do
+        it "should be empty" do
+          subject.errors.should be_empty
+        end
+      end
+    end
+
+    context "does not have an upload" do
+      it "should be true" do
+        subject.upload_path_valid?.should be_true
+      end
+
+      it_should_behave_like "having empty errors"
+    end
+
+    context "has an upload" do
+      context "with a valid key" do
+        before { subject.key = hangover_key }
+
+        it "should be true" do
+          subject.upload_path_valid?.should be_true
+        end
+
+        it_should_behave_like "having empty errors"
+      end
+
+      context "with an invalid key" do
+        before { subject.key = hangover_key(:valid => false) }
+
+        it "should be false" do
+          subject.upload_path_valid?.should be_false
+        end
+
+        context "after the call, #errors" do
+          before { subject.upload_path_valid? }
+
+          it "should only contain 'key' errors" do
+            subject.errors.count.should == subject.errors[:key].count
+          end
         end
       end
     end
@@ -435,7 +519,7 @@ describe Hangover do
             # starts with 0x2f 0x2a '/public/uploads/tmp/20110725-1237-2729-9212/thumb_aggregator.jpg'
 
             context "the notification's message (assuming allowed file types are exe and rb)" do
-              before { hangover_without_image.image.stub(:extension_white_list).and_return(%w{exe rb}) }
+              before { ImageUploader.stub(:allowed_file_types).with(:as_sentence => true).and_return("exe and rb") }
 
               notification_message = spec_translate(:upload_failed_message, :allowed_file_types => "exe and rb")
               it "should be '#{notification_message}'" do
