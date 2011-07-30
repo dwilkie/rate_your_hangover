@@ -160,20 +160,35 @@ describe "Given I want to create a new hangover" do
         end
       end
     end
+
+    context "and on the new hangover by url page" do
+    end
+
   end
 
   context "and I am not signed in" do
-    before do
-      sign_out
-      visit new_hangover_image_path
+    before { sign_out }
+
+    shared_examples_for "require me to sign in" do
+      it "should take me to the sign in page" do
+        current_path.should == new_user_session_path
+      end
+
+      it "should show me '#{spec_translate(:sign_up_or_sign_in_to_continue)}'" do
+        page.should have_content spec_translate(:sign_up_or_sign_in_to_continue)
+      end
     end
 
-    it "should take me to the sign in page" do
-      current_path.should == new_user_session_path
+    context "and I try to go to the new hangover by upload page" do
+      before { visit new_hangover_image_path }
+
+      it_should_behave_like "require me to sign in"
     end
 
-    it "should show me '#{spec_translate(:sign_up_or_sign_in_to_continue)}'" do
-      page.should have_content spec_translate(:sign_up_or_sign_in_to_continue)
+    context "and I try to go to the new hangover by url page" do
+      before { visit new_hangover_path }
+
+      it_should_behave_like "require me to sign in"
     end
   end
 end
