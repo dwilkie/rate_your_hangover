@@ -50,20 +50,8 @@ describe Hangover do
   # Accessors
   it_should_have_accessor(:user_id => 1, :accessible => false)
   it_should_have_accessor(:title, :accessible => true)
-
-  describe "#key = 'sample key'" do
-    it "should set the image key" do
-      subject.key = "sample key"
-      subject.image.key.should == "sample key"
-    end
-  end
-
-  describe "#key" do
-    it "should return the key from the image" do
-      subject.image.key = "sample key"
-      subject.key.should == "sample key"
-    end
-  end
+  it_should_delegate(:key, :to => "image#key", :accessible => true)
+  it_should_delegate(:remote_image_net_url, :to => "image#remote_net_url", :accessible => true)
 
   # Validations
   it "Factory should be valid" do

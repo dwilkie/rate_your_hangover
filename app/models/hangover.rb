@@ -9,9 +9,9 @@ class Hangover < ActiveRecord::Base
     end
   end
 
-  attr_reader :caption
+  attr_reader   :caption
 
-  attr_accessible :title, :key
+  attr_accessible :title, :key, :remote_image_net_url
 
   has_many :votes, :as => :voteable
   belongs_to :user
@@ -30,8 +30,6 @@ class Hangover < ActiveRecord::Base
                     :allowed_file_types => ImageUploader.allowed_file_types(:as_sentence => true)
                   },
                   :allow_nil => true, :on => :create
-
-  public
 
   def self.best
     order("votes_count DESC").first
@@ -73,6 +71,14 @@ class Hangover < ActiveRecord::Base
 
   def key=(k)
     send(MOUNT_AS).key = k
+  end
+
+  def remote_image_net_url
+    send(MOUNT_AS).remote_net_url
+  end
+
+  def remote_image_net_url=(url)
+    send(MOUNT_AS).remote_net_url = url
   end
 
   def self.inventory(type = nil)
