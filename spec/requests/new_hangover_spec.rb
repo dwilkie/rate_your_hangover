@@ -15,7 +15,7 @@ describe "Given I want to create a new hangover" do
     }.freeze
 
     NARRATIVES = {
-      :create_hangover => "and I fill in the form correctly then press '#{spec_translate(:create_hangover)}'",
+      :create_hangover => "and I fill in title correctly then press '#{spec_translate(:create_hangover)}'",
       :try_creating_hangover_without_filling_in_form => "and I press '#{spec_translate(:create_hangover)}' without filling in the form",
       :click_refresh => "when I click '#{spec_translate(:refresh)}'"
     }.freeze
@@ -34,6 +34,37 @@ describe "Given I want to create a new hangover" do
           :hangover_being_created,
           :refresh_link => spec_translate(:refresh)
         )
+      end
+    end
+
+    shared_examples_for "taking me to the index page" do
+      # FIXME Change this to my_hangovers
+      it "should redirect me to /hangovers" do
+        current_path.should == hangovers_path
+      end
+    end
+
+    shared_examples_for "a successfully created hangover" do
+      context "and" do
+        it_should_behave_like "taking me to the index page"
+        it_should_behave_like "a flash message that"
+
+
+        context "assuming my hangover is successfully created" do
+          context narrative(:click_refresh) do
+            before { click_link(spec_translate(:refresh)) }
+
+            it "should show the latest hangover as my hangover" do
+              page.should have_content spec_translate(
+                :caption,
+                :category => summary_categories.first,
+                :votes => 0,
+                :title => sample(:hangover_title),
+                :owner => sample(:display_name)
+              )
+            end
+          end
+        end
       end
     end
 
@@ -74,28 +105,7 @@ describe "Given I want to create a new hangover" do
 
           before { create_hangover }
 
-          # FIXME Change this to my_hangovers
-          it "should redirect me to /hangovers" do
-            current_path.should == hangovers_path
-          end
-
-          it_should_behave_like "a flash message that"
-
-          context "assuming my hangover is successfully created" do
-            context narrative(:click_refresh) do
-              before { click_link(spec_translate(:refresh)) }
-
-              it "should show the latest hangover as my hangover" do
-                page.should have_content spec_translate(
-                  :caption,
-                  :category => summary_categories.first,
-                  :votes => 0,
-                  :title => sample(:hangover_title),
-                  :owner => sample(:display_name)
-                )
-              end
-            end
-          end
+          it_should_behave_like "a successfully created hangover"
         end
 
          context narrative(:try_creating_hangover_without_filling_in_form) do
@@ -178,6 +188,8 @@ describe "Given I want to create a new hangover" do
         context "a valid file" do
           before do
             fill_in spec_translate(:remote_image_net_url), :with => sample(:remote_image_net_url)
+            image_url = page.find_field(spec_translate(:remote_image_net_url)).value
+            FakeWeb.register_uri(:get, image_url, :body => File.open(image_fixture_path))
           end
 
           context narrative(:create_hangover) do
@@ -185,8 +197,7 @@ describe "Given I want to create a new hangover" do
               create_hangover
             end
 
-            it "" do
-            end
+            it_should_behave_like "a successfully created hangover"
           end
         end
 
@@ -201,6 +212,7 @@ describe "Given I want to create a new hangover" do
             end
 
             it "" do
+              pending
             end
           end
         end
@@ -216,6 +228,7 @@ describe "Given I want to create a new hangover" do
             end
 
             it "" do
+              pending
             end
           end
         end
@@ -226,7 +239,6 @@ describe "Given I want to create a new hangover" do
       end
     end
   end
-
 
   context "and I am not signed in" do
     before { sign_out }

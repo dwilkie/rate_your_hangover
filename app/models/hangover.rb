@@ -23,13 +23,15 @@ class Hangover < ActiveRecord::Base
   mount_uploader MOUNT_AS, ImageUploader
 
   validates :user, :title, MOUNT_AS, :presence => true
-  validates :key, :presence => true,
-                  :unique_filename => {:for => MOUNT_AS},
+
+  validates :remote_image_net_url, :presence => { :unless => :has_upload? }, :on => :create
+
+  validates :key, :unique_filename => {:for => MOUNT_AS},
                   :format => {
                     :with => ImageUploader.key(:model_class => self, :mounted_as => MOUNT_AS, :as => :regexp),
                     :allowed_file_types => ImageUploader.allowed_file_types(:as_sentence => true)
                   },
-                  :allow_nil => true, :on => :create
+                  :unless => Proc.new { |hangover| hangover.remote_image_net_url.present? }, :on => :create
 
   def self.best
     order("votes_count DESC").first

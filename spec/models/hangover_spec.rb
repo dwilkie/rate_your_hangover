@@ -35,6 +35,10 @@ end
 describe Hangover do
   include UploaderHelpers
 
+  SAMPLE_DATA = {
+    :image_url => "http://example.com/sample_image.jpg"
+  }.freeze
+
   def hangover_key(options = {})
     sample_key(options.merge(:subject => subject.class))
   end
@@ -80,15 +84,32 @@ describe Hangover do
     end
   end
 
+
+  context "without a remote image net url" do
+    before { hangover.remote_image_net_url = nil }
+
+    context "and without a key" do
+      before { hangover.key = nil }
+
+      it "should not be valid on create" do
+        hangover.should_not be_valid(:create)
+      end
+
+      it "should be valid on update" do
+        hangover.should be_valid(:update)
+      end
+    end
+  end
+
   context "without a key" do
     before { hangover.key = nil }
 
-    it "should not be valid on create" do
-      hangover.should_not be_valid(:create)
-    end
+    context "but with a remote image net url" do
+       before { hangover.remote_image_net_url = sample(:image_url) }
 
-    it "should be valid on update" do
-      hangover.should be_valid(:update)
+      it "should be valid" do
+        hangover.should be_valid(:create)
+      end
     end
   end
 
