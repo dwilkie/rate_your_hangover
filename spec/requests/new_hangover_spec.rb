@@ -9,11 +9,14 @@ describe "Given I want to create a new hangover" do
     SAMPLE_DATA = {
       :display_name => "Mara",
       :hangover_title => "Bliiiiind",
-      :notification_id => 13232
+      :notification_id => 13232,
+      :remote_image_net_url => "http://example.com/sample_image.jpg",
+      :invalid_remote_image_net_url => "http://example.com/sample_image.invalid"
     }.freeze
 
     NARRATIVES = {
-      :create_hangover => "and I fill in title correctly then press '#{spec_translate(:create_hangover)}'",
+      :create_hangover => "and I fill in the form correctly then press '#{spec_translate(:create_hangover)}'",
+      :try_creating_hangover_without_filling_in_form => "and I press '#{spec_translate(:create_hangover)}' without filling in the form",
       :click_refresh => "when I click '#{spec_translate(:refresh)}'"
     }.freeze
 
@@ -21,28 +24,32 @@ describe "Given I want to create a new hangover" do
 
     before { sign_in(user) }
 
+    shared_examples_for "showing the title" do
+      it_should_show_the_page_title(spec_translate(:new_hangover))
+    end
+
+    shared_examples_for "a flash message that" do
+      it "should show me that the hangover is being created" do
+        page.should have_content spec_translate(
+          :hangover_being_created,
+          :refresh_link => spec_translate(:refresh)
+        )
+      end
+    end
+
+    def create_hangover(options = {})
+      fill_in(spec_translate(:title), :with => sample(:hangover_title))
+      ResqueSpec.reset!
+      with_resque do
+        click_button spec_translate(:create_hangover)
+      end
+    end
+
     context "and on the new hangover by upload page" do
-
-      def create_hangover(options = {})
-        fill_in(spec_translate(:title), :with => sample(:hangover_title))
-        ResqueSpec.reset!
-        with_resque do
-          click_button spec_translate(:create_hangover)
-        end
-      end
-
-      shared_examples_for "a flash message that" do
-        it "should show me that the hangover is being created" do
-          page.should have_content spec_translate(
-            :hangover_being_created,
-            :refresh_link => spec_translate(:refresh)
-          )
-        end
-      end
 
       before { visit new_hangover_image_path }
 
-      it_should_show_the_page_title(spec_translate(:new_hangover))
+      it_should_behave_like("showing the title")
 
       context "and I select a valid file then press '#{spec_translate(:next)}'" do
 
@@ -61,7 +68,7 @@ describe "Given I want to create a new hangover" do
           current_path.should == new_hangover_path
         end
 
-        it_should_show_the_page_title(spec_translate(:new_hangover))
+        it_should_behave_like("showing the title")
 
         context narrative(:create_hangover) do
 
@@ -91,7 +98,7 @@ describe "Given I want to create a new hangover" do
           end
         end
 
-        context "and I press '#{spec_translate(:create_hangover)}' without filling in the form" do
+         context narrative(:try_creating_hangover_without_filling_in_form) do
           before { click_button spec_translate(:create_hangover) }
 
           context "within" do
@@ -161,15 +168,70 @@ describe "Given I want to create a new hangover" do
       end
     end
 
-    context "and on the new hangover by url page" do
-    end
+    context "and on the new hangover by url page", :wip => true do
+      before { visit new_hangover_path }
 
+      it_should_behave_like "showing the title"
+
+      context "and I enter the url of" do
+
+        context "a valid file" do
+          before do
+            fill_in spec_translate(:remote_image_net_url), :with => sample(:remote_image_net_url)
+          end
+
+          context narrative(:create_hangover) do
+            before do
+              create_hangover
+            end
+
+            it "" do
+            end
+          end
+        end
+
+        context "an invalid file" do
+          before do
+            fill_in spec_translate(:remote_image_net_url), :with => sample(:invalid_remote_image_net_url)
+          end
+
+          context narrative(:create_hangover) do
+            before do
+              create_hangover
+            end
+
+            it "" do
+            end
+          end
+        end
+
+        context "an invalid file which looks valid" do
+          before do
+            fill_in spec_translate(:remote_image_net_url), :with => sample(:remote_image_net_url)
+          end
+
+          context narrative(:create_hangover) do
+            before do
+              create_hangover
+            end
+
+            it "" do
+            end
+          end
+        end
+      end
+
+      context narrative(:try_creating_hangover_without_filling_in_form) do
+        pending
+      end
+    end
   end
+
 
   context "and I am not signed in" do
     before { sign_out }
 
-    shared_examples_for "require me to sign in" do
+    shared_examples_for "require sign in" do
       it "should take me to the sign in page" do
         current_path.should == new_user_session_path
       end
@@ -182,13 +244,13 @@ describe "Given I want to create a new hangover" do
     context "and I try to go to the new hangover by upload page" do
       before { visit new_hangover_image_path }
 
-      it_should_behave_like "require me to sign in"
+      it_should_behave_like "require sign in"
     end
 
     context "and I try to go to the new hangover by url page" do
       before { visit new_hangover_path }
 
-      it_should_behave_like "require me to sign in"
+      it_should_behave_like "require sign in"
     end
   end
 end

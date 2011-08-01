@@ -1,9 +1,11 @@
 require 'spec_helper'
 
-describe "hangovers/new.html.haml" do
+describe "hangovers/new.html.haml", :wip => true do
   include HangoverExampleHelpers
 
-  let(:hangover) { stub_model(Hangover).as_new_record.as_null_object }
+  let(:form_inputs) { { :remote_image_net_url => "", :title => "" } }
+
+  let(:hangover) { stub_model(Hangover, form_inputs).as_new_record.as_null_object }
   let(:parent_selector) { [] }
 
   # given in the callback url from Amazon
@@ -32,6 +34,7 @@ describe "hangovers/new.html.haml" do
         before { render }
 
         it_should_have_input(:hangover, :title, :type => :text)
+        it_should_have_input(:hangover, :remote_image_net_url, :type => :url)
       end
 
       context "error messages" do

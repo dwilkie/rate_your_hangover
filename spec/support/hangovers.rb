@@ -35,7 +35,8 @@ TRANSLATIONS = {
       "activerecord.errors.models.hangover.attributes.key.invalid",
       :allowed_file_types => ImageUploader.allowed_file_types(:as_sentence => true)
     )
-  }
+  },
+  :remote_image_net_url => Proc.new { Hangover.human_attribute_name(:remote_image_net_url) }
 }
 
 def spec_translate(key, options = {})
