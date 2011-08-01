@@ -7,7 +7,7 @@ class ImageUploader < CarrierWave::Uploader::Base
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
-  attr_accessor :success_action_redirect
+  attr_accessor :success_action_redirect, :remote_net_url
   attr_writer :key
 
   def self.store_dir(model_class, mounted_as)

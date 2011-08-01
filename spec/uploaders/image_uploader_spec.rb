@@ -3,6 +3,7 @@ require 'carrierwave/test/matchers'
 
 describe ImageUploader do
   include CarrierWave::Test::Matchers
+  include ModelHelpers
 
   SAMPLE_DATA = {
     :path => "upload_dir/bliind.exe",
@@ -140,13 +141,8 @@ describe ImageUploader do
     subject.should be_respond_to("key=")
   end
 
-  it "should respond to #success_action_redirect=" do
-    subject.should be_respond_to("success_action_redirect=")
-  end
-
-  it "should respond to #success_action_redirect" do
-    subject.should be_respond_to(:success_action_redirect)
-  end
+  it_should_have_accessor(:success_action_redirect)
+  it_should_have_accessor(:remote_net_url)
 
   ImageUploader.fog_credentials.keys.each do |key|
     describe "##{key}" do
@@ -206,7 +202,6 @@ describe ImageUploader do
   end
 
   describe "#filename" do
-
     context "#key is set to '#{sample(:s3_key)}'" do
       before { subject.key = sample(:s3_key) }
 
@@ -240,18 +235,6 @@ describe ImageUploader do
   describe "#acl" do
     it "should return the sanitized s3 access policy" do
       subject.acl.should == subject.s3_access_policy.to_s.gsub("_", "-")
-    end
-  end
-
-  describe "#success_action_redirect" do
-
-    context "where #success_action_redirect = '#{sample(:url)}'" do
-
-      before { subject.success_action_redirect = sample(:url) }
-
-      it "should return #{sample(:url)}" do
-        subject.success_action_redirect.should == sample(:url)
-      end
     end
   end
 
