@@ -4,6 +4,16 @@ require 'carrierwave/test/matchers'
 describe ImageUploader do
   include CarrierWave::Test::Matchers
 
+  SAMPLE_DATA = {
+    :path => "upload_dir/bliind.exe",
+    :key => "maggot",
+    :s3_key => "store_dir/guid/filename",
+    :url => "http://example.com/some_url",
+    :expiration => 2.minutes,
+    :max_file_size => 10.megabytes,
+    :file_url => "http://anyurl.com/any_path/image_dir/filename.jpg"
+  }.freeze
+
   let(:hangover) { stub_model(Hangover).as_null_object }
   let(:uploader_for_image) { ImageUploader.new(hangover, :image) }
 
@@ -158,12 +168,11 @@ describe ImageUploader do
     end
 
     context ":with_path => true" do
-      sample_path = "upload_dir/bliind.exe"
-      context "#key is set to '#{sample_path}'" do
-        before { subject.key = sample_path }
+      context "#key is set to '#{sample(:path)}'" do
+        before { subject.key = sample(:path) }
 
-        it "should return the full url with '/#{sample_path}' as the path" do
-          URI.parse(subject.direct_fog_url(:with_path => true)).path.should == "/#{sample_path}"
+        it "should return the full url with '/#{sample(:path)}' as the path" do
+          URI.parse(subject.direct_fog_url(:with_path => true)).path.should == "/#{sample(:path)}"
         end
       end
     end
@@ -186,24 +195,22 @@ describe ImageUploader do
       end
     end
 
-    SAMPLE_KEY = "maggot"
-    context "where the key is set to '#{SAMPLE_KEY}'" do
+    context "where the key is set to '#{sample(:key)}'" do
 
-      before { uploader_for_image.key = SAMPLE_KEY }
+      before { uploader_for_image.key = sample(:key) }
 
-      it "should return '#{SAMPLE_KEY}'" do
-        uploader_for_image.key.should == SAMPLE_KEY
+      it "should return '#{sample(:key)}'" do
+        uploader_for_image.key.should == sample(:key)
       end
     end
   end
 
   describe "#filename" do
-    SAMPLE_KEY = "store_dir/guid/filename"
 
-    context "#key is set to '#{SAMPLE_KEY}'" do
-      before { subject.key = SAMPLE_KEY }
+    context "#key is set to '#{sample(:s3_key)}'" do
+      before { subject.key = sample(:s3_key) }
 
-      filename = SAMPLE_KEY.split("/")
+      filename = sample(:s3_key).split("/")
       filename.shift
       filename = filename.join("/")
 
@@ -237,14 +244,13 @@ describe ImageUploader do
   end
 
   describe "#success_action_redirect" do
-    SAMPLE_URL = "http://example.com/some_url"
 
-    context "where #success_action_redirect = '#{SAMPLE_URL}'" do
+    context "where #success_action_redirect = '#{sample(:url)}'" do
 
-      before { subject.success_action_redirect = SAMPLE_URL }
+      before { subject.success_action_redirect = sample(:url) }
 
-      it "should return #{SAMPLE_URL}" do
-        subject.success_action_redirect.should == SAMPLE_URL
+      it "should return #{sample(:url)}" do
+        subject.success_action_redirect.should == sample(:url)
       end
     end
   end
@@ -266,8 +272,6 @@ describe ImageUploader do
     end
 
     context "expiration" do
-      SAMPLE_EXPIRATION = 2.minutes
-
       def expiration(options = {})
         decoded_policy(options)["expiration"]
       end
@@ -286,9 +290,9 @@ describe ImageUploader do
         end
       end
 
-      it "should be #{SAMPLE_EXPIRATION / 60 } minutes from now when passing {:expiration => #{SAMPLE_EXPIRATION}}" do
+      it "should be #{sample(:expiration) / 60 } minutes from now when passing {:expiration => #{sample(:expiration)}}" do
         Timecop.freeze(Time.now) do
-          expiration(:expiration => SAMPLE_EXPIRATION).to_time.should have_expiration(SAMPLE_EXPIRATION)
+          expiration(:expiration => sample(:expiration)).to_time.should have_expiration(sample(:expiration))
         end
       end
 
@@ -335,7 +339,6 @@ describe ImageUploader do
         end
 
         context "'content-length-range of'" do
-          SAMPLE_MAX_FILE_SIZE = 10.megabytes
 
           def have_content_length_range(max_file_size = ImageUploader::DEFAULT_MAX_FILE_SIZE)
             include(["content-length-range", 1, max_file_size])
@@ -345,10 +348,10 @@ describe ImageUploader do
             conditions.should have_content_length_range
           end
 
-          it "#{SAMPLE_MAX_FILE_SIZE} bytes when passing {:max_file_size => #{SAMPLE_MAX_FILE_SIZE}}" do
+          it "#{sample(:max_file_size)} bytes when passing {:max_file_size => #{sample(:max_file_size)}}" do
             conditions(
-              :max_file_size => SAMPLE_MAX_FILE_SIZE
-            ).should have_content_length_range(SAMPLE_MAX_FILE_SIZE)
+              :max_file_size => sample(:max_file_size)
+            ).should have_content_length_range(sample(:max_file_size))
           end
         end
       end
@@ -374,15 +377,13 @@ describe ImageUploader do
     end
   end
 
-  sample_url = "http://anyurl.com/any_path/image_dir/filename.jpg"
-
   context "the attachment has been stored" do
     before do
-      uploader_for_image.model.stub("#{uploader_for_image.mounted_as}_url").and_return(sample_url)
+      uploader_for_image.model.stub("#{uploader_for_image.mounted_as}_url").and_return(sample(:file_url))
       uploader_for_image.store!(File.open(image_fixture_path))
     end
 
-    context "#url returns '#{sample_url}'" do
+    context "#url returns '#{sample(:file_url)}'" do
       context "the thumb version's url" do
         it "should be like '/image_dir/filename_thumb.jpg'" do
           uploader_for_image.thumb.url.should =~ /\/image_dir\/filename_thumb.jpg$/
