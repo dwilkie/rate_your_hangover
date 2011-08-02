@@ -9,9 +9,7 @@ en:
     errors:
       models:
         hangover:
-          attributes:
-            key:
-              invalid: "is invalid. Allowed files are: %{allowed_file_types}"
+          invalid: "is invalid. Must be: %{allowed_types}"
   hangover:
     sober: "Everybody's as sober as a bird :("
     latest: Latest Hangover
@@ -46,4 +44,8 @@ en:
     upload_failed:
       subject: Hangover upload failed
       message: "An error occurred when processing your hangover. Allowed files are: %{allowed_file_types}"
+  support:
+    array:
+      two_words_connector: " or "
+      last_word_connector: " or "
 

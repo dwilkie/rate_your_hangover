@@ -11,7 +11,8 @@ describe "Given I want to create a new hangover" do
       :hangover_title => "Bliiiiind",
       :notification_id => 13232,
       :remote_image_net_url => "http://example.com/sample_image.jpg",
-      :invalid_remote_image_net_url => "http://example.com/sample_image.invalid"
+      :invalid_remote_image_net_url => "http://example.com/sample_image.invalid",
+      :invalid_url => "ftp://example.com/sample_image.jpg"
     }.freeze
 
     NARRATIVES = {
@@ -108,7 +109,7 @@ describe "Given I want to create a new hangover" do
           it_should_behave_like "a successfully created hangover"
         end
 
-         context narrative(:try_creating_hangover_without_filling_in_form) do
+        context narrative(:try_creating_hangover_without_filling_in_form) do
           before { click_button spec_translate(:create_hangover) }
 
           context "within" do
@@ -178,13 +179,37 @@ describe "Given I want to create a new hangover" do
       end
     end
 
-    context "and on the new hangover by url page", :wip => true do
+    context "and on the new hangover by url page" do
       before { visit new_hangover_path }
 
       it_should_behave_like "showing the title"
 
-      context "and I enter the url of" do
+      context narrative(:try_creating_hangover_without_filling_in_form) do
+        before { click_button spec_translate(:create_hangover) }
 
+        context "within" do
+          it_should_display_errors_for(:hangover, :remote_image_net_url, :cant_be_blank)
+          it_should_display_errors_for(:hangover, :title, :cant_be_blank)
+        end
+      end
+
+      context "and I enter an invalid url" do
+        before do
+          fill_in spec_translate(:remote_image_net_url), :with => sample(:invalid_url)
+        end
+
+        context narrative(:create_hangover) do
+          before do
+            create_hangover
+          end
+
+          context "within" do
+            it_should_display_errors_for(:hangover, :remote_image_net_url, :invalid_url)
+          end
+        end
+      end
+
+      context "and I enter the url of" do
         context "a valid file" do
           before do
             fill_in spec_translate(:remote_image_net_url), :with => sample(:remote_image_net_url)
@@ -211,13 +236,13 @@ describe "Given I want to create a new hangover" do
               create_hangover
             end
 
-            it "" do
-              pending
+            context "within" do
+              it_should_display_errors_for(:hangover, :remote_image_net_url, :invalid_remote_url)
             end
           end
         end
 
-        context "an invalid file which looks valid" do
+        context "an invalid file which has a valid url and file extension" do
           before do
             fill_in spec_translate(:remote_image_net_url), :with => sample(:remote_image_net_url)
           end

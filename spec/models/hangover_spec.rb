@@ -36,7 +36,9 @@ describe Hangover do
   include UploaderHelpers
 
   SAMPLE_DATA = {
-    :image_url => "http://example.com/sample_image.jpg"
+    :image_url => "http://example.com/sample_image.jpg",
+    :invalid_image_url => "http://example.com/sample_image.exe",
+    :invalid_url => "ftp://example.com/sample_image.jpg"
   }.freeze
 
   def hangover_key(options = {})
@@ -84,7 +86,6 @@ describe Hangover do
     end
   end
 
-
   context "without a remote image net url" do
     before { hangover.remote_image_net_url = nil }
 
@@ -108,7 +109,26 @@ describe Hangover do
        before { hangover.remote_image_net_url = sample(:image_url) }
 
       it "should be valid" do
+        hangover.valid?
         hangover.should be_valid(:create)
+      end
+    end
+  end
+
+  context "with an invalid remote image net url" do
+    context "where the file extension is invalid" do
+      before { hangover.remote_image_net_url = sample(:invalid_image_url) }
+
+      it "should not be valid" do
+        hangover.should_not be_valid
+      end
+    end
+
+    context "where the url scheme is invalid" do
+      before { hangover.remote_image_net_url = sample(:invalid_url) }
+
+      it "should not be valid" do
+        hangover.should_not be_valid
       end
     end
   end
@@ -405,8 +425,9 @@ describe Hangover do
     end
   end
 
-  describe "has_upload?" do
-    context "does not have a key" do
+  describe "#has_upload?" do
+    context "image does not have a key" do
+      before { subject.image.stub(:has_key?).and_return(false) }
 
       it "should return false" do
         subject.should_not have_upload
@@ -414,7 +435,7 @@ describe Hangover do
     end
 
     context "has a key" do
-      before { subject.key }
+      before { subject.image.stub(:has_key?).and_return(true) }
 
       it "should return true" do
         subject.should have_upload
@@ -477,13 +498,28 @@ describe Hangover do
     context "other than the image" do
       context "the hangover has no errors" do
         context "passing no args" do
-          it "should queue the image to be processed and the hangover saved" do
-            hangover_without_image.save_and_process_image
-            ImageProcessor.should have_queued(
-              hangover_without_image.attributes.merge(
-                "key" => hangover_without_image.key
-              ), ["user_id"]
-            ).in(:image_processor_queue)
+          shared_examples_for "queuing the download" do
+            it "should queue the image to be downloaded and processed and the hangover saved" do
+              hangover_without_image.save_and_process_image
+              ImageProcessor.should have_queued(
+                hangover_without_image.attributes.merge(
+                  virtual_attributes
+                ), ["user_id"]
+              ).in(:image_processor_queue)
+            end
+          end
+
+          context "the hangover has an upload" do
+            it_should_behave_like("queuing the download") do
+              let(:virtual_attributes) { { "key" => hangover_without_image.key } }
+            end
+          end
+
+          context "the hangover has a remote image net url" do
+            before { hangover_without_image.remote_image_net_url = sample(:image_url) }
+            it_should_behave_like("queuing the download") do
+              let(:virtual_attributes) { { "remote_image_net_url" => hangover_without_image.remote_image_net_url } }
+            end
           end
         end
 
@@ -495,10 +531,28 @@ describe Hangover do
             hangover_without_image.stub(:save!)
           end
 
-          it "should try to download the image from a url based off the key" do
-            hangover_without_image.key = key = hangover_key
-            hangover_without_image.should_receive(:remote_image_url=).with(/\/#{key}$/)
-            hangover_without_image.save_and_process_image(args)
+          context "hangover has an upload" do
+            let(:key) { hangover_key }
+
+            before do
+              hangover_without_image.key = key
+            end
+
+            it "should try to download the image from a url based off the key" do
+              hangover_without_image.should_receive(:remote_image_url=).with(/\/#{key}$/)
+              hangover_without_image.save_and_process_image(args)
+            end
+          end
+
+          context "hangover has has a remote image net url" do
+            before do
+              hangover_without_image.remote_image_net_url = sample(:image_url)
+            end
+
+            it "should try to download the image from the remote image net url" do
+              hangover_without_image.should_receive(:remote_image_url=).with(sample(:image_url))
+              hangover_without_image.save_and_process_image(args)
+            end
           end
 
           it "should try and save! the hangover" do

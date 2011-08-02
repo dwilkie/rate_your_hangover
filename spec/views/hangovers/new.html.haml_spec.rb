@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "hangovers/new.html.haml", :wip => true do
+describe "hangovers/new.html.haml" do
   include HangoverExampleHelpers
 
   let(:form_inputs) { { :remote_image_net_url => "", :title => "" } }
@@ -46,6 +46,7 @@ describe "hangovers/new.html.haml", :wip => true do
         end
 
         it_should_display_error_messages_for(:hangover, :title)
+        it_should_display_error_messages_for(:hangover, :remote_image_net_url)
       end
     end
 

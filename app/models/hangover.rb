@@ -1,5 +1,6 @@
 class Hangover < ActiveRecord::Base
 
+  # Validations
   class UniqueFilenameValidator < ActiveModel::EachValidator
     # implement the method called during validation
     def validate_each(record, attribute, value)
@@ -18,20 +19,40 @@ class Hangover < ActiveRecord::Base
 
   EXTRA_SUMMARY_CATEGORIES = [:latest, :best]
   TIME_PERIODS = [:day, :week, :month, :year]
+  ALLOWED_URL_SCHEMES = %w{http https}
   MOUNT_AS = :image
 
   mount_uploader MOUNT_AS, ImageUploader
 
   validates :user, :title, MOUNT_AS, :presence => true
 
-  validates :remote_image_net_url, :presence => { :unless => :has_upload? }, :on => :create
+  validates :remote_image_net_url,
+            :presence => { :unless => :has_upload?, :on => :create },
+            :format => {
+              :with => URI.regexp(ALLOWED_URL_SCHEMES),
+              :allowed_types => ALLOWED_URL_SCHEMES.to_sentence
+              },
+            :allow_nil => true
 
-  validates :key, :unique_filename => {:for => MOUNT_AS},
+  # Need to have two separate validations here so cannot declare in the same validates method
+  # since the second format will override the first one
+
+  validates :remote_image_net_url,
+            :format => {
+              :with => /#{ImageUploader.allowed_file_types(:as => :regexp_string)}\z/,
+              :allowed_types => ImageUploader.allowed_file_types(:as => :sentence)
+            },
+            :allow_nil => true
+
+  validates :key, :unique_filename => { :for => MOUNT_AS },
                   :format => {
-                    :with => ImageUploader.key(:model_class => self, :mounted_as => MOUNT_AS, :as => :regexp),
-                    :allowed_file_types => ImageUploader.allowed_file_types(:as_sentence => true)
-                  },
-                  :unless => Proc.new { |hangover| hangover.remote_image_net_url.present? }, :on => :create
+                    :with => ImageUploader.key(
+                      :model_class => self, :mounted_as => MOUNT_AS, :as => :regexp
+                    ),
+                    :allowed_types => ImageUploader.allowed_file_types(
+                      :as => :sentence
+                    )
+                  }, :unless => :has_remote_image_net_url?, :on => :create
 
   def self.best
     order("votes_count DESC").first
@@ -133,9 +154,12 @@ class Hangover < ActiveRecord::Base
   def save_and_process_image(options = {})
     valid?
     if no_errors = (errors.count == errors[MOUNT_AS].count)
+      process_with_remote_image_net_url = has_remote_image_net_url?
       if options[:now]
         begin
-          self.remote_image_url = image.direct_fog_url(:with_path => true)
+          remote_url = process_with_remote_image_net_url ?
+            remote_image_net_url : image.direct_fog_url(:with_path => true)
+          self.remote_image_url = remote_url
         rescue StandardError => error
         else
           save!
@@ -153,9 +177,11 @@ class Hangover < ActiveRecord::Base
           end
         end
       else
+        virtual_attributes = process_with_remote_image_net_url ?
+          {"remote_image_net_url" => remote_image_net_url} : {"key" => key}
         Resque.enqueue(
           ImageProcessor,
-          attributes.merge("key" => key),
+          attributes.merge(virtual_attributes),
           ["user_id"]
         )
       end
@@ -179,6 +205,10 @@ class Hangover < ActiveRecord::Base
     hangover = self.send(summary_category) || self.new
     hangover.build_caption(summary_category)
     @@hangovers << hangover
+  end
+
+  def has_remote_image_net_url?
+    remote_image_net_url.present?
   end
 
 end

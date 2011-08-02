@@ -4,6 +4,8 @@ class ImageUploader < CarrierWave::Uploader::Base
   DEFAULT_UPLOAD_EXPIRATION = 10.hours
   DEFAULT_MAX_FILE_SIZE = 5.megabytes
 
+  S3_FILENAME_WILDCARD = "${filename}"
+
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
@@ -16,19 +18,24 @@ class ImageUploader < CarrierWave::Uploader::Base
 
   def self.allowed_file_types(options = {})
     file_types = %w(jpg jpeg gif png)
-    options[:as_sentence] ? file_types.to_sentence : file_types
+    if options[:as] == :sentence
+      file_types.to_sentence
+    elsif options[:as] == :regexp_string
+      "\\.(#{file_types.join("|")})"
+    else
+      file_types
+    end
   end
 
   def self.key(options = {})
     options[:store_dir] ||= store_dir(options[:model_class], options[:mounted_as])
-    key_path = "#{options[:store_dir]}/#{UUID.generate}/${filename}"
+    key_path = "#{options[:store_dir]}/#{UUID.generate}/#{S3_FILENAME_WILDCARD}"
     if options[:as] == :regexp
       key_parts = key_path.split("/")
       key_parts.pop
       key_parts.pop
       key_path = key_parts.join("/")
-      uploader_instance = self.new
-      key_path = /\A#{key_path}\/[a-f\d\-]+\/.+\.(#{uploader_instance.extension_white_list.join("|")})\z/
+      key_path = /\A#{key_path}\/[a-f\d\-]+\/.+#{allowed_file_types(:as => :regexp_string)}\z/
     end
     key_path
   end
@@ -49,7 +56,7 @@ class ImageUploader < CarrierWave::Uploader::Base
   end
 
   def has_key?
-    @key.present?
+    @key.present? && !(@key =~ /#{Regexp.escape(S3_FILENAME_WILDCARD)}\z/)
   end
 
   self.fog_credentials.keys.each do |key|
