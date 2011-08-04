@@ -115,6 +115,14 @@ describe Hangover do
     end
   end
 
+  context "with a blank remote image url" do
+    before { hangover.remote_image_net_url = "" }
+
+    it "should be valid" do
+      hangover.should be_valid
+    end
+  end
+
   context "with an invalid remote image net url" do
     context "where the file extension is invalid" do
       before { hangover.remote_image_net_url = sample(:invalid_image_url) }
@@ -581,10 +589,11 @@ describe Hangover do
             # Failed to manipulate with rmagick, maybe it is not an image? Original Error: Not a JPEG file:
             # starts with 0x2f 0x2a '/public/uploads/tmp/20110725-1237-2729-9212/thumb_aggregator.jpg'
 
-            context "the notification's message (assuming allowed file types are exe and rb)" do
-              before { ImageUploader.stub(:allowed_file_types).with(:as_sentence => true).and_return("exe and rb") }
+            allowed_types = "exe or rb"
+            context "the notification's message (assuming allowed file types are #{allowed_types})" do
+              before { ImageUploader.stub(:allowed_file_types).with(:as => :sentence).and_return(allowed_types) }
 
-              notification_message = spec_translate(:upload_failed_message, :allowed_file_types => "exe and rb")
+              notification_message = spec_translate(:upload_failed_message, :allowed_types => allowed_types)
               it "should be '#{notification_message}'" do
                 Notification.should_receive(new_notification).with(
                   anything, hash_including(:message => notification_message)

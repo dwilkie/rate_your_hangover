@@ -164,7 +164,7 @@ describe "Given I want to create a new hangover" do
             context narrative(:click_refresh) do
               before { click_link(spec_translate(:refresh)) }
 
-              it_should_have_a_notification(:upload_failed, :allowed_file_types => "jpg, jpeg, gif, and png")
+              it_should_have_a_notification(:upload_failed, :allowed_types => "jpg, jpeg, gif or png")
             end
           end
         end

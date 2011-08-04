@@ -32,7 +32,7 @@ class Hangover < ActiveRecord::Base
               :with => URI.regexp(ALLOWED_URL_SCHEMES),
               :allowed_types => ALLOWED_URL_SCHEMES.to_sentence
               },
-            :allow_nil => true
+            :allow_nil => true, :allow_blank => true
 
   # Need to have two separate validations here so cannot declare in the same validates method
   # since the second format will override the first one
@@ -42,7 +42,7 @@ class Hangover < ActiveRecord::Base
               :with => /#{ImageUploader.allowed_file_types(:as => :regexp_string)}\z/,
               :allowed_types => ImageUploader.allowed_file_types(:as => :sentence)
             },
-            :allow_nil => true
+            :allow_nil => true, :allow_blank => true
 
   validates :key, :unique_filename => { :for => MOUNT_AS },
                   :format => {
@@ -170,7 +170,7 @@ class Hangover < ActiveRecord::Base
             )
             message = I18n.t(
               "notifications.upload_failed.message",
-              :allowed_file_types => ImageUploader.allowed_file_types(:as_sentence => true)
+              :allowed_types => ImageUploader.allowed_file_types(:as => :sentence)
             )
             Notification.for_user!(user, :message => message, :subject => subject)
             raise unless error.is_a?(CarrierWave::ProcessingError)
