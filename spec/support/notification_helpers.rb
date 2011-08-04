@@ -5,6 +5,20 @@ module NotificationHelpers
 
   module ClassMethods
 
+    def it_should_show_the_notification_details(notification_subject, notification_message, unread_count_selector)
+      it_should_show_the_page_title(notification_subject)
+
+      it "should show me '#{notification_message}'" do
+        page.should have_content notification_message
+      end
+
+      it "should show me that I have 0 new notifications" do
+        within(unread_count_selector) do
+          page.should have_content "0"
+        end
+      end
+    end
+
     def it_should_have_a_notification(notification_identifier, options = {})
       unread_count_selector = ".usernav .unread_count"
 
@@ -40,31 +54,24 @@ module NotificationHelpers
             top_notification.should have_content message_snippit
           end
 
-          shared_examples_for "a notification page" do
-
-            it_should_show_the_page_title(notification_subject)
-
-            it "should show me '#{notification_message}'" do
-              page.should have_content notification_message
-            end
-
-            it "should show me that I have 0 new notifications" do
-              within(unread_count_selector) do
-                page.should have_content "0"
-              end
-            end
-          end
-
           context "I click '#{notification_subject}'" do
             before { top_notification.click_link(notification_subject) }
 
-            it_should_behave_like "a notification page"
+            it_should_show_the_notification_details(
+              notification_subject,
+              notification_message,
+              unread_count_selector
+            )
           end
 
           context "I click '#{message_snippit}'" do
             before { top_notification.click_link(message_snippit) }
 
-            it_should_behave_like "a notification page"
+            it_should_show_the_notification_details(
+              notification_subject,
+              notification_message,
+              unread_count_selector
+            )
           end
         end
       end

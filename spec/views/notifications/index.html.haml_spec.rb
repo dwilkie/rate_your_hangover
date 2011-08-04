@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "notifications/index.html.haml", :wip => true do
+describe "notifications/index.html.haml" do
 
   SAMPLE_DATA = { :notification => "Sample notification content"}
 

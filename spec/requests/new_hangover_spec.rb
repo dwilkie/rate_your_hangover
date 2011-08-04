@@ -50,7 +50,6 @@ describe "Given I want to create a new hangover" do
         it_should_behave_like "taking me to the index page"
         it_should_behave_like "a flash message that"
 
-
         context "assuming my hangover is successfully created" do
           context narrative(:click_refresh) do
             before { click_link(spec_translate(:refresh)) }
@@ -65,6 +64,30 @@ describe "Given I want to create a new hangover" do
               )
             end
           end
+        end
+      end
+    end
+
+    shared_examples_for "a failed hangover" do
+      it_should_behave_like "a flash message that"
+
+      context "after the hangover fails to create" do
+        context narrative(:click_refresh) do
+          before { click_link(spec_translate(:refresh)) }
+
+          it_should_have_a_notification(:upload_failed, :allowed_types => "jpg, jpeg, gif or png")
+        end
+      end
+    end
+
+    shared_examples_for "take me to the next step" do
+      context "and" do
+        it "should redirect the me to the new hangover page" do
+          current_path.should == new_hangover_path
+        end
+
+        it "should not show me an input for entering a url" do
+          page.should have_no_content spec_translate(:remote_image_net_url)
         end
       end
     end
@@ -100,7 +123,7 @@ describe "Given I want to create a new hangover" do
           current_path.should == new_hangover_path
         end
 
-        it_should_behave_like("showing the title")
+        it_should_behave_like "take me to the next step"
 
         context narrative(:create_hangover) do
 
@@ -151,22 +174,12 @@ describe "Given I want to create a new hangover" do
         end
 
         # Placeholder test
-        it "should redirect the me to the new hangover page" do
-          current_path.should == new_hangover_path
-        end
+        it_should_behave_like "take me to the next step"
 
         context narrative(:create_hangover) do
           before { create_hangover }
 
-          it_should_behave_like "a flash message that"
-
-          context "after the hangover fails to create" do
-            context narrative(:click_refresh) do
-              before { click_link(spec_translate(:refresh)) }
-
-              it_should_have_a_notification(:upload_failed, :allowed_types => "jpg, jpeg, gif or png")
-            end
-          end
+          it_should_behave_like "a failed hangover"
         end
       end
 
@@ -210,17 +223,17 @@ describe "Given I want to create a new hangover" do
       end
 
       context "and I enter the url of" do
+        def fake_the_download(options = {})
+          fill_in spec_translate(:remote_image_net_url), :with => sample(:remote_image_net_url)
+          image_url = page.find_field(spec_translate(:remote_image_net_url)).value
+          FakeWeb.register_uri(:get, image_url, :body => File.open(image_fixture_path(options)))
+        end
+
         context "a valid file" do
-          before do
-            fill_in spec_translate(:remote_image_net_url), :with => sample(:remote_image_net_url)
-            image_url = page.find_field(spec_translate(:remote_image_net_url)).value
-            FakeWeb.register_uri(:get, image_url, :body => File.open(image_fixture_path))
-          end
+          before { fake_the_download }
 
           context narrative(:create_hangover) do
-            before do
-              create_hangover
-            end
+            before { create_hangover }
 
             it_should_behave_like "a successfully created hangover"
           end
@@ -228,13 +241,14 @@ describe "Given I want to create a new hangover" do
 
         context "an invalid file" do
           before do
-            fill_in spec_translate(:remote_image_net_url), :with => sample(:invalid_remote_image_net_url)
+            fill_in(
+              spec_translate(:remote_image_net_url),
+              :with => sample(:invalid_remote_image_net_url)
+            )
           end
 
           context narrative(:create_hangover) do
-            before do
-              create_hangover
-            end
+            before { create_hangover }
 
             context "within" do
               it_should_display_errors_for(:hangover, :remote_image_net_url, :invalid_remote_url)
@@ -243,24 +257,14 @@ describe "Given I want to create a new hangover" do
         end
 
         context "an invalid file which has a valid url and file extension" do
-          before do
-            fill_in spec_translate(:remote_image_net_url), :with => sample(:remote_image_net_url)
-          end
+          before { fake_the_download(:invalid => true) }
 
           context narrative(:create_hangover) do
-            before do
-              create_hangover
-            end
+            before { create_hangover }
 
-            it "" do
-              pending
-            end
+            it_should_behave_like "a failed hangover"
           end
         end
-      end
-
-      context narrative(:try_creating_hangover_without_filling_in_form) do
-        pending
       end
     end
   end

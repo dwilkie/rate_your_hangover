@@ -31,10 +31,27 @@ describe "hangovers/new.html.haml" do
       before { parent_selector << "div" }
 
       context "inputs" do
-        before { render }
 
-        it_should_have_input(:hangover, :title, :type => :text)
-        it_should_have_input(:hangover, :remote_image_net_url, :type => :url)
+        it_should_have_input(:hangover, :title, :type => :text, :render => true)
+
+        context "hangover has an upload" do
+          before do
+            hangover.stub(:has_upload?).and_return(true)
+            render
+          end
+
+          it "should not contain '#{spec_translate(:remote_image_net_url)}'" do
+            rendered.should_not have_content(spec_translate(:remote_image_net_url))
+          end
+        end
+
+        context "hangover does not have an upload" do
+          before do
+            hangover.stub(:has_upload?).and_return(false)
+            render
+          end
+          it_should_have_input(:hangover, :remote_image_net_url, :type => :url)
+        end
       end
 
       context "error messages" do
@@ -52,7 +69,7 @@ describe "hangovers/new.html.haml" do
 
     it_should_have_input(
       :hangover, hidden_field, :type => :hidden,
-      :value => hidden_field, :required => false
+      :value => hidden_field, :required => false, :render => true
     )
 
   end

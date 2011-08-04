@@ -35,10 +35,10 @@ def it_should_submit_to(options = {})
   before do
     xpath_attributes = to_xpath_attributes(options)
     parent_selector << "form[#{xpath_attributes}]"
-    render
   end
 
   it "should post to #{options[:action]}" do
+    render
     rendered.should have_parent_selector
   end
 end
@@ -48,6 +48,7 @@ def it_should_have_input(resource_name, input, options = {})
   options[:id] ||= "#{resource_name}_#{input}"
   options[:name] ||= "#{resource_name}[#{input}]"
   options[:required] ||= "required" unless options[:required] == false
+  do_render = options.delete(:render)
 
   has_label = true unless options[:type].to_sym == :hidden
 
@@ -57,12 +58,14 @@ def it_should_have_input(resource_name, input, options = {})
   if has_label
     it "should have a label for '#{spec_translate(input)}'" do
       parent_selector << "label[@for='#{options[:id]}']"
+      render if do_render
       rendered.should have_parent_selector :text => spec_translate(input)
     end
   end
 
   it "should have an input for '#{input_text}'" do
     parent_selector << "input[#{xpath_attributes}]"
+    render if do_render
     rendered.should have_parent_selector
   end
 end
