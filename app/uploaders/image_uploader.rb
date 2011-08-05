@@ -29,7 +29,8 @@ class ImageUploader < CarrierWave::Uploader::Base
 
   def self.key(options = {})
     options[:store_dir] ||= store_dir(options[:model_class], options[:mounted_as])
-    key_path = "#{options[:store_dir]}/#{UUID.generate}/#{S3_FILENAME_WILDCARD}"
+    options[:filename] ||= S3_FILENAME_WILDCARD
+    key_path = "#{options[:store_dir]}/#{UUID.generate}/#{options[:filename]}"
     if options[:as] == :regexp
       key_parts = key_path.split("/")
       key_parts.pop
@@ -51,8 +52,8 @@ class ImageUploader < CarrierWave::Uploader::Base
     fog_uri
   end
 
-  def key
-    @key ||= self.class.key(:store_dir => store_dir)
+  def key(fname = nil)
+    @key ||= self.class.key(:store_dir => store_dir, :filename => fname)
   end
 
   def has_key?
@@ -105,7 +106,6 @@ class ImageUploader < CarrierWave::Uploader::Base
     ).gsub("\n","")
   end
 
-
   # Include RMagick or ImageScience support:
   include CarrierWave::RMagick
   # include CarrierWave::ImageScience
@@ -121,8 +121,9 @@ class ImageUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    if @key
-      key_path = @key.split("/")
+    if (remote_url = model.send("remote_#{mounted_as}_url")) || has_key?
+      key(File.basename(remote_url)) unless has_key?
+      key_path = key.split("/")
       filename_parts = []
       filename_parts.unshift(key_path.pop)
       filename_parts.unshift(key_path.pop)
@@ -147,10 +148,6 @@ class ImageUploader < CarrierWave::Uploader::Base
     process :resize_to_limit => [200, 200]
 
     def full_filename(for_file)
-      unless for_file
-        self.key = model.send("#{mounted_as}_url")
-        for_file = filename
-      end
       extname = File.extname(for_file)
       [for_file.chomp(extname), version_name].compact.join('_') << extname
     end
@@ -161,17 +158,5 @@ class ImageUploader < CarrierWave::Uploader::Base
   def extension_white_list
     self.class.allowed_file_types
   end
-
-  def default_url
-    "http://1.bp.blogspot.com/_ADom8ach2mM/TCDGVF8-yNI/AAAAAAAACfI/UswOeNAL4QQ/s1600/sober.jpg"
-    #"/images/fallback/" + [version_name, "default.png"].compact.join('_')
-  end
-
-  # Override the filename of the uploaded files:
-  # Avoid using model.id or version_name here, see uploader/store.rb for details.
-  # def filename
-  #   "something.jpg" if original_filename
-  # end
-
 end
 

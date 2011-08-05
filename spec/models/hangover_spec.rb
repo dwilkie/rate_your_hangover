@@ -53,6 +53,7 @@ describe Hangover do
     Factory.build(:hangover_without_image)
   }
 
+
   # Accessors
   it_should_have_accessor(:user_id => 1, :accessible => false)
   it_should_have_accessor(:title, :accessible => true)

@@ -63,6 +63,10 @@ describe "Given I want to create a new hangover" do
                 :owner => sample(:display_name)
               )
             end
+
+            it "should show my hangover's image" do
+              page.should have_selector :xpath, hangover_image_selector(:thumb, defined?(remote_url) ? remote_url : nil)
+            end
           end
         end
       end
@@ -74,7 +78,6 @@ describe "Given I want to create a new hangover" do
       context "after the hangover fails to create" do
         context narrative(:click_refresh) do
           before { click_link(spec_translate(:refresh)) }
-
           it_should_have_a_notification(:upload_failed, :allowed_types => "jpg, jpeg, gif or png")
         end
       end
@@ -235,7 +238,9 @@ describe "Given I want to create a new hangover" do
           context narrative(:create_hangover) do
             before { create_hangover }
 
-            it_should_behave_like "a successfully created hangover"
+            it_should_behave_like "a successfully created hangover" do
+              let(:remote_url) { sample(:remote_image_net_url) }
+            end
           end
         end
 
@@ -246,6 +251,7 @@ describe "Given I want to create a new hangover" do
               :with => sample(:invalid_remote_image_net_url)
             )
           end
+
 
           context narrative(:create_hangover) do
             before { create_hangover }

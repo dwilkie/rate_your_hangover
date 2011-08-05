@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'carrierwave/test/matchers'
 
-describe ImageUploader, :wip => true do
+describe ImageUploader do
   include CarrierWave::Test::Matchers
   include ModelHelpers
 
@@ -34,8 +34,8 @@ describe ImageUploader, :wip => true do
     end
 
     context ":as => :sentence" do
-      it "should return 'jpg, jpeg, gif, and png'" do
-        subject.class.allowed_file_types(:as => :sentence).should == "jpg, jpeg, gif, and png"
+      it "should return 'jpg, jpeg, gif or png'" do
+        subject.class.allowed_file_types(:as => :sentence).should == "jpg, jpeg, gif or png"
       end
     end
 
@@ -56,7 +56,16 @@ describe ImageUploader, :wip => true do
           options
         ).should =~ /^uploads\/night_out\/pic\/[\d\a-f\-]+\/\$\{filename\}$/
       end
+    end
 
+    context ":filename => 'some_file.jpg'" do
+      let(:options) { {:filename => 'some_file.jpg' } }
+
+      it "should end with 'some_file.jpg'" do
+        subject.class.key(
+          options
+        ).should =~ /some_file\.jpg$/
+      end
     end
 
     context ":model_class =>'NightOut', :mounted_as => :pic" do
@@ -203,13 +212,25 @@ describe ImageUploader, :wip => true do
 
   describe "#key" do
     context "where the key is not set" do
-      before { uploader_for_image.key = nil }
-
-      it "should return the result of .key :store_dir => store_dir" do
+      before do
+        uploader_for_image.key = nil
         uploader_for_image.stub(:store_dir).and_return("store_dir")
-        subject.class.stub(:key).with(:store_dir => "store_dir").and_return("maggot")
-        uploader_for_image.key.should == "maggot"
       end
+
+      context "passing no args" do
+        it "should return the result of .key :store_dir => store_dir, :filename => nil" do
+          subject.class.stub(:key).with(:store_dir => "store_dir", :filename => nil).and_return("maggot")
+          uploader_for_image.key.should == "maggot"
+        end
+      end
+
+      context "passing 'some_file.jpg'" do
+        it "should return the result of .key :store_dir => store_dir, :filename => 'some_file.jpg'" do
+          subject.class.stub(:key).with(:store_dir => "store_dir", :filename => "some_file.jpg").and_return("maggot")
+          uploader_for_image.key("some_file.jpg").should == "maggot"
+        end
+      end
+
     end
 
     context "where the key is set to '#{sample(:key)}'" do
@@ -223,24 +244,41 @@ describe ImageUploader, :wip => true do
   end
 
   describe "#filename" do
-    context "#key is set to '#{sample(:s3_key)}'" do
-      before { subject.key = sample(:s3_key) }
+    context "key is set to '#{sample(:s3_key)}'" do
+      before { uploader_for_image.key = sample(:s3_key) }
 
       filename = sample(:s3_key).split("/")
       filename.shift
       filename = filename.join("/")
 
       it "should return '#{filename}'" do
-        subject.filename.should == filename
+        uploader_for_image.filename.should == filename
       end
     end
 
-    context "#key is not set" do
+    context "key is not set" do
       it "should return nil" do
-        subject.filename.should be_nil
+        uploader_for_image.filename.should be_nil
+      end
+
+      context "but the model's remote url has been set" do
+
+        before do
+          uploader_for_image.model.stub(
+            "remote_#{uploader_for_image.mounted_as}_url"
+          ).and_return(sample(:file_url))
+        end
+
+        it "should set the key to contain the filename from the remote url" do
+          uploader_for_image.filename
+          uploader_for_image.key.should =~ /#{Regexp.escape(File.basename(sample(:file_url)))}$/
+        end
+
+        it "should return a filename based off the key and remote url" do
+          uploader_for_image.key.should =~ /#{Regexp.escape(uploader_for_image.filename)}$/
+        end
       end
     end
-
   end
 
   describe "#store_dir" do
@@ -383,14 +421,14 @@ describe ImageUploader, :wip => true do
 
   context "the attachment has been stored" do
     before do
-      uploader_for_image.model.stub("#{uploader_for_image.mounted_as}_url").and_return(sample(:file_url))
+      uploader_for_image.model.stub("remote_#{uploader_for_image.mounted_as}_url").and_return(sample(:file_url))
       uploader_for_image.store!(File.open(image_fixture_path))
     end
 
-    context "#url returns '#{sample(:file_url)}'" do
+    context "url returns '#{sample(:file_url)}'" do
       context "the thumb version's url" do
-        it "should be like '/image_dir/filename_thumb.jpg'" do
-          uploader_for_image.thumb.url.should =~ /\/image_dir\/filename_thumb.jpg$/
+        it "should be like '/filename_thumb.jpg'" do
+          uploader_for_image.thumb.url.should =~ /filename_thumb.jpg$/
         end
       end
     end

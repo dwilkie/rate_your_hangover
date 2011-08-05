@@ -1,4 +1,5 @@
 module AmazonS3Helpers
+
   def upload_to_s3(button_text, options = {})
     options[:success] = true unless options[:success] == false
     options[:success] &&= !options[:fail]
