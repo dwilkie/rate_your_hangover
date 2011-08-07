@@ -29,8 +29,9 @@ class ImageUploader < CarrierWave::Uploader::Base
 
   def self.key(options = {})
     options[:store_dir] ||= store_dir(options[:model_class], options[:mounted_as])
+    options[:guid] ||= UUID.generate
     options[:filename] ||= S3_FILENAME_WILDCARD
-    key_path = "#{options[:store_dir]}/#{UUID.generate}/#{options[:filename]}"
+    key_path = "#{options[:store_dir]}/#{options[:guid]}/#{options[:filename]}"
     if options[:as] == :regexp
       key_parts = key_path.split("/")
       key_parts.pop
@@ -121,26 +122,32 @@ class ImageUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    if (remote_url = model.send("remote_#{mounted_as}_url")) || has_key?
-      key(File.basename(remote_url)) unless has_key?
-      key_path = key.split("/")
-      filename_parts = []
-      filename_parts.unshift(key_path.pop)
-      filename_parts.unshift(key_path.pop)
-      File.join(filename_parts)
+    unless has_key?
+      # Use the attached models remote url to generate a new key otherwise raise an error
+      remote_url = model.send("remote_#{mounted_as}_url")
+      remote_url ? key(remote_url.split("/").pop) : raise(
+        ArgumentError,
+        "could not generate filename because the uploader has no key and the #{model.class} has no remote_#{mounted_as}_url"
+      )
     end
+
+
+    # Update the versions to use this key
+    # This is imperiative otherwise a new guid will be generated for each version
+    versions.each do |name, uploader|
+      uploader.key = key
+    end
+
+    key_path = key.split("/")
+    filename_parts = []
+    filename_parts.unshift(key_path.pop)
+    filename_parts.unshift(key_path.pop)
+    File.join(filename_parts)
   end
 
   # Provide a default URL as a default if there hasn't been a file uploaded:
   # def default_url
   #   "/images/fallback/" + [version_name, "default.png"].compact.join('_')
-  # end
-
-  # Process files as they are uploaded:
-  # process :scale => [200, 300]
-  #
-  # def scale(width, height)
-  #   # do something
   # end
 
   # Create different versions of your uploaded files:

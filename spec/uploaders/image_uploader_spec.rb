@@ -244,6 +244,19 @@ describe ImageUploader do
   end
 
   describe "#filename" do
+
+    shared_examples_for "updating the version uploader keys" do
+      context "where the version uploader keys" do
+        before { uploader_for_image.filename }
+
+        it "should == this uploader's key" do
+          uploader_for_image.versions.each do |name, version_uploader|
+            version_uploader.key.should == uploader_for_image.key
+          end
+        end
+      end
+    end
+
     context "key is set to '#{sample(:s3_key)}'" do
       before { uploader_for_image.key = sample(:s3_key) }
 
@@ -257,11 +270,7 @@ describe ImageUploader do
     end
 
     context "key is not set" do
-      it "should return nil" do
-        uploader_for_image.filename.should be_nil
-      end
-
-      context "but the model's remote url has been set" do
+      context "but the model's remote image url is: '#{sample(:file_url)}'" do
 
         before do
           uploader_for_image.model.stub(
@@ -269,13 +278,24 @@ describe ImageUploader do
           ).and_return(sample(:file_url))
         end
 
-        it "should set the key to contain the filename from the remote url" do
+        it "should set the key to contain '#{File.basename(sample(:file_url))}'" do
           uploader_for_image.filename
           uploader_for_image.key.should =~ /#{Regexp.escape(File.basename(sample(:file_url)))}$/
         end
 
         it "should return a filename based off the key and remote url" do
           uploader_for_image.key.should =~ /#{Regexp.escape(uploader_for_image.filename)}$/
+        end
+
+        it_should_behave_like "updating the version uploader keys"
+      end
+
+      context "and the model's remote image url is blank" do
+        it "should raise an error" do
+          expect{ uploader_for_image.filename }.to raise_error(
+            ArgumentError,
+            "could not generate filename because the uploader has no key and the #{uploader_for_image.model.class} has no remote_#{uploader_for_image.mounted_as}_url"
+          )
         end
       end
     end
