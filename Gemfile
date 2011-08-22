@@ -15,6 +15,7 @@ gem 'uglifier'
 gem 'jquery-rails'
 
 gem 'carrierwave'
+gem 'carrierwave_direct', :path => "/home/dave/work/plugins/carrierwave_direct"
 gem "rmagick"
 gem 'fog'
 gem 'haml-rails'

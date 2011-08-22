@@ -33,7 +33,7 @@ TRANSLATIONS = {
   :invalid_remote_url => Proc.new {
     I18n.t(
       "activerecord.errors.models.hangover.invalid",
-      :allowed_types => ImageUploader.allowed_file_types(:as => :sentence)
+      :allowed_types => ImageUploader.allowed_file_types.to_sentence
     )
   },
   :invalid_upload => Proc.new {

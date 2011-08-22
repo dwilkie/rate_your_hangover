@@ -4,13 +4,16 @@ class Hangover < ActiveRecord::Base
   class UniqueFilenameValidator < ActiveModel::EachValidator
     # implement the method called during validation
     def validate_each(record, attribute, value)
-      if record.class.where(options[:for] => record.send(options[:for]).filename).exists?
-        record.errors.add(attribute, :taken, options.except(:for).merge(:value => value))
+      if record.has_upload? || record.has_remote_image_net_url?
+        if record.class.where(options[:for] => record.send(options[:for]).filename).exists?
+          record.errors.add(attribute, :taken, options.except(:for).merge(:value => value))
+        end
       end
     end
   end
 
   attr_reader   :caption
+  attr_accessor :remote_image_net_url
 
   attr_accessible :title, :key, :remote_image_net_url
 
@@ -40,7 +43,7 @@ class Hangover < ActiveRecord::Base
   validates :remote_image_net_url,
             :format => {
               :with => /#{ImageUploader.allowed_file_types(:as => :regexp_string)}\z/,
-              :allowed_types => ImageUploader.allowed_file_types(:as => :sentence)
+              :allowed_types => ImageUploader.allowed_file_types.to_sentence
             },
             :allow_nil => true, :allow_blank => true
 
@@ -49,9 +52,7 @@ class Hangover < ActiveRecord::Base
                     :with => ImageUploader.key(
                       :model_class => self, :mounted_as => MOUNT_AS, :as => :regexp
                     ),
-                    :allowed_types => ImageUploader.allowed_file_types(
-                      :as => :sentence
-                    )
+                    :allowed_types => ImageUploader.allowed_file_types.to_sentence
                   }, :unless => :has_remote_image_net_url?, :on => :create
 
   def self.best
@@ -94,14 +95,6 @@ class Hangover < ActiveRecord::Base
 
   def key=(k)
     send(MOUNT_AS).key = k
-  end
-
-  def remote_image_net_url
-    send(MOUNT_AS).remote_net_url
-  end
-
-  def remote_image_net_url=(url)
-    send(MOUNT_AS).remote_net_url = url
   end
 
   def self.inventory(type = nil)
@@ -170,7 +163,7 @@ class Hangover < ActiveRecord::Base
             )
             message = I18n.t(
               "notifications.upload_failed.message",
-              :allowed_types => ImageUploader.allowed_file_types(:as => :sentence)
+              :allowed_types => ImageUploader.allowed_file_types.to_sentence
             )
             Notification.for_user!(user, :message => message, :subject => subject)
             raise unless error.is_a?(CarrierWave::ProcessingError)
@@ -199,16 +192,16 @@ class Hangover < ActiveRecord::Base
     end
   end
 
+  def has_remote_image_net_url?
+    remote_image_net_url.present?
+  end
+
   private
 
   def self.build_summary(summary_category)
     hangover = self.send(summary_category) || self.new
     hangover.build_caption(summary_category)
     @@hangovers << hangover
-  end
-
-  def has_remote_image_net_url?
-    remote_image_net_url.present?
   end
 
 end

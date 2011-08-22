@@ -41,10 +41,6 @@ describe Hangover do
     :invalid_url => "ftp://example.com/sample_image.jpg"
   }.freeze
 
-  def hangover_key(options = {})
-    sample_key(options.merge(:subject => subject.class))
-  end
-
   let(:hangover) {
     Factory(:hangover)
   }
@@ -53,12 +49,11 @@ describe Hangover do
     Factory.build(:hangover_without_image)
   }
 
-
   # Accessors
   it_should_have_accessor(:user_id => 1, :accessible => false)
   it_should_have_accessor(:title, :accessible => true)
+  it_should_have_accessor(:remote_image_net_url, :accessible => true)
   it_should_delegate(:key, :to => "image#key", :accessible => true)
-  it_should_delegate(:remote_image_net_url, :to => "image#remote_net_url", :accessible => true)
 
   # Validations
   it "Factory should be valid" do
@@ -143,7 +138,7 @@ describe Hangover do
   end
 
   context "with an invalid key" do
-    before { hangover.key = hangover_key(:valid => false) }
+    before { hangover.key = sample_key(:valid => false) }
 
     it "should not be valid on create" do
       hangover.should_not be_valid(:create)
@@ -368,7 +363,7 @@ describe Hangover do
       context "for a hangover" do
         context "with a key" do
           before do
-            subject.key = hangover_key
+            subject.key = sample_key
             ResqueSpec.reset!
             Timecop.freeze(Time.now)
           end
@@ -417,7 +412,7 @@ describe Hangover do
       end
 
       context "a hangover already exists with this key" do
-        let(:previously_uploaded_image_path) { hangover_key }
+        let(:previously_uploaded_image_path) { sample_key }
 
         before do
           Factory(:hangover, :key => previously_uploaded_image_path)
@@ -474,7 +469,7 @@ describe Hangover do
 
     context "has an upload" do
       context "with a valid key" do
-        before { subject.key = hangover_key }
+        before { subject.key = sample_key }
 
         it "should be true" do
           subject.upload_path_valid?.should be_true
@@ -484,7 +479,7 @@ describe Hangover do
       end
 
       context "with an invalid key" do
-        before { subject.key = hangover_key(:valid => false) }
+        before { subject.key = sample_key(:valid => false) }
 
         it "should be false" do
           subject.upload_path_valid?.should be_false
@@ -541,7 +536,7 @@ describe Hangover do
           end
 
           context "hangover has an upload" do
-            let(:key) { hangover_key }
+            let(:key) { sample_key }
 
             before do
               hangover_without_image.key = key
@@ -590,11 +585,11 @@ describe Hangover do
             # Failed to manipulate with rmagick, maybe it is not an image? Original Error: Not a JPEG file:
             # starts with 0x2f 0x2a '/public/uploads/tmp/20110725-1237-2729-9212/thumb_aggregator.jpg'
 
-            allowed_types = "exe or rb"
-            context "the notification's message (assuming allowed file types are #{allowed_types})" do
-              before { ImageUploader.stub(:allowed_file_types).with(:as => :sentence).and_return(allowed_types) }
+            allowed_types = %w{exe rb}
+            context "the notification's message (assuming allowed file types are #{allowed_types.to_sentence})" do
+              before { ImageUploader.stub(:allowed_file_types).and_return(allowed_types) }
 
-              notification_message = spec_translate(:upload_failed_message, :allowed_types => allowed_types)
+              notification_message = spec_translate(:upload_failed_message, :allowed_types => allowed_types.to_sentence)
               it "should be '#{notification_message}'" do
                 Notification.should_receive(new_notification).with(
                   anything, hash_including(:message => notification_message)

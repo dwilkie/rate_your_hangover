@@ -161,6 +161,7 @@ describe "Given I want to create a new hangover" do
           upload_to_s3 spec_translate(:next)
         end
 
+
         it "should redirect me to the image upload page" do
           current_path.should == new_hangover_image_path
         end
