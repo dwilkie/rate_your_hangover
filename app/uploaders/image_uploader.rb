@@ -2,13 +2,7 @@
 
 class ImageUploader < CarrierWave::Uploader::Base
   include CarrierWave::RMagick
-
   include CarrierWaveDirect::Uploader
-
-  include ActiveModel::Conversion
-  extend ActiveModel::Naming
-
-  storage :fog
 
   def self.extension_white_list
     %w(jpg jpeg gif png)
