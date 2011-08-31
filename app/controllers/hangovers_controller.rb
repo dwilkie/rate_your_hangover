@@ -12,7 +12,7 @@ class HangoversController < ApplicationController
   def new
     @hangover = Hangover.new(params)
     @hangover.delete_upload
-    unless @hangover.upload_path_valid?
+    unless @hangover.filename_valid?
       flash[:error] = @hangover.errors.full_messages.to_sentence
       redirect_to new_hangover_image_path
     end

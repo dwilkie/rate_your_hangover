@@ -2,7 +2,7 @@
 
 = simple_form_for @hangover do |f|
   = f.hidden_field :key
-  - unless @hangover.has_upload?
+  - unless @hangover.has_image_upload?
     = f.input  :remote_image_net_url, :required => true
   = f.input  :title
   = f.button :submit, t("hangover.create")

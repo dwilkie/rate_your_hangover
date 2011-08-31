@@ -32,17 +32,18 @@ TRANSLATIONS = {
   :upload_failed_message => "notifications.upload_failed.message",
   :invalid_remote_url => Proc.new {
     I18n.t(
-      "activerecord.errors.models.hangover.invalid",
-      :allowed_types => ImageUploader.allowed_file_types.to_sentence
+      "errors.messages.carrierwave_direct_filename_invalid",
+      :extension_white_list => UploaderHelpers.extension_white_list
     )
   },
   :invalid_upload => Proc.new {
-    Hangover.human_attribute_name(:key) << " " << spec_translate(:invalid_remote_url)
+    Hangover.human_attribute_name(:image) << " " << spec_translate(:invalid_remote_url)
   },
   :invalid_url => Proc.new {
     I18n.t(
-      "activerecord.errors.models.hangover.invalid",
-      :allowed_types => Hangover::ALLOWED_URL_SCHEMES.to_sentence
+      "errors.messages.carrierwave_direct_remote_net_url_invalid",
+      :extension_white_list => UploaderHelpers.extension_white_list,
+      :url_scheme_white_list => UploaderHelpers.url_scheme_white_list
     )
   },
   :remote_image_net_url => Proc.new { Hangover.human_attribute_name(:remote_image_net_url) }

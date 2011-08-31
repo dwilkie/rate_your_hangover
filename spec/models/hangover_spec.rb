@@ -52,8 +52,6 @@ describe Hangover do
   # Accessors
   it_should_have_accessor(:user_id => 1, :accessible => false)
   it_should_have_accessor(:title, :accessible => true)
-  it_should_have_accessor(:remote_image_net_url, :accessible => true)
-  it_should_delegate(:key, :to => "image#key", :accessible => true)
 
   # Validations
   it "Factory should be valid" do
@@ -74,95 +72,6 @@ describe Hangover do
     it "should not be valid" do
       hangover.should_not be_valid
     end
-  end
-
-  context "without an image" do
-    it "should not be valid" do
-      hangover_without_image.should_not be_valid
-    end
-  end
-
-  context "without a remote image net url" do
-    before { hangover.remote_image_net_url = nil }
-
-    context "and without a key" do
-      before { hangover.key = nil }
-
-      it "should not be valid on create" do
-        hangover.should_not be_valid(:create)
-      end
-
-      it "should be valid on update" do
-        hangover.should be_valid(:update)
-      end
-    end
-  end
-
-  context "without a key" do
-    before { hangover.key = nil }
-
-    context "but with a remote image net url" do
-       before { hangover.remote_image_net_url = sample(:image_url) }
-
-      it "should be valid" do
-        hangover.valid?
-        hangover.should be_valid(:create)
-      end
-    end
-  end
-
-  context "with a blank remote image url" do
-    before { hangover.remote_image_net_url = "" }
-
-    it "should be valid" do
-      hangover.should be_valid
-    end
-  end
-
-  context "with an invalid remote image net url" do
-    context "where the file extension is invalid" do
-      before { hangover.remote_image_net_url = sample(:invalid_image_url) }
-
-      it "should not be valid" do
-        hangover.should_not be_valid
-      end
-    end
-
-    context "where the url scheme is invalid" do
-      before { hangover.remote_image_net_url = sample(:invalid_url) }
-
-      it "should not be valid" do
-        hangover.should_not be_valid
-      end
-    end
-  end
-
-  context "with an invalid key" do
-    before { hangover.key = sample_key(:valid => false) }
-
-    it "should not be valid on create" do
-      hangover.should_not be_valid(:create)
-    end
-
-    it "should be valid on update" do
-      hangover.should be_valid(:update)
-    end
-  end
-
-  context "with a duplicate key" do
-    let(:hangover_with_duplicate_key) { Factory.build(:hangover, :key => hangover.key) }
-
-    it "should not be valid" do
-      hangover_with_duplicate_key.should_not be_valid
-    end
-
-#    # Don't ever catch this exception! It will cause the next test to fail!
-#    # Not exactly sure why but see http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html
-#    # It explains that you should never catch this exception within a transaction
-#    # Tests database uniqueness constraint
-#    it "should raise a database constraint exception on save" do
-#      expect { hangover_with_duplicate_key.save(:validate => false) }.to raise_error(/ConstraintException/)
-#    end
   end
 
   # Associations
@@ -429,73 +338,6 @@ describe Hangover do
     end
   end
 
-  describe "#has_upload?" do
-    context "image does not have a key" do
-      before { subject.image.stub(:has_key?).and_return(false) }
-
-      it "should return false" do
-        subject.should_not have_upload
-      end
-    end
-
-    context "has a key" do
-      before { subject.image.stub(:has_key?).and_return(true) }
-
-      it "should return true" do
-        subject.should have_upload
-      end
-    end
-  end
-
-  describe "#upload_path_valid?" do
-
-    shared_examples_for "having empty errors" do
-      before { subject.upload_path_valid? }
-
-      context "where after the call, #errors" do
-        it "should be empty" do
-          subject.errors.should be_empty
-        end
-      end
-    end
-
-    context "does not have an upload" do
-      it "should be true" do
-        subject.upload_path_valid?.should be_true
-      end
-
-      it_should_behave_like "having empty errors"
-    end
-
-    context "has an upload" do
-      context "with a valid key" do
-        before { subject.key = sample_key }
-
-        it "should be true" do
-          subject.upload_path_valid?.should be_true
-        end
-
-        it_should_behave_like "having empty errors"
-      end
-
-      context "with an invalid key" do
-        before { subject.key = sample_key(:valid => false) }
-
-        it "should be false" do
-          subject.upload_path_valid?.should be_false
-        end
-
-        context "after the call, #errors" do
-          before { subject.upload_path_valid? }
-
-          it "should only contain 'key' errors" do
-            subject.errors.count.should == subject.errors[:key].count
-          end
-        end
-      end
-    end
-  end
-
   describe "#save_and_process_image" do
     before { ResqueSpec.reset! }
 
@@ -585,11 +427,8 @@ describe Hangover do
             # Failed to manipulate with rmagick, maybe it is not an image? Original Error: Not a JPEG file:
             # starts with 0x2f 0x2a '/public/uploads/tmp/20110725-1237-2729-9212/thumb_aggregator.jpg'
 
-            allowed_types = %w{exe rb}
-            context "the notification's message (assuming allowed file types are #{allowed_types.to_sentence})" do
-              before { ImageUploader.stub(:allowed_file_types).and_return(allowed_types) }
-
-              notification_message = spec_translate(:upload_failed_message, :allowed_types => allowed_types.to_sentence)
+            context "the notification's message (assuming allowed file types are #{extension_white_list.to_sentence})" do
+              notification_message = spec_translate(:upload_failed_message, :allowed_file_types => extension_white_list.to_sentence)
               it "should be '#{notification_message}'" do
                 Notification.should_receive(new_notification).with(
                   anything, hash_including(:message => notification_message)

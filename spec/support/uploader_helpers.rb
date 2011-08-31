@@ -24,7 +24,16 @@ module UploaderHelpers
   end
 
   def sample_key(options = {})
-    super(ImageUploader, options.merge(:model_class => Hangover, :mounted_as => :image))
+    super(Hangover.new.image, options.merge(:model_class => Hangover, :mounted_as => :image))
   end
+
+  def extension_white_list
+    %w(jpg jpeg gif png)
+  end
+
+  def url_scheme_white_list
+    %w(http https)
+  end
+
 end
 

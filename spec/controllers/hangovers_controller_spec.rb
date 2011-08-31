@@ -109,7 +109,7 @@ describe HangoversController do
         end
 
         context "is invalid" do
-          before { hangover.stub(:upload_path_valid?).and_return(false) }
+          before { hangover.stub(:filename_valid?).and_return(false) }
 
           it "should redirect to the new hangover image action" do
             do_new

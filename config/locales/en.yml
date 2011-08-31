@@ -2,14 +2,6 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  activerecord:
-    attributes:
-      hangover:
-        key: "Uploaded file"
-    errors:
-      models:
-        hangover:
-          invalid: "is invalid. Must be: %{allowed_types}"
   hangover:
     sober: "Everybody's as sober as a bird :("
     latest: Latest Hangover
@@ -43,9 +35,8 @@ en:
   notifications:
     upload_failed:
       subject: Hangover upload failed
-      message: "An error occurred when processing your hangover. File must be: %{allowed_types}"
+      message: "An error occurred when processing your hangover. Allowed file types are: %{allowed_file_types}"
   support:
     array:
-      two_words_connector: " or "
-      last_word_connector: " or "
+      last_word_connector: " and "
 

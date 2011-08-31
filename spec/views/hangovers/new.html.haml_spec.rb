@@ -36,7 +36,7 @@ describe "hangovers/new.html.haml" do
 
         context "hangover has an upload" do
           before do
-            hangover.stub(:has_upload?).and_return(true)
+            hangover.stub(:has_image_upload?).and_return(true)
             render
           end
 
