@@ -5,5 +5,8 @@ CarrierWave.configure do |config|
     :aws_secret_access_key  => ENV['AWS_SECRET_ACCESS_KEY']
   }
   config.fog_directory  = ENV['AWS_FOG_DIRECTORY'] # bucket name
+
+  config.validate_is_uploaded = true
+  config.validate_is_attached = true
 end
 

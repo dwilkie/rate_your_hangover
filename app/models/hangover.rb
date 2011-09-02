@@ -15,12 +15,6 @@ class Hangover < ActiveRecord::Base
 
   validates :user, :title, :presence => true
 
-  validates MOUNT_AS, :is_attached => true,
-                      :is_uploaded => true,
-                      :unique_filename => true,
-                      :filename_format => true,
-                      :remote_net_url_format => true
-
   def self.best
     order("votes_count DESC").first
   end

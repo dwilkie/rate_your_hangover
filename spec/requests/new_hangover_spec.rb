@@ -165,6 +165,7 @@ describe "Given I want to create a new hangover" do
           current_path.should == new_hangover_image_path
         end
 
+
         it "should show me '#{spec_translate(:invalid_upload)}'" do
           page.should have_content spec_translate(:invalid_upload)
         end
@@ -220,7 +221,7 @@ describe "Given I want to create a new hangover" do
           end
 
           context "within" do
-            it_should_display_errors_for(:hangover, :remote_image_net_url, :invalid_url)
+            it_should_display_errors_for(:hangover, :remote_image_net_url, :invalid_remote_image_net_url)
           end
         end
       end
@@ -257,7 +258,7 @@ describe "Given I want to create a new hangover" do
             before { create_hangover }
 
             context "within" do
-              it_should_display_errors_for(:hangover, :remote_image_net_url, :invalid_remote_url)
+              it_should_display_errors_for(:hangover, :remote_image_net_url, :invalid_remote_image_net_url)
             end
           end
         end

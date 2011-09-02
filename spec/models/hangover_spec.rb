@@ -54,7 +54,7 @@ describe Hangover do
   it_should_have_accessor(:title, :accessible => true)
 
   # Validations
-  it "Factory should be valid" do
+  it "Factory should be valid", :wip => true do
     hangover.should be_valid
   end
 
@@ -390,7 +390,7 @@ describe Hangover do
             end
           end
 
-          context "hangover has has a remote image net url" do
+          context "hangover has a remote image net url" do
             before do
               hangover_without_image.remote_image_net_url = sample(:image_url)
             end
