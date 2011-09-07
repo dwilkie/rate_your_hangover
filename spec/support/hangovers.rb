@@ -71,8 +71,15 @@ def summary_categories
 end
 
 def image_fixture_path(options = {})
-  file_name = options[:invalid] ? "rails.invalid" : "rails.png"
-  File.join(fixture_path, 'images', file_name)
+  invalid = options[:invalid].to_s
+  if invalid == "file"
+    filename = "invalid_rails.gif"
+  elsif invalid == "filename"
+    filename = "rails.invalid"
+  else
+    filename = "rails.png"
+  end
+  File.join(fixture_path, 'images', filename)
 end
 
 module HangoverExampleHelpers

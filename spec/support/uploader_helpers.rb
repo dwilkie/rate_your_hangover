@@ -10,9 +10,9 @@ module UploaderHelpers
     fog_url = ImageUploader.new.direct_fog_url
 
     # pop the filename off so we are left with the invalid upload dir
-    filename = key_parts.pop
+    key_parts.pop
 
-    remote_url ||= filename
+    remote_url ||= image_fixture_path
     original_filename = File.basename(remote_url)
 
     upload_dir = key_parts.join("/")
@@ -24,7 +24,7 @@ module UploaderHelpers
   end
 
   def sample_key(options = {})
-    super(Hangover.new.image, options.merge(:model_class => Hangover, :mounted_as => :image))
+    super(Hangover.new.image, options)
   end
 
   def extension_white_list

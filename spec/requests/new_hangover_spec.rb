@@ -112,8 +112,8 @@ describe "Given I want to create a new hangover" do
       context "and I select a valid file then press '#{spec_translate(:next)}'" do
 
         before do
-          attach_file(spec_translate(:image), image_fixture_path)
-          upload_to_s3 spec_translate(:next), :process_image => true
+          attach_file_for_direct_upload(image_fixture_path)
+          upload_directly spec_translate(:next), :process_image => true
         end
 
         # This test is here for a placeholder only. It does not actually check that
@@ -145,7 +145,7 @@ describe "Given I want to create a new hangover" do
       end
 
       context "and I press '#{spec_translate(:next)}' without selecting a file" do
-        before { upload_to_s3 spec_translate(:next), :fail => true }
+        before { upload_directly spec_translate(:next), :fail => true }
 
         # This test is here for a placeholder only. It does not actually check that
         # Amazon returns an error page
@@ -155,16 +155,16 @@ describe "Given I want to create a new hangover" do
         end
       end
 
+
       context "and I upload a file with an invalid extension" do
         before do
-          attach_file(spec_translate(:image), image_fixture_path(:invalid => true))
-          upload_to_s3 spec_translate(:next)
+          attach_file_for_direct_upload(image_fixture_path(:invalid => :filename))
+          upload_directly spec_translate(:next)
         end
 
         it "should redirect me to the image upload page" do
           current_path.should == new_hangover_image_path
         end
-
 
         it "should show me '#{spec_translate(:invalid_upload)}'" do
           page.should have_content spec_translate(:invalid_upload)
@@ -173,8 +173,8 @@ describe "Given I want to create a new hangover" do
 
       context "and I upload an invalid file" do
         before do
-          attach_file(spec_translate(:image), image_fixture_path(:invalid => true))
-          upload_to_s3 spec_translate(:next), :process_image => true
+          attach_file_for_direct_upload(image_fixture_path(:invalid => :file))
+          upload_directly spec_translate(:next), :process_image => true
         end
 
         # Placeholder test
@@ -264,7 +264,7 @@ describe "Given I want to create a new hangover" do
         end
 
         context "an invalid file which has a valid url and file extension" do
-          before { fake_the_download(:invalid => true) }
+          before { fake_the_download(:invalid => :file) }
 
           context narrative(:create_hangover) do
             before { create_hangover }
